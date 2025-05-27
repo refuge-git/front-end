@@ -1,0 +1,32 @@
+.carrossel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.carrossel img {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 8px;
+}
+
+/* As bolinhas (indicadores) */
+.pontos {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.pontos span {
+  width: 12px;
+  height: 12px;
+  background-color: #ccc;
+  border-radius: 50%;
+  display: inline-block;
+  transition: background-color 0.3s;
+}
+
+.pontos span.ativo {
+  background-color: #ffffff;
+}
