@@ -1,4 +1,4 @@
-/*#root {
+#root {
   width: 100vw;
   height: 100vh;
   margin: 0;
@@ -61,8 +61,8 @@
   margin-bottom: 2rem;
   padding: 0.75rem;
   font-size: 14px;
-  border: 1px solid #000000;
-  border-radius: 2px;
+  border: 2px solid  #969696;
+  border-radius: 5px;
   width: 500px;
   box-sizing: border-box;
   background-color: #ffffff;
@@ -115,6 +115,31 @@
 
 .criar-conta:hover {
   color: #51100F;
+}
+
+
+.linha-2,
+.linha-4 {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.campo {
+    display: flex;
+    width: 15rem;
+    flex-direction: column;
+    flex: 1;
+}
+
+.campo input {
+    display: flex;
+    max-width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 2px solid #969696;
 }
 
 /* @keyframes logo-spin {

@@ -2,7 +2,6 @@ import Botao from "../components/Botao";
 import Carrossel from "../components/Carrossel";
 import logo from '../assets/logo-vinho.png'
 import { Link } from "react-router-dom";
-import '../css/login.css';
 
 export default function Login(){
     return (

@@ -2,7 +2,6 @@ import Botao from "../components/Botao";
 import Carrossel from "../components/Carrossel";
 import logo from '../assets/logo-vinho.png'
 import { Link } from "react-router-dom";
-import '../css/cadastro.css';
 
 
 export default function Cadastro() {
@@ -10,14 +9,14 @@ export default function Cadastro() {
 
     <div className="container">
 
-      <div className="left-side">
+      <div className="right-side">
         <Carrossel />
       </div>
 
-      <div className="right-side">
+      <div className="left-side">
 
         <form className="login-form">
-          <h2>Cadastre-se</h2>
+          <h2>CADASTRE-SE</h2>
 
           <label htmlFor="nome"> Nome Completo: </label>
           <input type="text" id="nome" name="nome" required />
@@ -58,8 +57,6 @@ export default function Cadastro() {
             {/* <a href="./Cadastro.jsx" className="criar-conta">CRIAR CONTA</a> */}
           </div>
         </form>
-
-
       </div>
 
     </div>
