@@ -15,6 +15,10 @@ export default function Cadastro() {
 
       <div className="left-side">
 
+        <div className="logo-container_2">
+          <img src={logo} alt="Logo Achiropita" className="logo" />
+        </div>
+
         <form className="login-form">
           <h2>CADASTRE-SE</h2>
 

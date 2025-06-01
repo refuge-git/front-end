@@ -75,6 +75,13 @@
   left: 4rem;
 }
 
+.logo-container_2 {
+  display: flex;
+  position: absolute;
+  top: 2rem;
+  left: 62rem;
+}
+
 .logo {
   height: 70px;
   object-fit: contain;
