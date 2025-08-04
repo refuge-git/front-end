@@ -1,0 +1,183 @@
+/* Container geral */
+.container-prontuario {
+  display: flex;
+  height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #fafafa;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background-color: #f0f0f0;
+  padding: 20px;
+  border-right: 1px solid #ccc;
+}
+
+.voltar-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #444;
+  cursor: pointer;
+}
+
+.menu-lateral {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.menu-item {
+  padding: 12px;
+  border: 1px solid #333;
+  background-color: #ffffff;
+  color: #333;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.menu-item:hover {
+  background-color: #e0e0e0;
+}
+
+.menu-item.ativo {
+  background-color: #000;
+  color: #fff;
+}
+
+/* Conteúdo */
+.conteudo {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.box-dados {
+  background: #fff;
+  padding: 30px;
+  width: 100%;
+  max-width: 800px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+  margin-bottom: 30px;
+  border-radius: 8px;
+}
+
+.box-dados h2 {
+  margin-bottom: 20px;
+}
+
+.dado-item {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+/* Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #ccc;
+  border-radius: 34px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: .4s;
+}
+
+.slider:before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #007bff;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+/* Ações */
+.acoes {
+  display: flex;
+  width: 100%;
+  max-width: 800px;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.botao-atividade {
+  background-color: #1a1a1a;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.botao-atividade:hover {
+  background-color: #333;
+}
+
+.botao-atividade:focus {
+  outline: 2px solid #007bff;
+}
+
+/* Botão vermelho de salvar */
+button[type="submit"] {
+  background-color: #8b0000;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  width: 100%;
+  max-width: 500px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button[type="submit"]:hover {
+  background-color: #a30000;
+}
+
+label {
+  color: black;
+}
+
+h2{
+  color: #000;
+}
