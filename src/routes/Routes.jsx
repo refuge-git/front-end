@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import  Cadastro  from '../pages/Cadastro';
 import  Login  from '../pages/Login'; // Ou LoginPage, se esse for o nome
 import  RegistroAtividade  from '../pages/Registro-atividade';
+import RegistroEndereco from '../pages/Registro-endereco';
 
 export default function AppRoutes() {
     return (
@@ -9,6 +10,7 @@ export default function AppRoutes() {
             <Route path="/" element={<Login />} />
             <Route path="/cadastro" element={<Cadastro />} />
             <Route path="/registro-atividade" element={<RegistroAtividade />} />
+            <Route path="/registro-endereco" element={<RegistroEndereco />} />
         </Routes>
     );
 }
