@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import  Cadastro  from '../pages/Cadastro';
 import  Login  from '../pages/Login'; // Ou LoginPage, se esse for o nome
 import  RegistroAtividade  from '../pages/Registro-atividade';
+import  RegistroNovaAtividade  from '../pages/Registro-nova-atividade';
 import RegistroEndereco from '../pages/Registro-endereco';
 
 export default function AppRoutes() {
