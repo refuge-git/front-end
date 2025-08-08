@@ -1,0 +1,142 @@
+/* Fundo escuro geral */
+.rna-bg {
+  background: #222;
+  min-height: 100vh;
+  padding: 0;
+}
+
+/* Container principal */
+.rna-container {
+  background: #800000;
+  min-height: 95vh;
+  margin: 28px;
+  border-radius: 10px;
+  display: flex;
+}
+
+/* Sidebar */
+.rna-sidebar {
+  background: #fff;
+  width: 270px;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  padding-top: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 2px 0 8px #0001;
+}
+
+.rna-sidebar-btn {
+  background: #800000;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  width: 180px;
+  height: 40px;
+  margin-bottom: 20px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.rna-sidebar-item {
+  width: 180px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rna-icon-margin {
+  margin-right: 8px;
+}
+
+.rna-sidebar-flex {
+  flex: 1;
+}
+
+.rna-sidebar-voltar {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.rna-voltar-icon {
+  font-size: 32px;
+}
+
+.rna-voltar-text {
+  font-weight: bold;
+  font-size: 18px;
+  margin-top: 4px;
+}
+
+/* Main Content */
+.rna-main {
+  flex: 1;
+  padding: 48px 48px 0 48px;
+}
+
+.rna-title {
+  font-size: 32px;
+  font-weight: 500;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+}
+
+.rna-title-arrow {
+  font-size: 32px;
+  margin-right: 16px;
+}
+
+.rna-form-group {
+  margin-bottom: 32px;
+}
+
+.rna-label {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.rna-input {
+  width: 100%;
+  height: 44px;
+  font-size: 18px;
+  margin-top: 8px;
+  border-radius: 4px;
+  border: 1px solid #aaa;
+  padding: 0 12px;
+  background: #fff;
+}
+
+.rna-textarea {
+  width: 100%;
+  height: 80px;
+  font-size: 18px;
+  margin-top: 8px;
+  border-radius: 4px;
+  border: 1px solid #aaa;
+  padding: 8px 12px;
+  background: #fff;
+  resize: none;
+}
+
+.rna-salvar-btn {
+  width: 80%;
+  background: #800000;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  height: 48px;
+  display: block;
+  margin: 0 auto;
+  cursor: pointer;
+}
