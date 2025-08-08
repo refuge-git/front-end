@@ -10,6 +10,7 @@ export default function AppRoutes() {
             <Route path="/" element={<Login />} />
             <Route path="/cadastro" element={<Cadastro />} />
             <Route path="/registro-atividade" element={<RegistroAtividade />} />
+            <Route path="/registro-nova-atividade" element={<RegistroNovaAtividade />} />
             <Route path="/registro-endereco" element={<RegistroEndereco />} />
         </Routes>
     );
