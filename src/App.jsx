@@ -1,4 +1,3 @@
-import './css/App.css';
 import AppRoutes from './routes/Routes.jsx';
 
 export default function App() {

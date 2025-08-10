@@ -145,8 +145,7 @@
     padding: 10px;
     margin-top: 5px;
     font-size: 16px;
-    border-radius: 5px;
-    border: 2px solid #969696;
+    border: 5px solid #000 important;
 }
 
 /* @keyframes logo-spin {

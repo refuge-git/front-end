@@ -2,6 +2,7 @@ import Botao from "../components/Botao";
 import Carrossel from "../components/Carrossel";
 import logo from '../assets/logo-vinho.png'
 import { Link } from "react-router-dom";
+import '../css/App.css';
 
 
 export default function Cadastro() {
@@ -52,7 +53,7 @@ export default function Cadastro() {
             </div>
           </div>
 
-          <Botao type="submit">Cadastrar</Botao>
+          <Botao variant="cadastro" type="submit">Cadastrar</Botao>
 
           <div className="links">
             <p className="senha">

@@ -157,7 +157,7 @@ input:checked + .slider:before {
 }
 
 /* Botão vermelho de salvar */
-button[type="submit"] {
+/* button[type="submit"] {
   background-color: #8b0000;
   color: white;
   padding: 12px 24px;
@@ -172,7 +172,7 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
   background-color: #a30000;
-}
+} */
 
 label {
   color: black;
