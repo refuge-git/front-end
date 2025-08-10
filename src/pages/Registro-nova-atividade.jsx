@@ -1,92 +1,73 @@
+import React, { useState } from 'react';
+import '../css/registroforms.css';
+import Botao from "../components/Botao";
+// import IconLoc from '../assets/icon-loc.png';
+// import IconLocHover from '../assets/icon-loc-branco.png';
+// import IconList from '../assets/icon-list-branco.png';
+// import IconSaude from '../assets/cond-saude.png';
+// import IconSaudeHover from '../assets/cond-saude-branco.png';
+// import Perfil from '../assets/avatar-perfil.png';
+// import Voltar from '../assets/icon-voltar.png';
+// import VoltarHover from '../assets/icon-voltar-hover.png';
+import Input from "../components/Input";
+import Menu from '../components/Menu';
 
-import React, { useState } from "react";
-import "../css/Registro-nova-atividade.css";
 
-const RegistroNovaAtividade = () => {
-  const [nomeAtividade, setNomeAtividade] = useState("");
-  const [descricao, setDescricao] = useState("");
+const RegistrationForm = () => {
+  const [form, setForm] = useState({
+    registro: '',
+    nomeAtividade: '',
+    sisa: '',
+    nomeMae: '',
+    nascimento: '',
+    cpf: '',
+    genero: '',
+    raca: '',
+    egresso: '',
+    estrangeiro: '',
+    sexo: '',
+    sexualidade: '',
+    nomeSocial: '',
+    localDormir: '',
+    status: '',
+    observacao: '',
+  });
 
-  const handleSalvar = (e) => {
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    // Aqui você pode adicionar a lógica para salvar os dados
-    alert("Atividade salva!");
+    alert('Cadastro realizado!');
   };
 
   return (
-    <div className="rna-bg">
-      <div className="rna-container">
-        {/* Sidebar */}
-        <div className="rna-sidebar">
-          <button className="rna-sidebar-btn">
-            <span>
-              <i className="fa fa-list rna-icon-margin" />
-              Prontuário
-            </span>
-            <span>&gt;</span>
-          </button>
-          <div className="rna-sidebar-item">
-            <span>
-              <i className="fa fa-address-card rna-icon-margin" />
-              Endereço
-            </span>
-            <span>&gt;</span>
-          </div>
-          <div className="rna-sidebar-item">
-            <span>
-              <i className="fa fa-stethoscope rna-icon-margin" />
-              Condição de Saúde
-            </span>
-            <span>&gt;</span>
-          </div>
-          <div className="rna-sidebar-flex" />
-          <div className="rna-sidebar-voltar">
-            <i className="fa fa-arrow-left rna-voltar-icon" />
-            <div className="rna-voltar-text">Voltar</div>
-          </div>
-        </div>
-        {/* Main Content */}
-        <div className="rna-main">
-          <div className="rna-title">
-            <span className="rna-title-arrow">&larr;</span>
-            Cadastre uma nova atividade
-          </div>
-          <form onSubmit={handleSalvar}>
-            <div className="rna-form-group">
-              <label className="rna-label">
-                Nome da Atividade:
-              </label>
-              <input
-                type="text"
-                value={nomeAtividade}
-                onChange={(e) => setNomeAtividade(e.target.value)}
-                className="rna-input"
-                placeholder="--------------"
-                required
-              />
+    <div className="wrapper">
+      <div className="container-pront">
+        <Menu />
+        <form className="form" onSubmit={handleSubmit}>
+          <div className="card-atv">
+            <h2 className="form-title">Cadastrar nova Atividade</h2>
+            <div className="mainFields">
+              <div className="row-atv">
+                <Input name="nomeAtividade" placeholder="Nome de Atividade" value={form.nomeAtividade} onChange={handleChange} />
+              </div>
             </div>
-            <div className="rna-form-group">
-              <label className="rna-label">
-                Descrição:
-              </label>
-              <textarea
-                value={descricao}
-                onChange={(e) => setDescricao(e.target.value)}
-                className="rna-textarea"
-                placeholder="-------------------------------"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="rna-salvar-btn"
-            >
-              Salvar
-            </button>
-          </form>
-        </div>
+            <textarea
+              name="observacao"
+              placeholder="Observação"
+              value={form.observacao}
+              onChange={handleChange}
+              rows={3}
+              style={{ width: '100%' }}
+            />
+          </div>
+          <Botao variant="registro">Salvar</Botao>
+        </form>
       </div>
     </div>
   );
 };
 
-export default RegistroNovaAtividade;
+export default RegistrationForm;
