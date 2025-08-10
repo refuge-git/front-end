@@ -1,0 +1,131 @@
+.dashboards-root {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin: 32px auto;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.dashboards-indicadores {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 32px 24px;
+  flex-wrap: wrap;
+}
+
+.dashboard-indicador {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.dashboard-indicador-icon {
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-indicador-bg-green {
+  background: #eafbe7;
+}
+
+.dashboard-indicador-bg-red {
+  background: #fdeaea;
+}
+
+.dashboard-indicador-emoji {
+  font-size: 48px;
+}
+
+.dashboard-indicador-label {
+  font-size: 16px;
+  color: #888;
+}
+
+.dashboard-indicador-value {
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.dashboard-indicador-up {
+  color: #4bb543;
+  font-size: 16px;
+  margin-top: 4px;
+}
+
+.dashboard-indicador-down {
+  color: #d32f2f;
+  font-size: 16px;
+  margin-top: 4px;
+}
+
+.dashboard-indicador-activity {
+  font-size: 28px;
+}
+
+.dashboard-grafico {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 32px 24px;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.dashboard-grafico-title {
+  font-size: 32px;
+  margin-bottom: 24px;
+}
+
+.dashboard-grafico-bar {
+  margin-top: 0;
+}
+
+.dashboard-legenda {
+  position: absolute;
+  top: 32px;
+  right: 32px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 12px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 18px;
+}
+
+.dashboard-legenda-dot {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  vertical-align: middle;
+  border-radius: 4px;
+}
+
+.dashboard-legenda-banho {
+  background: #800000;
+}
+
+.dashboard-legenda-refeicao {
+  background: #111;
+}
+
+.dashboard-legenda-outros {
+  background: #ffffe0;
+  border: 1px solid #eee;
+}

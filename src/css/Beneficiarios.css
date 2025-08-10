@@ -1,0 +1,76 @@
+.beneficiarios-container {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+  min-width: 260px;
+  margin-bottom: 24px;
+  flex: 1 1 320px;
+}
+
+.beneficiarios-title {
+  margin-bottom: 16px;
+}
+
+.beneficiarios-btn {
+  width: 100%;
+  background: #800000;
+  color: #fff;
+  font-size: 20px;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 0;
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+
+.beneficiarios-search {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px #0002;
+  margin-bottom: 24px;
+  padding: 0 12px;
+}
+
+.beneficiarios-search-icon {
+  font-size: 22px;
+  margin-right: 8px;
+}
+
+.beneficiarios-input {
+  border: none;
+  outline: none;
+  font-size: 16px;
+  padding: 10px 0;
+  width: 100%;
+  background: transparent;
+}
+
+.beneficiarios-card {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.beneficiarios-card-icon {
+  font-size: 28px;
+  margin-right: 12px;
+}
+
+.beneficiarios-card-name {
+  font-size: 18px;
+}
+
+.beneficiarios-empty {
+  color: #888;
+  text-align: center;
+  margin-top: 32px;
+}

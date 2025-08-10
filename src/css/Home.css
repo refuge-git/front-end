@@ -1,0 +1,37 @@
+.home-root {
+  min-height: 100vh;
+  background: #fafafd;
+  font-family: sans-serif;
+  overflow-y: auto;
+}
+
+.home-header {
+  background: #800000;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+}
+
+.home-header-icon {
+  background: #fff;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 28px;
+}
+
+.home-header-user {
+  background: #fff;
+  border-radius: 50%;
+  padding: 8px;
+  font-size: 28px;
+}
+
+.home-main {
+  display: flex;
+  gap: 32px;
+  margin-top: 48px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
