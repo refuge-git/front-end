@@ -1,10 +1,30 @@
 import Botao from "../components/Botao";
 import Carrossel from "../components/Carrossel";
 import logo from '../assets/logo-vinho.png'
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import '../css/App.css';
+import axios from 'axios';
+import { useState } from 'react';
 
 export default function Login() {
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('http://localhost:8080/funcionarios/login', {
+        email,
+        senha
+      });
+      localStorage.setItem('token', response.data.token);
+      alert('Login realizado com sucesso!');
+      navigate('/');
+    } catch (error) {
+      alert('Usuário ou senha inválidos!');
+    }
+  };
   return (
     <div className="container">
       <div className="left-side">
@@ -13,14 +33,14 @@ export default function Login() {
           <img src={logo} alt="Logo Achiropita" className="logo" />
         </div>
 
-        <form className="login-form">
+        <form className="login-form" onSubmit={handleSubmit}>
           <h2>ENTRAR</h2>
 
           <label htmlFor="email"> Seu email:</label>
-          <input type="email" id="email" name="email" required />
+          <input type="email" id="email" name="email" required value={email} onChange={e => setEmail(e.target.value)} />
 
           <label htmlFor="password"> Sua senha:</label>
-          <input type="password" id="password" name="password" required />
+          <input type="password" id="password" name="password" required value={senha} onChange={e => setSenha(e.target.value)} />
 
           {/* <Botao type="submit">Entrar</Botao> */}
           <Botao variant="cadastro" type="submit">Entrar</Botao>
