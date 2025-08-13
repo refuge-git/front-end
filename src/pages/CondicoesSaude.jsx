@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../css/App.css';
-import '../css/CondicoesSaude.css';
+// import '../css/CondicoesSaude.css';
 import SidebarCondicoes from '../components/SidebarCondicoes';
 import ListaCondicoesSaude from '../components/ListaCondicoesSaude';
 import CondicaoSaudeForm from '../components/CondicaoSaudeForm';
@@ -43,7 +43,6 @@ export default function CondicoesSaude() {
   };
 
   const handleMaisDetalhes = (condicaoId) => {
-    // Aqui você pode implementar a lógica para mostrar mais detalhes
     console.log('Mostrar detalhes da condição:', condicaoId);
   };
 
@@ -56,7 +55,6 @@ export default function CondicoesSaude() {
   };
 
   const handleSalvarCondicao = (condicaoData) => {
-    // Adicionar nova condição à lista
     const agora = new Date().toISOString();
     const novaCondicao = {
       id: condicoesSaude.length + 1,
@@ -64,10 +62,10 @@ export default function CondicoesSaude() {
       criadoEm: agora,
       atualizadoEm: agora
     };
-    
+
     setCondicoesSaude([...condicoesSaude, novaCondicao]);
     setShowForm(false); // Voltar para a lista após salvar
-    
+
     console.log('Condição salva:', novaCondicao);
   };
 
@@ -92,12 +90,12 @@ export default function CondicoesSaude() {
           <div>
             <h2>Condição de Saúde <span className="opcional">(Opcional)</span></h2>
             {showForm ? (
-              <CondicaoSaudeForm 
+              <CondicaoSaudeForm
                 onSalvar={handleSalvarCondicao}
                 onVoltar={handleVoltarLista}
               />
             ) : (
-              <ListaCondicoesSaude 
+              <ListaCondicoesSaude
                 condicoes={condicoesSaude}
                 onMaisDetalhes={handleMaisDetalhes}
                 onAdicionarNova={handleAdicionarNova}
@@ -120,9 +118,15 @@ export default function CondicoesSaude() {
         <button className="close-button" onClick={handleClose}>
           ✕
         </button>
-        <SidebarCondicoes 
-          activeSection={activeSection} 
-          onSectionChange={setActiveSection} 
+        <SidebarCondicoes
+          activeSection={activeSection}
+          onSectionChange={(sectionId) => {
+            if (sectionId === 'prontuario') {
+              navigate('/registro-cadastro');
+            } else {
+              setActiveSection(sectionId);
+            }
+          }}
         />
         <div className="condicoes-content">
           {renderContent()}

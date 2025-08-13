@@ -1,37 +1,19 @@
 import React, { useState } from 'react';
-import '../css/registroforms.css';
-import Botao from "../components/Botao";
-// import IconLoc from '../assets/icon-loc.png';
-// import IconLocHover from '../assets/icon-loc-branco.png';
-// import IconList from '../assets/icon-list-branco.png';
-// import IconSaude from '../assets/cond-saude.png';
-// import IconSaudeHover from '../assets/cond-saude-branco.png';
-// import Perfil from '../assets/avatar-perfil.png';
-// import Voltar from '../assets/icon-voltar.png';
-// import VoltarHover from '../assets/icon-voltar-hover.png';
+import { useNavigate } from 'react-router-dom';
+import '../css/App.css';
+import Perfil from '../assets/avatar.png';
 import Input from "../components/Input";
-import Menu from '../components/Menu';
+import Botao from "../components/Botao";
+import SidebarCondicoes from '../components/SidebarCondicoes';
 
-
-const RegistrationForm = () => {
+export default function RegistrationForm() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
-    registro: '',
-    nomeAtividade: '',
-    sisa: '',
-    nomeMae: '',
-    nascimento: '',
-    cpf: '',
-    genero: '',
-    raca: '',
-    egresso: '',
-    estrangeiro: '',
-    sexo: '',
-    sexualidade: '',
-    nomeSocial: '',
-    localDormir: '',
-    status: '',
+    nomeAtv: '',
     observacao: '',
   });
+
+  const [nomeSocialAtivo, setNomeSocialAtivo] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -42,32 +24,50 @@ const RegistrationForm = () => {
     alert('Cadastro realizado!');
   };
 
+  const handleClose = () => {
+    navigate('/');
+  };
+
+  const [activeSection, setActiveSection] = useState('prontuario');
+
   return (
-    <div className="wrapper">
-      <div className="container-pront">
-        <Menu />
-        <form className="form" onSubmit={handleSubmit}>
-          <div className="card-atv">
-            <h2 className="form-title">Cadastrar nova Atividade</h2>
-            <div className="mainFields">
-              <div className="row-atv">
-                <Input name="nomeAtividade" placeholder="Nome de Atividade" value={form.nomeAtividade} onChange={handleChange} />
+    <div className="condicoes-saude-container">
+      <div className="condicoes-saude-box">
+        <button className="close-button" onClick={handleClose}>✕</button>
+        <SidebarCondicoes
+          activeSection={activeSection}
+          onSectionChange={(sectionId) => {
+            if (sectionId === 'condicao-saude') {
+              navigate('/condicoes-saude');
+            } else {
+              setActiveSection(sectionId);
+            }
+          }} />
+        <div className="condicoes-content">
+          <h2>Cadastrar nova Atividade</h2>
+          <form className="form" onSubmit={handleSubmit}>
+            <div className="form-row-atv">
+              <div className="form-group-atv">
+                <label>Nome de Atividade</label>
+                <Input name="Atividade" placeholder="Nome da Atividade" value={form.nomeAtv} onChange={handleChange} />
               </div>
             </div>
-            <textarea
-              name="observacao"
-              placeholder="Observação"
-              value={form.observacao}
-              onChange={handleChange}
-              rows={3}
-              style={{ width: '100%' }}
-            />
-          </div>
-          <Botao variant="registro">Salvar</Botao>
-        </form>
+            <div className="form-group full-width">
+              <label>Observação</label> <br />
+              <textarea
+                name="observacao"
+                placeholder="Observação"
+                value={form.observacao}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="form-buttons">
+              <button type="submit" className="btn-salvar">Salvar</button>
+              <button type="button" className="btn-pular" onClick={handleClose}>Cancelar</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
-};
-
-export default RegistrationForm;
+}
