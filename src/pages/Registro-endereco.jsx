@@ -1,60 +1,118 @@
-import React from 'react';
-import '../css/Registro-endereco.css';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../css/App.css';
+import Perfil from '../assets/avatar.png';
+import Input from "../components/Input";
+import Botao from "../components/Botao";
+import SidebarCondicoes from '../components/SidebarCondicoes';
 
-function RegistroEndereco() {
+export default function RegistrationForm() {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    Logradouro: '',
+    numero: '',
+    complemento: '',
+    bairro: '',
+    cidade: '',
+    genero: '',
+    raca: '',
+    egresso: '',
+    estrangeiro: '',
+    sexo: '',
+    sexualidade: '',
+    nomeSocial: '',
+    localDormir: '',
+    status: '',
+    observacao: '',
+  });
+
+  const [nomeSocialAtivo, setNomeSocialAtivo] = useState(false);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    alert('Cadastro realizado!');
+  };
+
+  const handleClose = () => {
+    navigate('/condicoes-saude');
+  };
+
+  const [activeSection, setActiveSection] = useState('endereco');
+
   return (
-    <div className="container-endereco">
-      <aside className="sidebar">
-        <button className="voltar-btn">&#8592;</button>
-        <nav className="menu-lateral">
-          <button className="menu-item">Prontuario</button>
-          <button className="menu-item ativo">Endereço</button>
-          <button className="menu-item">Condição de Saúde</button>
-          <button className="menu-item">Relatório Geral</button>
-        </nav>
-      </aside>
-      <main className="conteudo-endereco">
-        <form className="box-endereco">
-          <h2>Editar dados</h2>
-          <div className="linha-campos">
-            <div className="campo" style={{ flex: 2 }}>
-              <label htmlFor="logradouro">Logradouro:</label>
-              <input type="text" id="logradouro" defaultValue="R. Treze de Maio" />
+    <div className="condicoes-saude-container">
+      <div className="condicoes-saude-box">
+        <button className="close-button" onClick={handleClose}>✕</button>
+        <SidebarCondicoes
+          activeSection={activeSection}
+          onSectionChange={(sectionId) => {
+            if (sectionId === 'condicao-saude') {
+              navigate('/condicoes-saude');
+            } else if(sectionId === 'prontuario') {
+              navigate('/registro-cadastro');
+            } else {
+              setActiveSection(sectionId);
+            }
+          }} />
+        <div className="condicoes-content">
+          <h2>Cadastrar Endereço</h2>
+          <form className="form" onSubmit={handleSubmit}>
+
+
+
+            <div className="avatar-fields">
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Logradouro</label>
+                  <Input name="Logradouro" placeholder="Logradouro" value={form.logradouro} onChange={handleChange} />
+                </div>
+                <div className="form-group">
+                  <label>Número</label>
+                  <Input name="numero" placeholder="Numero" value={form.numero} onChange={handleChange} />
+                </div>
+                <div className="form-group">
+                  <label>Complemento</label>
+                  <Input name="complemento" placeholder="Complemento" value={form.complemento} onChange={handleChange} />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Bairro</label>
+                  <Input name="bairro" placeholder="Bairro" value={form.bairro} onChange={handleChange} />
+                </div>
+                <div className="form-group">
+                  <label>Cidade</label>
+                  <Input name="cidade" placeholder="Cidade" value={form.cidade} onChange={handleChange} />
+                </div>
+                <div className="form-group">
+                  <label>Cep</label>
+                  <Input name="cep" placeholder="Cep" value={form.cep} onChange={handleChange} />
+                </div>
+              </div>
+              <div className="form-group full-width">
+                <label>Observação</label> <br />
+                <textarea
+                  name="observacao"
+                  placeholder="Observação"
+                  value={form.observacao}
+                  onChange={handleChange}
+                />
+              </div>
+
             </div>
-            <div className="campo" style={{ flex: 1 }}>
-              <label htmlFor="numero">Número:</label>
-              <input type="text" id="numero" defaultValue="479" />
+
+            <div className="form-buttons-end">
+              <button type="submit" className="btn-salvar">Salvar</button>
+              <button type="button" className="btn-pular" onClick={handleClose}>Pular</button>
             </div>
-            <div className="campo" style={{ flex: 1 }}>
-              <label htmlFor="complemento">Complemento:</label>
-              <input type="text" id="complemento" defaultValue="-" />
-            </div>
-          </div>
-          <div className="linha-campos">
-            <div className="campo">
-              <label htmlFor="bairro">Bairro:</label>
-              <input type="text" id="bairro" defaultValue="Bela Vista" />
-            </div>
-            <div className="campo">
-              <label htmlFor="cidade">Cidade:</label>
-              <input type="text" id="cidade" defaultValue="São Paulo" />
-            </div>
-          </div>
-          <div className="linha-campos">
-            <div className="campo">
-              <label htmlFor="cep">CEP:</label>
-              <input type="text" id="cep" defaultValue="01327-000" />
-            </div>
-            <div className="campo">
-              <label htmlFor="observacao">Observação:</label>
-              <input type="text" id="observacao" defaultValue="-" />
-            </div>
-          </div>
-        </form>
-        <button type="submit" className="botao-editar">Editar</button>
-      </main>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
-
-export default RegistroEndereco;

@@ -52,6 +52,8 @@ export default function RegistrationForm() {
           onSectionChange={(sectionId) => {
             if (sectionId === 'condicao-saude') {
               navigate('/condicoes-saude');
+            } else if (sectionId === 'endereco') {
+              navigate('/Registro-endereco');
             } else {
               setActiveSection(sectionId);
             }

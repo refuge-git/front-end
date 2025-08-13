@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../css/App.css';
-// import '../css/CondicoesSaude.css';
 import SidebarCondicoes from '../components/SidebarCondicoes';
 import ListaCondicoesSaude from '../components/ListaCondicoesSaude';
 import CondicaoSaudeForm from '../components/CondicaoSaudeForm';
@@ -123,7 +122,11 @@ export default function CondicoesSaude() {
           onSectionChange={(sectionId) => {
             if (sectionId === 'prontuario') {
               navigate('/registro-cadastro');
-            } else {
+            } else if (sectionId ==='endereco') {
+              navigate('/Registro-endereco');
+
+            }
+            else {
               setActiveSection(sectionId);
             }
           }}

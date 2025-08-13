@@ -1,55 +1,104 @@
 import Botao from "../components/Botao";
 import Carrossel from "../components/Carrossel";
-import logo from '../assets/logo-vinho.png'
+import Input from "../components/Input";
 import { Link } from "react-router-dom";
 import '../css/App.css';
-
+import React, { useState } from "react";
 
 export default function Cadastro() {
+  const [form, setForm] = useState({
+    nome: '',
+    cpf: '',
+    telefone: '',
+    email: '',
+    senha: '',
+    confirmarSenha: '',
+  });
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    alert("Cadastro realizado!");
+  };
+
   return (
-
     <div className="container">
-
       <div className="right-side">
         <Carrossel />
       </div>
 
       <div className="left-side">
-
-        <div className="logo-container_2">
-          <img src={logo} alt="Logo Achiropita" className="logo" />
-        </div>
-
-        <form className="login-form">
+        <form className="login-form" onSubmit={handleSubmit}>
           <h2>CADASTRE-SE</h2>
 
-          <label htmlFor="nome"> Nome Completo: </label>
-          <input type="text" id="nome" name="nome" required />
+          {/* Campo único */}
+          <div className="form-group-atv">
+            <label>Nome Completo</label>
+            <Input
+              name="nome"
+              placeholder="Nome Completo"
+              value={form.nome}
+              onChange={handleChange}
+            />
+          </div>
 
+          {/* Dois campos menores lado a lado */}
           <div className="linha-2">
-            <div className="campo">
-              <label htmlFor="CPF">CPF:</label>
-              <input type="text" id="CPF" name="CPF" required />
+            <div className="form-group-atv small">
+              <label>CPF</label>
+              <Input
+                name="cpf"
+                placeholder="000.000.000-00"
+                value={form.cpf}
+                onChange={handleChange}
+              />
             </div>
 
-            <div className="campo">
-              <label htmlFor="Telefone">Número de Telefone:</label>
-              <input type="tel" id="Telefone" name="Telefone" required />
+            <div className="form-group-atv small">
+              <label>Telefone</label>
+              <Input
+                name="telefone"
+                placeholder="(00) 00000-0000"
+                value={form.telefone}
+                onChange={handleChange}
+              />
             </div>
           </div>
 
-          <label htmlFor="Email">Email Para Login:</label>
-          <input type="email" id="Email" name="Email" required />
+          <div className="form-group-atv">
+            <label>Email</label>
+            <Input
+              name="email"
+              placeholder="Digite seu email"
+              value={form.email}
+              onChange={handleChange}
+            />
+          </div>
 
-          <div className="linha-4">
-            <div className="campo">
-              <label htmlFor="Senha">Senha de Acesso:</label>
-              <input type="password" id="Senha" name="Senha" required />
+          <div className="linha-2">
+            <div className="form-group-atv small">
+              <label>Senha</label>
+              <Input
+                type="password"
+                name="senha"
+                placeholder="Senha"
+                value={form.senha}
+                onChange={handleChange}
+              />
             </div>
 
-            <div className="campo">
-              <label htmlFor="ConfirmarSenha">Confirmar Senha:</label>
-              <input type="password" id="ConfirmarSenha" name="ConfirmarSenha" required />
+            <div className="form-group-atv small">
+              <label>Confirmar Senha</label>
+              <Input
+                type="password"
+                name="confirmarSenha"
+                placeholder="Confirmar Senha"
+                value={form.confirmarSenha}
+                onChange={handleChange}
+              />
             </div>
           </div>
 
@@ -57,13 +106,12 @@ export default function Cadastro() {
 
           <div className="links">
             <p className="senha">
-              Já tem Cadastro? <Link to="../" className="criar-conta"> <a href="#">Clique Aqui</a> </Link>
+              Já tem Cadastro?{" "}
+              <Link to="../" className="criar-conta">Clique Aqui</Link>
             </p>
-            {/* <a href="./Cadastro.jsx" className="criar-conta">CRIAR CONTA</a> */}
           </div>
         </form>
       </div>
-
     </div>
   );
 }

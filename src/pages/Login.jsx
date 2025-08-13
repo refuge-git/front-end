@@ -1,22 +1,29 @@
 import Botao from "../components/Botao";
 import Carrossel from "../components/Carrossel";
-import logo from '../assets/logo-vinho.png'
+import Input from "../components/Input";
+import logo from '../assets/logo-vinho.png';
 import { Link, useNavigate } from "react-router-dom";
 import '../css/App.css';
 import axios from 'axios';
 import { useState } from 'react';
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
+  const [form, setForm] = useState({
+    email: '',
+    senha: ''
+  });
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:8080/funcionarios/login', {
-        email,
-        senha
+        email: form.email,
+        senha: form.senha
       });
       localStorage.setItem('token', response.data.token);
       alert('Login realizado com sucesso!');
@@ -25,10 +32,14 @@ export default function Login() {
       alert('Usuário ou senha inválidos!');
     }
   };
+
   return (
     <div className="container">
-      <div className="left-side">
+      <div className="right-side">
+        <Carrossel />
+      </div>
 
+      <div className="left-side">
         <div className="logo-container">
           <img src={logo} alt="Logo Achiropita" className="logo" />
         </div>
@@ -36,17 +47,31 @@ export default function Login() {
         <form className="login-form" onSubmit={handleSubmit}>
           <h2>ENTRAR</h2>
 
-          <label htmlFor="email"> Seu email:</label>
-          <input type="email" id="email" name="email" required value={email} onChange={e => setEmail(e.target.value)} />
+          <div className="form-group-atv">
+            <label>Email</label>
+            <Input
+              type="email"
+              name="email"
+              placeholder="Digite seu email"
+              value={form.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-          <label htmlFor="password"> Sua senha:</label>
-          <input type="password" id="password" name="password" required value={senha} onChange={e => setSenha(e.target.value)} />
+          <div className="form-group-atv">
+            <label>Senha</label>
+            <Input
+              type="password"
+              name="senha"
+              placeholder="Digite sua senha"
+              value={form.senha}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-          {/* <Botao type="submit">Entrar</Botao> */}
           <Botao variant="cadastro" type="submit">Entrar</Botao>
-          
-
-
 
           <div className="links">
             <p className="senha">
@@ -55,14 +80,7 @@ export default function Login() {
             <Link to="/cadastro" className="criar-conta">CRIAR CONTA</Link>
           </div>
         </form>
-
-
       </div>
-
-      <div className="right-side">
-        <Carrossel />
-      </div>
-
     </div>
-  )
+  );
 }
