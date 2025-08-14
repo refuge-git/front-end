@@ -1,4 +1,7 @@
-import "./Dashboards.css";
+import "../css/Dashboards.css";
+import IconGreen from "../assets/Avatars-verde.png";
+import IconPcGreen from "../assets/icon-pc.png";
+import IconRedCad from "../assets/Icon-red-cad.png";
 
 export default function Dashboards() {
   return (
@@ -8,7 +11,8 @@ export default function Dashboards() {
         {/* Indicador 1 */}
         <div className="dashboard-indicador">
           <div className="dashboard-indicador-icon dashboard-indicador-bg-green">
-            <span className="dashboard-indicador-emoji">👥</span>
+            {/* <span className="dashboard-indicador-emoji">👥</span> */}
+            <img src={IconGreen} alt="Ícone Pessoas" className="dashboard-indicador-img" />
           </div>
           <div>
             <div className="dashboard-indicador-label">Pessoas atendidas no mês atual</div>
@@ -19,7 +23,8 @@ export default function Dashboards() {
         {/* Indicador 2 */}
         <div className="dashboard-indicador">
           <div className="dashboard-indicador-icon dashboard-indicador-bg-red">
-            <span className="dashboard-indicador-emoji">🧑‍💼</span>
+            {/* <span className="dashboard-indicador-emoji">🧑‍💼</span> */}
+            <img src={IconRedCad} alt="Ícone Pessoas" className="dashboard-indicador-img" />
           </div>
           <div>
             <div className="dashboard-indicador-label">Novos cadastros no mês atual</div>
@@ -30,11 +35,13 @@ export default function Dashboards() {
         {/* Indicador 3 */}
         <div className="dashboard-indicador">
           <div className="dashboard-indicador-icon dashboard-indicador-bg-green">
-            <span className="dashboard-indicador-emoji">🖥️</span>
+            {/* <span className="dashboard-indicador-emoji ">🖥️</span> */}
+            <img src={IconPcGreen} alt="Ícone Pessoas" className="dashboard-indicador-img" />
           </div>
           <div>
             <div className="dashboard-indicador-label">Atividade mais requisitada no mês atual</div>
             <div className="dashboard-indicador-value dashboard-indicador-activity">Refeição</div>
+            <div className="dashboard-indicador-up" style={{ visibility: 'hidden' }}>Placeholder</div>
           </div>
         </div>
       </div>
@@ -57,16 +64,16 @@ export default function Dashboards() {
             points="100,80 200,260 300,250 400,170 500,60 600,170"
           />
           {/* Pontos */}
-          {[{x:100,y:80},{x:200,y:260},{x:300,y:250},{x:400,y:170},{x:500,y:60},{x:600,y:170}].map((p,i)=>(
+          {[{ x: 100, y: 80 }, { x: 200, y: 260 }, { x: 300, y: 250 }, { x: 400, y: 170 }, { x: 500, y: 60 }, { x: 600, y: 170 }].map((p, i) => (
             <circle key={i} cx={p.x} cy={p.y} r="8" fill="#fff" stroke="#800000" strokeWidth="2" />
           ))}
           {/* Labels dos meses */}
-          {["Jan","Fev","Mar","Abr","Mai","Jun"].map((m,i)=>(
-            <text key={i} x={100+i*100} y={320} fontSize="18" textAnchor="middle" fill="#888">{m}</text>
+          {["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"].map((m, i) => (
+            <text key={i} x={100 + i * 100} y={320} fontSize="18" textAnchor="middle" fill="#888">{m}</text>
           ))}
           {/* Labels dos valores */}
-          {[1000,750,500,250,0].map((v,i)=>(
-            <text key={i} x={30} y={70*i+35} fontSize="16" textAnchor="end" fill="#888">{v}</text>
+          {[1000, 750, 500, 250, 0].map((v, i) => (
+            <text key={i} x={30} y={70 * i + 35} fontSize="16" textAnchor="end" fill="#888">{v}</text>
           ))}
         </svg>
       </div>
@@ -106,12 +113,12 @@ export default function Dashboards() {
             );
           })}
           {/* Labels dos meses */}
-          {["Jan","Fev","Mar","Abr","Mai","Jun"].map((m,i)=>(
-            <text key={i} x={100+i*100+10} y={320} fontSize="18" textAnchor="middle" fill="#888">{m}</text>
+          {["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"].map((m, i) => (
+            <text key={i} x={100 + i * 100 + 10} y={320} fontSize="18" textAnchor="middle" fill="#888">{m}</text>
           ))}
           {/* Labels dos valores */}
-          {[1000,750,500,250,0].map((v,i)=>(
-            <text key={i} x={30} y={70*i+35} fontSize="16" textAnchor="end" fill="#888">{v}</text>
+          {[1000, 750, 500, 250, 0].map((v, i) => (
+            <text key={i} x={30} y={70 * i + 35} fontSize="16" textAnchor="end" fill="#888">{v}</text>
           ))}
         </svg>
       </div>

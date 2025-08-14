@@ -36,11 +36,13 @@
 }
 
 .dashboard-indicador-bg-green {
-  background: #eafbe7;
+  background: #D3FFE7;
+  background: linear-gradient(146deg, rgba(211, 255, 231, 1) 0%, rgba(239, 255, 246, 1) 100%);
 }
 
 .dashboard-indicador-bg-red {
-  background: #fdeaea;
+  background: #DA7373;
+  background: linear-gradient(182deg, rgba(218, 115, 115, 1) 0%, rgba(246, 194, 194, 1) 100%);
 }
 
 .dashboard-indicador-emoji {
@@ -48,11 +50,12 @@
 }
 
 .dashboard-indicador-label {
-  font-size: 16px;
+  font-size: 14px;
   color: #888;
 }
 
 .dashboard-indicador-value {
+  color: black;
   font-size: 32px;
   font-weight: 600;
 }
@@ -128,4 +131,21 @@
 .dashboard-legenda-outros {
   background: #ffffe0;
   border: 1px solid #eee;
+}
+
+.dashboard-indicador>div {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-indicador {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dashboard-indicador-img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
 }

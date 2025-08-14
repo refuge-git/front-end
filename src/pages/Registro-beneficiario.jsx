@@ -38,7 +38,7 @@ export default function RegistrationForm() {
   };
 
   const handleClose = () => {
-    navigate('/');
+    navigate('/home');
   };
 
   const [activeSection, setActiveSection] = useState('prontuario');

@@ -41,18 +41,22 @@ export default function RegistrationForm() {
     navigate('/condicoes-saude');
   };
 
+  const handleClose2 = () => {
+    navigate('/home');
+  };
+
   const [activeSection, setActiveSection] = useState('endereco');
 
   return (
     <div className="condicoes-saude-container">
       <div className="condicoes-saude-box">
-        <button className="close-button" onClick={handleClose}>✕</button>
+        <button className="close-button" onClick={handleClose2}>✕</button>
         <SidebarCondicoes
           activeSection={activeSection}
           onSectionChange={(sectionId) => {
             if (sectionId === 'condicao-saude') {
               navigate('/condicoes-saude');
-            } else if(sectionId === 'prontuario') {
+            } else if (sectionId === 'prontuario') {
               navigate('/registro-cadastro');
             } else {
               setActiveSection(sectionId);

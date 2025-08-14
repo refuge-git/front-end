@@ -6,6 +6,7 @@ import  RegistroNovaAtividade  from '../pages/Registro-nova-atividade';
 import RegistroEndereco from '../pages/Registro-endereco';
 import RegistroCadastro from '../pages/Registro-beneficiario'; 
 import CondicoesSaude from '../pages/CondicoesSaude'; 
+import Home from '../pages/Home';
 
 export default function AppRoutes() {
     return (
@@ -17,6 +18,7 @@ export default function AppRoutes() {
             <Route path="/registro-endereco" element={<RegistroEndereco />} />
             <Route path="/registro-cadastro" element={<RegistroCadastro />} /> 
             <Route path="/condicoes-saude" element={<CondicoesSaude />} />
+            <Route path="/home" element={<Home />} />
         </Routes>
     );
 }

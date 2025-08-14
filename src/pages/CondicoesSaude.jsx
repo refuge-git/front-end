@@ -20,10 +20,11 @@ export default function CondicoesSaude() {
       .catch(() => setCategorias([]));
   }, []);
   const [activeSection, setActiveSection] = useState('condicao-saude');
-  const [showForm, setShowForm] = useState(false);
+  // const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(true); 
+
   const navigate = useNavigate();
 
-  // Dados mockados de condições de saúde existentes
   const [condicoesSaude, setCondicoesSaude] = useState([
     {
       id: 1,
@@ -38,7 +39,7 @@ export default function CondicoesSaude() {
   ]);
 
   const handleClose = () => {
-    navigate('/cadastro');
+    navigate('/home');
   };
 
   const handleMaisDetalhes = (condicaoId) => {
@@ -63,7 +64,7 @@ export default function CondicoesSaude() {
     };
 
     setCondicoesSaude([...condicoesSaude, novaCondicao]);
-    setShowForm(false); // Voltar para a lista após salvar
+    setShowForm(false);
 
     console.log('Condição salva:', novaCondicao);
   };

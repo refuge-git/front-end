@@ -1,5 +1,7 @@
 import { useState } from "react";
-import "./Status.css";
+import "../css/Status.css";
+import Icon from "../assets/perfil-s-fundo.png";
+import IconLupa from "../assets/lupa.png";
 
 const statusList = [
   { nome: "Agnaldo", status: "Ativo", cor: "#4bb543" },
@@ -43,34 +45,49 @@ export default function Status() {
           ))}
         </select>
       </div>
+
       <div className="status-search">
-        <span className="status-search-icon">🔍</span>
+        {/* <span className="status-search-icon">🔍</span> */}
+        <img
+          src={IconLupa}
+          alt="Buscar"
+          className="status-search-img"
+        />
         <input
           type="text"
-          placeholder="busque pelo nome..."
+          placeholder="Busque pelo nome..."
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="status-input"
         />
       </div>
-      {filteredList.map((item, i) => (
-        <div key={i} className="status-card">
-          <div className="status-card-info">
-            <span className="status-card-icon">👤</span>
-            <span className="status-card-name">{item.nome}</span>
+
+      {/* Lista com scroll */}
+      <div className="status-list">
+        {filteredList.map((item, i) => (
+          <div key={i} className="status-card">
+            <div className="status-card-info">
+              {/* <span className="status-card-icon">👤</span> */}
+              <img
+                src={Icon}
+                alt={item.nome}
+                className="status-card-img"
+              />
+              <span className="status-card-name">{item.nome}</span>
+            </div>
+            <span
+              title={item.status}
+              className="status-dot"
+              style={{ background: item.cor }}
+            ></span>
           </div>
-          <span
-            title={item.status}
-            className="status-dot"
-            style={{ background: item.cor }}
-          ></span>
-        </div>
-      ))}
-      {filteredList.length === 0 && (
-        <div className="status-empty">
-          Nenhum beneficiário encontrado.
-        </div>
-      )}
+        ))}
+        {filteredList.length === 0 && (
+          <div className="status-empty">
+            Nenhum beneficiário encontrado.
+          </div>
+        )}
+      </div>
     </section>
   );
 }
