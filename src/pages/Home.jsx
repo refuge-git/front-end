@@ -1,6 +1,6 @@
-import Beneficiarios from "./Beneficiarios";
-import Status from "./Status";
-import Dashboards from "./Dashboards";
+import Beneficiarios from "../components/Beneficiarios";
+import Status from "../components/Status";
+import Dashboards from "../components/Dashboards";
 import Avatar from "../assets/Avatar.png";
 import "../css/Home.css";
 
