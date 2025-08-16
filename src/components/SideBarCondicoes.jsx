@@ -5,6 +5,7 @@ import IconList from '../assets/icon-list.png';
 import IconListHover from '../assets/icon-list-branco.png';
 import IconSaude from '../assets/cond-saude.png';
 import IconSaudeHover from '../assets/cond-saude-branco.png';
+import IconTarefa from '../assets/icon-atividade.png'
 
 export default function SidebarCondicoes({ activeSection, onSectionChange }) {
   const menuItems = [
@@ -25,6 +26,12 @@ export default function SidebarCondicoes({ activeSection, onSectionChange }) {
       label: 'Condição de Saúde',
       icon: IconSaude,
       iconHover: IconSaudeHover
+    },
+    {
+      id: 'nova-atividade',
+      label: 'Nova atividade',
+      icon: IconTarefa,
+      iconHover: IconTarefa
     }
   ];
 
