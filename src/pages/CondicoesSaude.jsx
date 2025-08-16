@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../css/App.css';
-import SidebarCondicoes from '../components/SidebarCondicoes';
+import SidebarCondicoes from '../components/SideBarCondicoes';
 import ListaCondicoesSaude from '../components/ListaCondicoesSaude';
 import CondicaoSaudeForm from '../components/CondicaoSaudeForm';
 

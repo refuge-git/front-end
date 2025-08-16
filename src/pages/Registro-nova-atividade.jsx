@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/App.css';
-import Perfil from '../assets/avatar.png';
+import Perfil from '../assets/Avatar.png';
 import Input from "../components/Input";
 import Botao from "../components/Botao";
-import SidebarCondicoes from '../components/SidebarCondicoes';
+import SidebarCondicoes from '../components/SideBarCondicoes';
 
 export default function RegistrationForm() {
   const navigate = useNavigate();
