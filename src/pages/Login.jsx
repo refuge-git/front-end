@@ -4,8 +4,8 @@ import Input from "../components/Input";
 import logo from '../assets/logo-vinho.png';
 import { Link, useNavigate } from "react-router-dom";
 import '../css/App.css';
-import axios from 'axios';
 import { useState } from 'react';
+import api from "../provider/api";
 
 export default function Login() {
   const [form, setForm] = useState({
@@ -21,13 +21,13 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8080/funcionarios/login', {
+      const response = await api.post('/funcionarios/login', {
         email: form.email,
         senha: form.senha
       });
       localStorage.setItem('token', response.data.token);
       alert('Login realizado com sucesso!');
-      navigate('/');
+      navigate('/home');
     } catch (error) {
       alert('Usuário ou senha inválidos!');
     }

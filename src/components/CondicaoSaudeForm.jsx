@@ -1,13 +1,14 @@
 
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import api from '../provider/api';
 
 export default function CondicaoSaudeForm({ onSalvar, onVoltar }) {
   const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    axios.get('http://localhost:8080/categorias', {
+    api.get('/categorias', {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -21,18 +22,18 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar }) {
     const formData = new FormData(e.target);
     const condicaoData = {
       diagnostico: formData.get('diagnostico'),
-      dataDiagnostico: formData.get('dataDiagnostico'),
-      tratamento: formData.get('tratamento'),
       descricao: formData.get('descricao'),
-      observacao: formData.get('observacao'),
-      categoria: { id: Number(formData.get('categoria')) },
-      beneficiario: { id: 1 }
+    // dataRegistro: formData.get('dataRegistro'), // Data de registro da condição de saúde
+      tratamento: formData.get('tratamento'),
+      observacoes: formData.get('observacao'),
+      idBeneficiario: 1, // mockado
+      idCategoria: Number(formData.get('categoria'))
     };
 
     try {
       console.log('Dados enviados no POST:', condicaoData);
       const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:8080/condicoes-saude', condicaoData, {
+      const response = await api.post('/condicoes-saude', condicaoData, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -59,6 +60,7 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar }) {
             />
           </div>
 
+          {/**
           <div className="form-group">
             <label htmlFor="dataDiagnostico">Data de diagnóstico:</label>
             <input 
@@ -67,6 +69,7 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar }) {
               name="dataDiagnostico" 
             />
           </div>
+          */}
 
           <div className="form-group">
             <label htmlFor="categoria">Categoria:</label>

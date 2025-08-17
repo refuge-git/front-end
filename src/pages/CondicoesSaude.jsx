@@ -5,13 +5,14 @@ import '../css/App.css';
 import SidebarCondicoes from '../components/SideBarCondicoes';
 import ListaCondicoesSaude from '../components/ListaCondicoesSaude';
 import CondicaoSaudeForm from '../components/CondicaoSaudeForm';
+import api from '../provider/api';
 
 export default function CondicoesSaude() {
   const [categorias, setCategorias] = useState([]);
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
-    axios.get('http://localhost:8080/categorias', {
+    api.get('/categorias', {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -20,23 +21,31 @@ export default function CondicoesSaude() {
       .catch(() => setCategorias([]));
   }, []);
   const [activeSection, setActiveSection] = useState('condicao-saude');
-  // const [showForm, setShowForm] = useState(false);
-  const [showForm, setShowForm] = useState(true); 
+  // Estado para condições de saúde do morador de rua id 1
+  const [condicoesSaude, setCondicoesSaude] = useState([]);
+  // showForm: true se não houver condições, false se houver pelo menos uma
+  const [showForm, setShowForm] = useState(false);
+
+  // Buscar condições de saúde do backend ao carregar
+  useEffect(() => {
+    const fetchCondicoes = async () => {
+      try {
+        const response = await api.get('/condicoes-saude/beneficiario/1');
+  // Garante que condicoesSaude seja sempre um array
+  const data = Array.isArray(response.data) ? response.data : (response.data ? [response.data] : []);
+  setCondicoesSaude(data);
+  setShowForm(data.length === 0);
+      } catch (error) {
+        setCondicoesSaude([]);
+        setShowForm(true);
+      }
+    };
+    fetchCondicoes();
+  }, []);
 
   const navigate = useNavigate();
 
-  const [condicoesSaude, setCondicoesSaude] = useState([
-    {
-      id: 1,
-      diagnostico: 'Diabetes Tipo 2',
-      tratamento: 'Administração de insulina diária e dieta controlada',
-      dataDiagnostico: '2023-01-15',
-      descricao: 'Diabetes mellitus tipo 2 diagnosticada em consulta de rotina',
-      observacao: 'Paciente responde bem ao tratamento atual',
-      criadoEm: '2023-01-15T08:30:00',
-      atualizadoEm: '2024-01-10T14:20:00'
-    }
-  ]);
+  // ...mock já movido acima...
 
   const handleClose = () => {
     navigate('/home');
