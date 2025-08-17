@@ -1,6 +1,6 @@
 import CondicaoSaudeCard from './CondicaoSaudeCard';
 
-export default function ListaCondicoesSaude({ condicoes, onMaisDetalhes, onAdicionarNova }) {
+export default function ListaCondicoesSaude({ condicoes, onMaisDetalhes, onAdicionarNova, onExcluir }) {
   return (
     <div className="lista-condicoes">
       <div className="condicoes-grid">
@@ -9,10 +9,10 @@ export default function ListaCondicoesSaude({ condicoes, onMaisDetalhes, onAdici
             key={condicao.id}
             condicao={condicao}
             onMaisDetalhes={onMaisDetalhes}
+            onExcluir={onExcluir}
           />
         ))}
       </div>
-      
       <button 
         className="btn-adicionar-condicao"
         onClick={onAdicionarNova}

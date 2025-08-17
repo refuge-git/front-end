@@ -78,6 +78,10 @@ export default function CondicoesSaude() {
     console.log('Condição salva:', novaCondicao);
   };
 
+  const handleExcluirCondicao = (condicaoId) => {
+    setCondicoesSaude(condicoesSaude.filter(c => c.id !== condicaoId));
+  };
+
   const renderContent = () => {
     switch (activeSection) {
       case 'prontuario':
@@ -108,6 +112,7 @@ export default function CondicoesSaude() {
                 condicoes={condicoesSaude}
                 onMaisDetalhes={handleMaisDetalhes}
                 onAdicionarNova={handleAdicionarNova}
+                onExcluir={handleExcluirCondicao}
               />
             )}
           </div>
