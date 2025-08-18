@@ -21,17 +21,13 @@ export default function CondicoesSaude() {
       .catch(() => setCategorias([]));
   }, []);
   const [activeSection, setActiveSection] = useState('condicao-saude');
-  // Estado para condições de saúde do morador de rua id 1
   const [condicoesSaude, setCondicoesSaude] = useState([]);
-  // showForm: true se não houver condições, false se houver pelo menos uma
   const [showForm, setShowForm] = useState(false);
-
-  // Buscar condições de saúde do backend ao carregar
+  const [condicaoEditando, setCondicaoEditando] = useState(null);
   useEffect(() => {
     const fetchCondicoes = async () => {
       try {
         const response = await api.get('/condicoes-saude/beneficiario/1');
-  // Garante que condicoesSaude seja sempre um array
   const data = Array.isArray(response.data) ? response.data : (response.data ? [response.data] : []);
   setCondicoesSaude(data);
   setShowForm(data.length === 0);
@@ -45,41 +41,57 @@ export default function CondicoesSaude() {
 
   const navigate = useNavigate();
 
-  // ...mock já movido acima...
-
   const handleClose = () => {
     navigate('/home');
   };
 
   const handleMaisDetalhes = (condicaoId) => {
-    console.log('Mostrar detalhes da condição:', condicaoId);
+    const condicao = condicoesSaude.find(c => c.id === condicaoId);
+    setCondicaoEditando(condicao);
+    setShowForm(true);
   };
 
   const handleAdicionarNova = () => {
+    setCondicaoEditando(null);
     setShowForm(true);
   };
 
   const handleVoltarLista = () => {
     setShowForm(false);
+    setCondicaoEditando(null);
   };
 
-  const handleSalvarCondicao = (condicaoData) => {
-    const agora = new Date().toISOString();
-    const novaCondicao = {
-      id: condicoesSaude.length + 1,
-      ...condicaoData,
-      criadoEm: agora,
-      atualizadoEm: agora
-    };
-
-    setCondicoesSaude([...condicoesSaude, novaCondicao]);
-    setShowForm(false);
-
-    console.log('Condição salva:', novaCondicao);
+  const handleSalvarCondicao = async (condicaoData) => {
+    try {
+      if (condicaoEditando && condicaoEditando.id) {
+        // Atualização
+        const response = await api.put(`/condicoes-saude/${condicaoEditando.id}`, condicaoData);
+        setCondicoesSaude(condicoesSaude.map(c => c.id === condicaoEditando.id ? response.data : c));
+      } else {
+        // Criação
+        const agora = new Date().toISOString();
+        const novaCondicao = {
+          id: condicoesSaude.length + 1,
+          ...condicaoData,
+          criadoEm: agora,
+          atualizadoEm: agora
+        };
+        setCondicoesSaude([...condicoesSaude, novaCondicao]);
+      }
+      setShowForm(false);
+      setCondicaoEditando(null);
+    } catch (error) {
+      alert('Erro ao salvar condição de saúde.');
+    }
   };
 
-  const handleExcluirCondicao = (condicaoId) => {
-    setCondicoesSaude(condicoesSaude.filter(c => c.id !== condicaoId));
+  const handleExcluirCondicao = async (condicaoId) => {
+    try {
+      await api.delete(`/condicoes-saude/${condicaoId}`);
+      setCondicoesSaude(condicoesSaude.filter(c => c.id !== condicaoId));
+    } catch (error) {
+      alert('Erro ao excluir condição de saúde.');
+    }
   };
 
   const renderContent = () => {
@@ -106,6 +118,7 @@ export default function CondicoesSaude() {
               <CondicaoSaudeForm
                 onSalvar={handleSalvarCondicao}
                 onVoltar={handleVoltarLista}
+                condicao={condicaoEditando}
               />
             ) : (
               <ListaCondicoesSaude

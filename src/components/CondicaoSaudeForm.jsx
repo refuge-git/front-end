@@ -3,8 +3,15 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import api from '../provider/api';
 
-export default function CondicaoSaudeForm({ onSalvar, onVoltar }) {
+export default function CondicaoSaudeForm({ onSalvar, onVoltar, condicao }) {
   const [categorias, setCategorias] = useState([]);
+  const [form, setForm] = useState({
+    diagnostico: condicao?.diagnostico || '',
+    descricao: condicao?.descricao || '',
+    tratamento: condicao?.tratamento || '',
+    observacoes: condicao?.observacoes || '',
+    categoria: condicao?.idCategoria || condicao?.categoria?.id || ''
+  });
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -16,33 +23,59 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar }) {
       .then(res => setCategorias(res.data))
       .catch(() => setCategorias([]));
   }, []);
+  useEffect(() => {
+    if (condicao) {
+      setForm({
+        diagnostico: condicao.diagnostico || '',
+        descricao: condicao.descricao || '',
+        tratamento: condicao.tratamento || '',
+        observacoes: condicao.observacoes || '',
+        categoria: condicao.idCategoria || condicao.categoria?.id || ''
+      });
+    }
+  }, [condicao]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const formData = new FormData(e.target);
     const condicaoData = {
-      diagnostico: formData.get('diagnostico'),
-      descricao: formData.get('descricao'),
-    // dataRegistro: formData.get('dataRegistro'), // Data de registro da condição de saúde
-      tratamento: formData.get('tratamento'),
-      observacoes: formData.get('observacao'),
-      idBeneficiario: 1, // mockado
-      idCategoria: Number(formData.get('categoria'))
+      diagnostico: form.diagnostico,
+      descricao: form.descricao,
+      tratamento: form.tratamento,
+      observacoes: form.observacoes,
+      idBeneficiario: 1,
+      idCategoria: Number(form.categoria)
     };
-
     try {
-      console.log('Dados enviados no POST:', condicaoData);
       const token = localStorage.getItem('token');
-      const response = await api.post('/condicoes-saude', condicaoData, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      if (onSalvar) onSalvar(response.data);
+      let response;
+      if (condicao && condicao.id) {
+        response = await api.put(`/condicoes-saude/${condicao.id}`, condicaoData, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } else {
+        response = await api.post('/condicoes-saude', condicaoData, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+      if (onSalvar) {
+        // Se for 204 No Content, não há response.data
+        await onSalvar(response.data ?? {});
+      }
       alert('Condição de saúde salva com sucesso!');
     } catch (error) {
-      alert('Erro ao salvar condição de saúde.');
-      console.error(error);
+      alert('Erro ao salvar condição de saúde. Veja o console para detalhes.');
+      if (error.response) {
+        console.error('Erro na resposta da API:', error.response.status, error.response.data);
+      } else if (error.request) {
+        console.error('Sem resposta da API:', error.request);
+      } else {
+        console.error('Erro desconhecido:', error.message);
+      }
     }
   };
 
@@ -57,6 +90,8 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar }) {
               id="diagnostico" 
               name="diagnostico" 
               placeholder="Diagnóstico da condição de saúde..."
+              value={form.diagnostico}
+              onChange={handleChange}
             />
           </div>
 
@@ -77,7 +112,8 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar }) {
               id="categoria"
               name="categoria"
               className="select-categoria"
-              defaultValue=""
+              value={form.categoria}
+              onChange={handleChange}
             >
               <option value="" disabled>Selecione uma categoria</option>
               {categorias.map(cat => (
@@ -94,6 +130,8 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar }) {
             name="tratamento" 
             rows="2"
             placeholder="Tratamento recomendado ou em uso..."
+            value={form.tratamento}
+            onChange={handleChange}
           ></textarea>
         </div>
 
@@ -104,6 +142,8 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar }) {
             name="descricao" 
             rows="3"
             placeholder="Descreva a condição de saúde..."
+            value={form.descricao}
+            onChange={handleChange}
           ></textarea>
         </div>
 
@@ -111,9 +151,11 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar }) {
           <label htmlFor="observacao">Observação:</label>
           <textarea 
             id="observacao" 
-            name="observacao" 
+            name="observacoes" 
             rows="3"
             placeholder="Observações adicionais sobre a condição de saúde..."
+            value={form.observacoes}
+            onChange={handleChange}
           ></textarea>
         </div>
 
