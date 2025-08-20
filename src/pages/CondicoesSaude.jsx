@@ -23,14 +23,23 @@ export default function CondicoesSaude() {
   const [activeSection, setActiveSection] = useState('condicao-saude');
   const [condicoesSaude, setCondicoesSaude] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  // const [showForm, setShowForm] = useState(true);
   const [condicaoEditando, setCondicaoEditando] = useState(null);
   useEffect(() => {
     const fetchCondicoes = async () => {
       try {
         const response = await api.get('/condicoes-saude/beneficiario/1');
-  const data = Array.isArray(response.data) ? response.data : (response.data ? [response.data] : []);
-  setCondicoesSaude(data);
-  setShowForm(data.length === 0);
+        const data = Array.isArray(response.data) ? response.data : (response.data ? [response.data] : []);
+        setCondicoesSaude(data);
+        //   if (data.length > 0) {
+        //     setShowForm(false);
+        //   }
+        // } catch (error) {
+        //   setCondicoesSaude([]);
+        //   setShowForm(true);
+        //   setShowForm(data.length === 0);
+        // }
+        setShowForm(data.length === 0);
       } catch (error) {
         setCondicoesSaude([]);
         setShowForm(true);
@@ -150,7 +159,7 @@ export default function CondicoesSaude() {
           onSectionChange={(sectionId) => {
             if (sectionId === 'prontuario') {
               navigate('/registro-cadastro');
-            } else if (sectionId ==='endereco') {
+            } else if (sectionId === 'endereco') {
               navigate('/Registro-endereco');
 
             }

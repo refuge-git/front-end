@@ -432,6 +432,7 @@ body {
   font-family: inherit;
   background-color: white;
   transition: border-color 0.2s ease;
+  color: #000000;
 }
 
 .form-group textarea {
@@ -862,8 +863,15 @@ body {
 input[disabled],
 input:disabled,
 textarea:disabled {
-  background-color: #ecebeb9e;    
-  cursor: not-allowed;     
+  background-color: #dcdcdc9e;    
+  cursor: not-allowed;   
+  color: #000000;  
+}
+
+.input-des:disabled {
+  background-color: #ffffff9e;    
+  cursor: not-allowed;   
+  color: #000000;  
 }
 
 .form-group-atv {
@@ -873,3 +881,27 @@ textarea:disabled {
 .form-row-atv {
   margin-bottom: 20px;
 }
+
+.input-with-indicator {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.input-with-indicator input {
+  padding-left: 28px;
+}
+
+.status-indicator {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #4bb543; 
+}
+
+
+

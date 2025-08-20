@@ -5,7 +5,7 @@ import Icon from "../assets/perfil-s-fundo.png";
 import IconLupa from "../assets/lupa.png";
 
 const beneficiariosList = [
-  { nome: "José Alberto" },
+  { nome: "José Santos" },
   { nome: "Maria Clara" },
   { nome: "Agnaldo Silva" },
   { nome: "Samara Souza" },
@@ -38,13 +38,11 @@ export default function Beneficiarios() {
       </button>
 
       <div className="beneficiarios-search">
-        {/* <span className="beneficiarios-search-icon">🔍</span> */}
         <img
           src={IconLupa}
           alt="Buscar"
           className="beneficiarios-search-img"
         />
-
         <input
           type="text"
           placeholder="Busque pelo nome..."
@@ -56,8 +54,16 @@ export default function Beneficiarios() {
 
       <div className="beneficiarios-list">
         {filteredList.map((item, i) => (
-          <div key={i} className="beneficiarios-card">
-            {/* <span className="beneficiarios-card-icon">👤</span> */}
+          <div
+            key={i}
+            className="beneficiarios-card"
+            onClick={() => {
+              if (item.nome === "José Santos") {
+                navigate("/prontuario");
+              }
+            }}
+            style={item.nome === "José Santos" ? { cursor: "pointer" } : {}}
+          >
             <img
               src={Icon}
               alt={item.nome}

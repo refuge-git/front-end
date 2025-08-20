@@ -26,12 +26,6 @@ export default function SidebarCondicoes({ activeSection, onSectionChange }) {
       label: 'Condição de Saúde',
       icon: IconSaude,
       iconHover: IconSaudeHover
-    },
-    {
-      id: 'nova-atividade',
-      label: 'Nova atividade',
-      icon: IconTarefa,
-      iconHover: IconTarefa
     }
   ];
 
