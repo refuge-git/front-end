@@ -30,7 +30,7 @@ export default function RegistrationForm() {
   };
 
   const handleClose = () => {
-    navigate('/condicoes-saude');
+    navigate('/condicoes-saude-teste');
   };
 
   const handleClose2 = () => {
@@ -47,7 +47,7 @@ export default function RegistrationForm() {
           activeSection={activeSection}
           onSectionChange={(sectionId) => {
             if (sectionId === 'condicao-saude') {
-              navigate('/condicoes-saude');
+              navigate('/condicoes-saude-teste');
             } else if (sectionId === 'prontuario') {
               navigate('/prontuario');
             } else {

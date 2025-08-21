@@ -71,6 +71,10 @@ export default function RegistrationForm() {
             <div className="avatar-fields">
               <div className="form-row">
                 <div className="form-group">
+                  <label>Cep</label>
+                  <Input name="cep" placeholder="Cep" value={form.cep} onChange={handleChange} />
+                </div>
+                <div className="form-group">
                   <label>Logradouro</label>
                   <Input name="Logradouro" placeholder="Logradouro" value={form.logradouro} onChange={handleChange} />
                 </div>
@@ -78,13 +82,13 @@ export default function RegistrationForm() {
                   <label>Número</label>
                   <Input name="numero" placeholder="Numero" value={form.numero} onChange={handleChange} />
                 </div>
+              </div>
+
+              <div className="form-row">
                 <div className="form-group">
                   <label>Complemento</label>
                   <Input name="complemento" placeholder="Complemento" value={form.complemento} onChange={handleChange} />
                 </div>
-              </div>
-
-              <div className="form-row">
                 <div className="form-group">
                   <label>Bairro</label>
                   <Input name="bairro" placeholder="Bairro" value={form.bairro} onChange={handleChange} />
@@ -92,10 +96,6 @@ export default function RegistrationForm() {
                 <div className="form-group">
                   <label>Cidade</label>
                   <Input name="cidade" placeholder="Cidade" value={form.cidade} onChange={handleChange} />
-                </div>
-                <div className="form-group">
-                  <label>Cep</label>
-                  <Input name="cep" placeholder="Cep" value={form.cep} onChange={handleChange} />
                 </div>
               </div>
               <div className="form-group full-width">
@@ -111,8 +111,8 @@ export default function RegistrationForm() {
             </div>
 
             <div className="form-buttons-end">
-              <button type="submit" className="btn-salvar">Salvar</button>
-              <button type="button" className="btn-pular" onClick={handleClose}>Pular</button>
+              <Botao type="button" className="btn-pular" onClick={handleClose}>Pular</Botao>
+              <Botao type="submit" className="btn-salvar">Salvar</Botao>
             </div>
           </form>
         </div>

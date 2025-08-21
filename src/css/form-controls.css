@@ -29,6 +29,104 @@
   background-color: #51100F;
 }
 
+.beneficiarios-btn {
+  width: 100%;
+  background: #7E0300;
+  color: #fff;
+  font-size: 20px;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 0;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.beneficiarios-btn:hover {
+  background: #a00400;
+}
+
+.btn-salvar {
+  background-color: #7E0300;
+  color: white;
+  border: none;
+  padding: 10px 32px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 10px;
+}
+
+.btn-salvar:hover {
+  background-color: #6a0200;
+}
+
+.btn-pular {
+  background-color: transparent;
+  color: #7E0300;
+  border: 1px solid #7E0300;
+  padding: 10px 32px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 10px;
+}
+
+.btn-pular:hover {
+  background-color: #7E0300;
+  color: white;
+}
+
+.btn-adicionar-condicao {
+  background-color: #7E0300;
+  color: white;
+  border: none;
+  padding: 15px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: auto;
+  width: 100%;
+}
+
+.btn-adicionar-condicao:hover {
+  background-color: #6a0200;
+}
+
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 35px;
+  height: 35px;
+  background: transparent;
+  border: 1px solid #dee2e600;
+  border-radius: 50%;
+  color: #6c757d;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.close-button:hover {
+  background-color: #e9ecef;
+  color: #495057;
+  border-color: #adb5bd;
+}
+
 input, select {
   padding: 10px;
   border-radius: 5px;

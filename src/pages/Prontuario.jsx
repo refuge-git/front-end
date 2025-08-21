@@ -69,7 +69,7 @@ export default function RegistrationForm() {
                     activeSection={activeSection}
                     onSectionChange={(sectionId) => {
                         if (sectionId === 'condicao-saude') {
-                            navigate('/condicoes-saude');
+                            navigate('/condicoes-saude-teste');
                         } else if (sectionId === 'endereco') {
                             navigate('/Endereco');
                         } else {

@@ -1,7 +1,7 @@
-
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import api from '../provider/api';
+import Botao from './Botao';
 
 export default function CondicaoSaudeForm({ onSalvar, onVoltar, condicao }) {
   const [categorias, setCategorias] = useState([]);
@@ -85,10 +85,10 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar, condicao }) {
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="diagnostico">Diagnóstico:</label>
-            <input 
-              type="text" 
-              id="diagnostico" 
-              name="diagnostico" 
+            <input
+              type="text"
+              id="diagnostico"
+              name="diagnostico"
               placeholder="Diagnóstico da condição de saúde..."
               value={form.diagnostico}
               onChange={handleChange}
@@ -125,9 +125,9 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar, condicao }) {
 
         <div className="form-group full-width">
           <label htmlFor="tratamento">Tratamento:</label>
-          <textarea 
-            id="tratamento" 
-            name="tratamento" 
+          <textarea
+            id="tratamento"
+            name="tratamento"
             rows="2"
             placeholder="Tratamento recomendado ou em uso..."
             value={form.tratamento}
@@ -137,9 +137,9 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar, condicao }) {
 
         <div className="form-group full-width">
           <label htmlFor="descricao">Descrição:</label>
-          <textarea 
-            id="descricao" 
-            name="descricao" 
+          <textarea
+            id="descricao"
+            name="descricao"
             rows="3"
             placeholder="Descreva a condição de saúde..."
             value={form.descricao}
@@ -149,9 +149,9 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar, condicao }) {
 
         <div className="form-group full-width">
           <label htmlFor="observacao">Observação:</label>
-          <textarea 
-            id="observacao" 
-            name="observacoes" 
+          <textarea
+            id="observacao"
+            name="observacoes"
             rows="3"
             placeholder="Observações adicionais sobre a condição de saúde..."
             value={form.observacoes}
@@ -160,8 +160,9 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar, condicao }) {
         </div>
 
         <div className="form-buttons">
-          <button type="submit" className="btn-salvar">Salvar</button>
-          <button type="button" className="btn-pular" onClick={onVoltar}>Voltar</button>
+
+          <Botao type="button" className="btn-pular" onClick={onVoltar}>Voltar</Botao>
+          <Botao type="submit" className="btn-salvar">Salvar</Botao>
         </div>
       </form>
     </div>

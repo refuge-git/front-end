@@ -192,8 +192,8 @@ export default function RegistrationForm() {
             </div>
 
             <div className="form-buttons">
-              <button type="submit" className="btn-salvar">Salvar</button>
-              <button type="button" className="btn-pular" onClick={handleClose}>Cancelar</button>
+              <Botao type="button" className="btn-pular" onClick={handleClose}>Cancelar</Botao>
+              <Botao type="submit" className="btn-salvar">Salvar</Botao>
             </div>
           </form>
         </div>

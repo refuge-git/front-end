@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../css/Beneficiarios.css";
 import Icon from "../assets/perfil-s-fundo.png";
 import IconLupa from "../assets/lupa.png";
+import Botao from "./Botao";
 
 const beneficiariosList = [
   { nome: "José Santos" },
@@ -33,10 +34,7 @@ export default function Beneficiarios() {
     <section className="beneficiarios-container">
       <h2 className="beneficiarios-title">Seus beneficiários</h2>
 
-      <button className="beneficiarios-btn" onClick={handleCadastro}>
-        Cadastrar beneficiário
-      </button>
-
+      <Botao className="beneficiarios-btn" type="submit" onClick={handleCadastro}>Cadastrar beneficiário</Botao>
       <div className="beneficiarios-search">
         <img
           src={IconLupa}

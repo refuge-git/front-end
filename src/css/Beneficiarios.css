@@ -19,7 +19,7 @@
   margin-bottom: 16px;
 }
 
-.beneficiarios-btn {
+/* .beneficiarios-btn {
   width: 100%;
   background: #7E0300;
   color: #fff;
@@ -34,7 +34,7 @@
 
 .beneficiarios-btn:hover {
   background: #a00400;
-}
+} */
 
 .beneficiarios-search {
   display: flex;
