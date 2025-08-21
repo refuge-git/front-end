@@ -1,41 +1,50 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/App.css';
-import Perfil from '../assets/Avatar.png';
 import Input from "../components/Input";
-import Botao from "../components/Botao";
 import SidebarCondicoes from '../components/SideBarCondicoes';
 
-export default function RegistrationForm() {
+export default function EnderecoForm() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    Logradouro: '',
+
+  const initialData = {
+    logradouro: '',
     numero: '',
     complemento: '',
     bairro: '',
     cidade: 'São Paulo',
     cep: '',
     observacao: 'Morador de rua, sem residência fixa. Precisa de acompanhamento social.',
-  });
+  };
 
-  const [nomeSocialAtivo, setNomeSocialAtivo] = useState(false);
+  const [form, setForm] = useState(initialData);
+  const [backupBeforeEdit, setBackupBeforeEdit] = useState(initialData);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert('Cadastro realizado!');
+    setBackupBeforeEdit(form);
+    setIsEditing(false);
+    alert('Dados salvos com sucesso!');
   };
 
-  const handleClose = () => {
-    navigate('/condicoes-saude-teste');
+  const handleStartEdit = () => {
+    setBackupBeforeEdit(form);
+    setIsEditing(true);
   };
 
-  const handleClose2 = () => {
-    navigate('/home');
+  const handleCancel = () => {
+    setForm(backupBeforeEdit);
+    setIsEditing(false);
   };
+
+  const handleClose = () => navigate('/condicoes-saude-teste');
+  const handleClose2 = () => navigate('/home');
 
   const [activeSection, setActiveSection] = useState('endereco');
 
@@ -53,43 +62,79 @@ export default function RegistrationForm() {
             } else {
               setActiveSection(sectionId);
             }
-          }} />
+          }}
+        />
+
         <div className="condicoes-content">
           <h2>Dados de Endereço</h2>
           <form className="form" onSubmit={handleSubmit}>
-
-
-
             <div className="avatar-fields">
               <div className="form-row">
                 <div className="form-group">
                   <label>Logradouro</label>
-                  <Input name="Logradouro" placeholder="Logradouro" value={form.logradouro} onChange={handleChange} />
+                  <Input
+                    name="logradouro"
+                    placeholder="Logradouro"
+                    value={form.logradouro}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                  />
                 </div>
                 <div className="form-group">
                   <label>Número</label>
-                  <Input name="numero" placeholder="Numero" value={form.numero} onChange={handleChange} />
+                  <Input
+                    name="numero"
+                    placeholder="Número"
+                    value={form.numero}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                  />
                 </div>
                 <div className="form-group">
                   <label>Complemento</label>
-                  <Input name="complemento" placeholder="Complemento" value={form.complemento} onChange={handleChange} />
+                  <Input
+                    name="complemento"
+                    placeholder="Complemento"
+                    value={form.complemento}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                  />
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
                   <label>Bairro</label>
-                  <Input name="bairro" placeholder="Bairro" value={form.bairro} onChange={handleChange} />
+                  <Input
+                    name="bairro"
+                    placeholder="Bairro"
+                    value={form.bairro}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                  />
                 </div>
                 <div className="form-group">
                   <label>Cidade</label>
-                  <Input name="cidade" placeholder="Cidade" value={form.cidade} onChange={handleChange} />
+                  <Input
+                    name="cidade"
+                    placeholder="Cidade"
+                    value={form.cidade}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                  />
                 </div>
                 <div className="form-group">
-                  <label>Cep</label>
-                  <Input name="cep" placeholder="Cep" value={form.cep} onChange={handleChange} />
+                  <label>CEP</label>
+                  <Input
+                    name="cep"
+                    placeholder="CEP"
+                    value={form.cep}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                  />
                 </div>
               </div>
+
               <div className="form-group full-width">
                 <label>Observação</label> <br />
                 <textarea
@@ -97,14 +142,26 @@ export default function RegistrationForm() {
                   placeholder="Observação"
                   value={form.observacao}
                   onChange={handleChange}
+                  disabled={!isEditing}
+                  className="input-des"
                 />
               </div>
-
             </div>
 
-            <div className="form-buttons-end">
-              <button type="submit" className="btn-salvar">Editar</button>
-              {/* <button type="button" className="btn-pular" onClick={handleClose}>Pular</button> */}
+            {/* Botões */}
+            <div className="form-buttons" style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              {!isEditing ? (
+                <button type="button" className="btn-salvar" onClick={handleStartEdit}>
+                  Editar
+                </button>
+              ) : (
+                <>
+                  <button type="button" className="btn-pular" onClick={handleCancel}>
+                    Cancelar
+                  </button>
+                  <button type="submit" className="btn-salvar">Salvar</button>
+                </>
+              )}
             </div>
           </form>
         </div>

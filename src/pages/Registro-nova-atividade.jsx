@@ -25,7 +25,7 @@ export default function RegistrationForm() {
   };
 
   const handleClose = () => {
-    navigate('/');
+    navigate('/prontuario');
   };
 
   const [activeSection, setActiveSection] = useState('prontuario');
@@ -62,8 +62,8 @@ export default function RegistrationForm() {
               />
             </div>
             <div className="form-buttons">
-              <button type="submit" className="btn-salvar">Salvar</button>
               <button type="button" className="btn-pular" onClick={handleClose}>Cancelar</button>
+              <button type="submit" className="btn-salvar">Salvar</button>
             </div>
           </form>
         </div>
