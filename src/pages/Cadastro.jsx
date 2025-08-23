@@ -1,11 +1,15 @@
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import api from "../provider/api";
+
 import Botao from "../components/Botao";
 import Carrossel from "../components/Carrossel";
 import Input from "../components/Input";
-import { Link } from "react-router-dom";
-import '../css/App.css';
-import React, { useState } from "react";
+import "../css/App.css";
 
 export default function Cadastro() {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     nome: '',
     cpf: '',
@@ -15,13 +19,46 @@ export default function Cadastro() {
     confirmarSenha: '',
   });
 
+  const [erro, setErro] = useState("");
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Cadastro realizado!");
+    setErro("");
+
+    // Validação simples
+    if (!form.nome || !form.cpf || !form.email || !form.senha || !form.confirmarSenha) {
+      setErro("Preencha todos os campos!");
+      return;
+    }
+
+    if (form.senha !== form.confirmarSenha) {
+      setErro("As senhas não conferem!");
+      return;
+    }
+
+    try {
+      await api.post("/funcionarios", {
+        nome: form.nome,
+        cpf: form.cpf,
+        telefone: form.telefone,
+        email: form.email,
+        senha: form.senha
+      });
+
+      alert("Cadastro realizado com sucesso!");
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+      if (error.response && error.response.data && error.response.data.error) {
+        setErro(error.response.data.error);
+      } else {
+        setErro("Erro ao cadastrar. Tente novamente.");
+      }
+    }
   };
 
   return (
@@ -34,7 +71,8 @@ export default function Cadastro() {
         <form className="login-form" onSubmit={handleSubmit}>
           <h2>CADASTRE-SE</h2>
 
-          {/* Campo único */}
+          {erro && <p className="erro">{erro}</p>} {/* mensagem de erro */}
+
           <div className="form-group-atv">
             <label>Nome Completo</label>
             <Input
@@ -45,7 +83,6 @@ export default function Cadastro() {
             />
           </div>
 
-          {/* Dois campos menores lado a lado */}
           <div className="linha-2">
             <div className="form-group-atv small">
               <label>CPF</label>
