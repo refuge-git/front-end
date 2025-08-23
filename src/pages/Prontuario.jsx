@@ -39,7 +39,7 @@ export default function RegistrationForm() {
     const [activeSection, setActiveSection] = useState('prontuario');
 
     const handleClosetwo= () => {
-        navigate('/registro-nova-atividade');
+        navigate('/registro-atividade');
     };
 
     const handleChange = (e) => {
