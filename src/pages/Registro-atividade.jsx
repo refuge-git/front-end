@@ -41,7 +41,7 @@ export default function AtividadesForm() {
     };
 
     const handleCancel = () => {
-        setForm(backupBeforeEdit);
+        navigate('/prontuario');
     };
 
     const handleClose = () => navigate('/condicoes-saude-teste');
