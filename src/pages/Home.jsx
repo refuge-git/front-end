@@ -2,7 +2,7 @@ import { useState } from "react";
 import Beneficiarios from "../components/Beneficiarios";
 import Status from "../components/Status";
 import Dashboards from "../components/Dashboards";
-import Perfil from "../components/Perfil"; // tela de perfil detalhada
+import Perfil from "../components/Perfil"; 
 import Avatar from "../assets/Avatar.png";
 import "../css/Home.css";
 
