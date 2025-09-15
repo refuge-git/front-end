@@ -1,9 +1,11 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // ✅ import para navegação
 import api from '../provider/api';
 import Botao from './Botao';
 
-export default function CondicaoSaudeForm({ onSalvar, onVoltar, condicao }) {
+export default function CondicaoSaudeForm({ onSalvar, condicao }) {
+  const navigate = useNavigate(); // ✅ hook para navegação
   const [categorias, setCategorias] = useState([]);
   const [form, setForm] = useState({
     diagnostico: condicao?.diagnostico || '',
@@ -13,6 +15,7 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar, condicao }) {
     categoria: condicao?.idCategoria || condicao?.categoria?.id || ''
   });
 
+  // 🔹 Buscar categorias
   useEffect(() => {
     const token = localStorage.getItem('token');
     api.get('/categorias', {
@@ -23,6 +26,8 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar, condicao }) {
       .then(res => setCategorias(res.data))
       .catch(() => setCategorias([]));
   }, []);
+
+  // 🔹 Atualiza form se condicao for passada via props
   useEffect(() => {
     if (condicao) {
       setForm({
@@ -35,11 +40,13 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar, condicao }) {
     }
   }, [condicao]);
 
+  // 🔹 Atualiza valores do formulário
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  // 🔹 Submissão do formulário
   const handleSubmit = async (e) => {
     e.preventDefault();
     const condicaoData = {
@@ -47,7 +54,7 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar, condicao }) {
       descricao: form.descricao,
       tratamento: form.tratamento,
       observacoes: form.observacoes,
-      idBeneficiario: 1,
+      idBeneficiario: 1, // ⚠️ depois substituir pelo ID dinâmico
       idCategoria: Number(form.categoria)
     };
     try {
@@ -63,7 +70,6 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar, condicao }) {
         });
       }
       if (onSalvar) {
-        // Se for 204 No Content, não há response.data
         await onSalvar(response.data ?? {});
       }
       alert('Condição de saúde salva com sucesso!');
@@ -95,7 +101,7 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar, condicao }) {
             />
           </div>
 
-          {/**
+          {/*
           <div className="form-group">
             <label htmlFor="dataDiagnostico">Data de diagnóstico:</label>
             <input 
@@ -160,8 +166,15 @@ export default function CondicaoSaudeForm({ onSalvar, onVoltar, condicao }) {
         </div>
 
         <div className="form-buttons">
+          {/* 🔹 Voltar agora leva para /registro-endereco */}
+          <Botao
+            type="button"
+            className="btn-pular"
+            onClick={() => navigate('/registro-endereco')}
+          >
+            Voltar
+          </Botao>
 
-          <Botao type="button" className="btn-pular" onClick={onVoltar}>Voltar</Botao>
           <Botao type="submit" className="btn-salvar">Salvar</Botao>
         </div>
       </form>

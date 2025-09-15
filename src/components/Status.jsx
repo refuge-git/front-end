@@ -157,7 +157,6 @@ export default function Status() {
           className="status-select"
         >
           <option value="">Todos</option>
-          <option value="ATIVO">Ativo</option>
           <option value="BANIDO">Banido</option>
           <option value="SUSPENSO">Suspenso</option>
           <option value="INATIVO">Inativo</option>
