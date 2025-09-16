@@ -5,10 +5,28 @@ import Dashboards from "../components/Dashboards";
 import Perfil from "../components/Perfil"; 
 import Avatar from "../assets/Avatar.png";
 import "../css/Home.css";
+import { useEffect } from "react";
 
 export default function Home() {
   const [showMenu, setShowMenu] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [nomePerfil, setNomePerfil] = useState("");
+
+  // Buscar nome do usuário logado
+  useEffect(() => {
+    if (showMenu) {
+      const token = localStorage.getItem("token");
+      import("../provider/api").then(({ default: api }) => {
+        api.get("/funcionarios/me", {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(res => {
+          setNomePerfil(res.data.nome || "");
+        })
+        .catch(() => setNomePerfil(""));
+      });
+    }
+  }, [showMenu]);
 
   return (
     <div className="home-root">
@@ -39,10 +57,8 @@ export default function Home() {
         <div className="overlay">
           <div className="menu-card">
             <button className="close-button" onClick={() => setShowMenu(false)}>✖</button>
-            {/* <button className="close-button" onClick={handleClose2}>✕</button> */}
-
             <img src={Avatar} alt="Perfil" className="menu-avatar" />
-            <h3 className="perfil-nome">Fabiana</h3>
+            <h3 className="perfil-nome">{nomePerfil}</h3>
             <button
               className="menu-btn"
               onClick={() => setShowProfile(true)}

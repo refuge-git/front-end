@@ -428,7 +428,7 @@ export default function RegistrationForm() {
   useEffect(() => {
     async function carregarRacas() {
       try {
-        const response = await api.get("/beneficiarios/opcoes-raca");
+        const response = await api.get("/beneficiarios/opcoes_racas");
         console.log("RACAS DO BACK:", response.data);
         setRacas(response.data || []); // garante array
       } catch (error) {
@@ -442,7 +442,7 @@ export default function RegistrationForm() {
   useEffect(() => {
     async function carregarSexos() {
       try {
-        const response = await api.get("/beneficiarios/opcoes-sexo");
+        const response = await api.get("/beneficiarios/opcoes_sexo");
         console.log("SEXOS DO BACK:", response.data);
         setSexos(response.data || []);
       } catch (error) {
@@ -462,7 +462,7 @@ export default function RegistrationForm() {
   useEffect(() => {
     async function carregarLocais() {
       try {
-        const response = await api.get("/beneficiarios/opcoes-local");
+        const response = await api.get("/beneficiarios/opcoes_local");
         console.log("LOCAIS DO BACK:", response.data);
         setLocais(response.data || []);
       } catch (error) {
@@ -489,7 +489,7 @@ export default function RegistrationForm() {
     try {
       const payloadBeneficiario = {
         nomeRegistro: form.registro,
-        nomeSocial: nomeSocialAtivo ? form.nomeSocial : form.registro,
+        nomeSocial: nomeSocialAtivo ? form.nomeSocial : null,
         dtNasc: form.nascimento.split("/").reverse().join("-"),
         cpf: form.cpf,
         estrangeiro: false,
@@ -502,10 +502,10 @@ export default function RegistrationForm() {
         sisa: form.sisa,
         status: form.status || "ATIVO",
         observacao: form.observacao,
-        idFuncionario: 1,
+        idFuncionario: Number(localStorage.getItem('funcionarioId')),
         idEndereco: null,
-        idTipoGenero: form.genero,
-        idTipoSexualidade: form.sexualidade,
+        idTipoGenero: form.genero ? Number(form.genero) : null,
+        idTipoSexualidade: form.sexualidade ? Number(form.sexualidade) : null,
       };
 
       const response = await api.post("/beneficiarios", payloadBeneficiario);
@@ -528,7 +528,7 @@ export default function RegistrationForm() {
     navigate("/home");
   };
 
-    const handleClose2 = () => {
+  const handleClose2 = () => {
     navigate("/Registro-endereco");
   };
 
@@ -598,6 +598,7 @@ export default function RegistrationForm() {
                       placeholder="DD/MM/AAAA"
                       value={form.nascimento}
                       onChange={handleChange}
+                      type="date"
                     />
                   </div>
                 </div>
@@ -642,8 +643,8 @@ export default function RegistrationForm() {
                 >
                   <option value="">Selecione</option>
                   {racas.map((raca, index) => (
-                    <option key={index} value={raca}>
-                      {raca}
+                    <option key={index} value={raca.value}>
+                      {raca.descricao}
                     </option>
                   ))}
                 </select>
@@ -689,8 +690,8 @@ export default function RegistrationForm() {
                 >
                   <option value="">Selecione</option>
                   {sexos.map((sexo, index) => (
-                    <option key={index} value={sexo}>
-                      {sexo}
+                    <option key={index} value={sexo.value}>
+                      {sexo.descricao}
                     </option>
                   ))}
                   {/* <option value="">Selecione</option>
@@ -731,8 +732,8 @@ export default function RegistrationForm() {
 
                   <option value="">Selecione</option>
                   {locais.map((local, index) => (
-                    <option key={index} value={local}>
-                      {local}
+                    <option key={index} value={local.value}>
+                      {local.descricao}
                     </option>
                   ))}
                   {/* <option value="">Selecione</option>

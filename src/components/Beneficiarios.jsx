@@ -195,7 +195,12 @@ export default function Beneficiarios() {
   useEffect(() => {
     const fetchBeneficiarios = async () => {
       try {
-        const response = await api.get("/beneficiarios");
+        const token = localStorage.getItem('token');
+        const response = await api.get("/beneficiarios", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         console.log("Dados recebidos do backend:", response.data);
 
         if (Array.isArray(response.data)) {
@@ -217,11 +222,12 @@ export default function Beneficiarios() {
 
   // Filtra a lista usando o campo correto (ex: nomeRegistro)
   const filteredList = (beneficiariosList || []).filter(
-    (item) =>
-      item &&
-      item.status === "Usuário Ativo" && // filtra apenas ativos
-      item.nomeRegistro && // troque por nomeSocial ou outro campo, se necessário
-      item.nomeRegistro.toLowerCase().includes(search.toLowerCase())
+    (item) => {
+      if (!item) return false;
+
+      const nome = item.nomeRegistro || item.nome || item.nomeSocial;
+      return nome && nome.toLowerCase().includes(search.toLowerCase());
+    }
   );
 
   const handleCadastro = () => {
@@ -256,21 +262,18 @@ export default function Beneficiarios() {
       </div>
 
       <div className="beneficiarios-list">
-        {filteredList.map((item, i) => (
-          <div
-            key={i}
-            className="beneficiarios-card"
-            onClick={() => {
-              if (item.nomeRegistro === "José Santos") {
-                navigate("/prontuario");
-              }
-            }}
-            style={item.nomeRegistro === "José Santos" ? { cursor: "pointer" } : {}}
-          >
-            <img src={Icon} alt={item.nomeRegistro} className="beneficiarios-card-img" />
-            <span className="beneficiarios-card-name">{item.nomeRegistro}</span>
-          </div>
-        ))}
+        {filteredList.map((item, i) => {
+          const nome = item.nomeRegistro || item.nome || item.nomeSocial || "";
+          return (
+            <div
+              key={i}
+              className="beneficiarios-card"
+            >
+              <img src={Icon} alt={nome} className="beneficiarios-card-img" />
+              <span className="beneficiarios-card-name">{nome}</span>
+            </div>
+          );
+        })}
 
         {filteredList.length === 0 && (
           <div className="beneficiarios-empty">Nenhum beneficiário encontrado.</div>

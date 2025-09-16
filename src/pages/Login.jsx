@@ -25,7 +25,12 @@ export default function Login() {
         email: form.email,
         senha: form.senha
       });
+      console.log('Login response.data:', response.data);
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('email', response.data.email);
+      if (response.data.userId) {
+        localStorage.setItem('funcionarioId', response.data.userId);
+      }
       alert('Login realizado com sucesso!');
       navigate('/home');
     } catch (error) {

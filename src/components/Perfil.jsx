@@ -1,14 +1,33 @@
 import Avatar from "../assets/Avatar.png";
 import "../css/App.css";
 import Input from "../components/Input";
+import api from "../provider/api";
+import { useEffect, useState } from "react";
 
 export default function Perfil({ onClose }) {
 
-    const dados = {
-        email: "Fabiana@achiropita.com",
-        telefone: "11988765432",
-        cpf: "657.394.837-43",
-    };
+    const [nome, setNome] = useState("");
+    const [dados, setDados] = useState({ email: "", telefone: "", cpf: "" });
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        api.get("/funcionarios/me", {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(res => {
+            const funcionario = res.data;
+            setNome(funcionario.nome || "");
+            setDados({
+                email: funcionario.email || "",
+                telefone: funcionario.telefone || "",
+                cpf: funcionario.cpf || ""
+            });
+        })
+        .catch(() => {
+            setNome("");
+            setDados({ email: "", telefone: "", cpf: "" });
+        });
+    }, []);
 
     return (
         <div className="perfil-container">
@@ -23,7 +42,7 @@ export default function Perfil({ onClose }) {
                     <div className="avatar-edit-icon">✎</div>
                 </div>
 
-                <h3 className="perfil-nome">Fabiana</h3>
+                <h3 className="perfil-nome">{nome}</h3>
             </div>
 
             <div className="perfil-grid-one-columns">
