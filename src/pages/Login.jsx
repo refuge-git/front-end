@@ -4,7 +4,7 @@ import Input from "../components/Input";
 import logo from '../assets/logo-vinho.png';
 import { Link, useNavigate } from "react-router-dom";
 import '../css/App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from "../provider/api";
 
 export default function Login() {
@@ -12,6 +12,8 @@ export default function Login() {
     email: '',
     senha: ''
   });
+  const [erro, setErro] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -25,21 +27,50 @@ export default function Login() {
         email: form.email,
         senha: form.senha
       });
-      console.log('Login response.data:', response.data);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('email', response.data.email);
       if (response.data.userId) {
         localStorage.setItem('funcionarioId', response.data.userId);
       }
-      alert('Login realizado com sucesso!');
-      navigate('/home');
+      setShowConfirm(true);
+      setTimeout(() => {
+        navigate('/home');
+      }, 2000);
     } catch (error) {
-      alert('Usuário ou senha inválidos!');
+      setErro("Usuário ou senha inválidos!\n");
     }
   };
 
+  useEffect(() => {
+    if (erro) {
+      const timer = setTimeout(() => setErro(""), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [erro]);
+
   return (
     <div className="container">
+      {/* Card de erro */}
+      {erro && (
+        <div className="confirm-overlay">
+          <div className="error-card">
+            <div className="error-icon"></div>
+            <h3>Erro no login</h3>
+            <p style={{ whiteSpace: "pre-line" }}>{erro}</p>
+          </div>
+        </div>
+      )}
+      {/* Card de confirmação */}
+      {showConfirm && (
+        <div className="confirm-overlay">
+          <div className="confirm-card">
+            <div className="confirm-icon"></div>
+            <h3>Login realizado!</h3>
+            <p>Você será redirecionado para a página inicial.</p>
+          </div>
+        </div>
+      )}
+
       <div className="right-side">
         <Carrossel />
       </div>

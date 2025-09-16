@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../provider/api";
 
@@ -20,6 +20,7 @@ export default function Cadastro() {
   });
 
   const [erro, setErro] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -49,8 +50,10 @@ export default function Cadastro() {
         senha: form.senha
       });
 
-      alert("Cadastro realizado com sucesso!");
-      navigate("/");
+      setShowConfirm(true);
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
     } catch (error) {
       console.error(error);
       if (error.response && error.response.data && error.response.data.error) {
@@ -61,8 +64,36 @@ export default function Cadastro() {
     }
   };
 
+  useEffect(() => {
+    if (erro) {
+      const timer = setTimeout(() => setErro(""), 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [erro]);
+
   return (
     <div className="container">
+      {/* Card de erro */}
+      {erro && (
+        <div className="confirm-overlay">
+          <div className="error-card">
+            <div className="error-icon"></div>
+            <h3>Erro no cadastro</h3>
+            <p style={{ whiteSpace: "pre-line" }}>{erro}</p>
+          </div>
+        </div>
+      )}
+      {/* Card de confirmação */}
+      {showConfirm && (
+        <div className="confirm-overlay">
+          <div className="confirm-card">
+            <div className="confirm-icon"></div>
+            <h3>Cadastro realizado!</h3>
+            <p>Você será redirecionado para o login.</p>
+          </div>
+        </div>
+      )}
+
       <div className="right-side">
         <Carrossel />
       </div>

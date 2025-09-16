@@ -32,6 +32,7 @@ export default function RegistrationForm() {
   const [nomeSocialAtivo, setNomeSocialAtivo] = useState(false);
   const [erro, setErro] = useState("");
   const [activeSection, setActiveSection] = useState("prontuario");
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const [generos, setGeneros] = useState([]);
   const [racas, setRacas] = useState([]);
@@ -103,7 +104,7 @@ export default function RegistrationForm() {
     setErro("");
 
     if (!form.registro || !form.cpf || !form.nascimento) {
-      setErro("Preencha os campos obrigatórios!");
+      setErro("Preencha os campos obrigatórios! \n");
       return;
     }
 
@@ -132,9 +133,10 @@ export default function RegistrationForm() {
       const response = await api.post("/beneficiarios", payloadBeneficiario);
 
       const idBeneficiario = response.data.id;
-      navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
-
-      alert("Beneficiário cadastrado com sucesso! Agora cadastre o endereço.");
+      setShowConfirm(true); // Mostra o card de confirmação
+      setTimeout(() => {
+        navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
+      }, 2000); // Redireciona após 2 segundos
     } catch (error) {
       console.error(error);
       if (error.response && error.response.data && error.response.data.error) {
@@ -152,6 +154,13 @@ export default function RegistrationForm() {
   const handleClose2 = () => {
     navigate("/Registro-endereco");
   };
+
+  useEffect(() => {
+    if (erro) {
+      const timer = setTimeout(() => setErro(""), 1000); // card de erro some após 2.5s
+      return () => clearTimeout(timer);
+    }
+  }, [erro]);
 
   return (
     <div className="condicoes-saude-container">
@@ -174,7 +183,31 @@ export default function RegistrationForm() {
         <div className="condicoes-content">
           <h2>Cadastrar novo beneficiário</h2>
 
-          {erro && <p className="erro">{erro}</p>}
+          {/* Card de erro */}
+          {erro && (
+            <div className="confirm-overlay">
+              <div className="error-card">
+                <div className="error-icon"></div>
+                <div>
+                  <h3>Erro ao cadastrar</h3>
+                  <p>{erro}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Card de confirmação */}
+          {showConfirm && (
+            <div className="confirm-overlay">
+              <div className="confirm-card">
+                <div className="confirm-icon"></div>
+                <div>
+                  <h3>Cadastro realizado!</h3>
+                  <p>Beneficiário cadastrado com sucesso.<br />Você será redirecionado para cadastrar o endereço.<br /></p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <form className="form" onSubmit={handleSubmit}>
             <div className="avatarSection">
