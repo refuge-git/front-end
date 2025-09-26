@@ -22,7 +22,7 @@ export default function RegistrationForm() {
         sexo: "Masculino",
         sexualidade: "Heterossexual",
         nomeSocial: "",
-        localDormir: "Rua",
+        localDormir: "Centro de acolhimento",
         status: "Ativo",
         observacao: "Beneficiário compareceu pela primeira vez em 2025.",
     };

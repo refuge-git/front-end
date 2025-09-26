@@ -101,9 +101,9 @@ import IconLupa from "../assets/lupa.png";
 // Cores para cada status
 const statusColors = {
   ATIVO: "#4bb543",    // verde
-  BANIDO: "#ff2d2d",   // vermelho
-  SUSPENSO: "#ffe600", // amarelo
-  INATIVO: "#cccccc"   // cinza
+  BANIDO: "#03045e",   // vermelho
+  SUSPENSO: "#0096c7", // amarelo
+  INATIVO: "#90e0ef"   // cinza
 };
 
 export default function Status() {

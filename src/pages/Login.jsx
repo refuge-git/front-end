@@ -77,7 +77,7 @@ export default function Login() {
 
       <div className="left-side">
         <div className="logo-container">
-          <img src={logo} alt="Logo Achiropita" className="logo" />
+          {/* <img src={logo} alt="Logo Achiropita" className="logo" /> */}
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>

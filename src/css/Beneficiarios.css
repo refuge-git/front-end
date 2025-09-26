@@ -127,4 +127,86 @@
   margin-right: 8px;
 }
 
+.beneficiarios-title-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
 
+.beneficiarios-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.beneficiarios-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.beneficiarios-count {
+  font-size: 0.9rem;
+  color: #555;
+  background: #f5f5f5;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+/* Estilo do ícone de ajuda */
+.beneficiarios-help {
+  position: relative;
+  display: inline-block;
+}
+
+.beneficiarios-help-icon {
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+.beneficiarios-help-tooltip {
+  visibility: hidden;
+  width: 240px;
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 8px;
+  position: absolute;
+  z-index: 1;
+  top: 130%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.85rem;
+}
+
+.beneficiarios-help:hover .beneficiarios-help-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+
+
+/* .beneficiarios-title-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.beneficiarios-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.beneficiarios-count {
+  font-size: 0.9rem;
+  color: #555;
+  background: #f5f5f5;
+  padding: 4px 10px;
+  border-radius: 12px;
+} */
