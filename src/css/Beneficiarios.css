@@ -188,6 +188,44 @@
   visibility: visible;
   opacity: 1;
 }
+/* Container dos botões no rodapé */
+.beneficiarios-actions {
+  display: flex;
+  justify-content: flex-end; /* direita */
+  gap: 16px;
+  margin-top: 24px;
+}
+
+/* Botão branco */
+.btn-white {
+  background-color: #fff;
+  color: #8B0000;
+  border: 2px solid #8B0000;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-white:hover {
+  background-color: #f8f8f8;
+}
+
+/* Botão vermelho */
+.btn-red {
+  background-color: #8B0000;
+  color: #fff;
+  border: 2px solid #8B0000;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-red:hover {
+  background-color: #a00000;
+}
+
 
 
 

@@ -1258,7 +1258,8 @@ textarea:disabled {
 /* Menu central */
 .navbar-center {
   display: flex;
-  gap: 20px;
+  gap: 30px;
+  margin-left: 100px;
 }
 
 .navbar-center span {
@@ -1277,7 +1278,52 @@ textarea:disabled {
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 19px; /* Espaço entre avatar e nome */
+}
+
+.separator {
+  width: 1px;
+  height: 32px; 
+  background-color: #ccc;
+  margin-right: 15px;
+}
+
+.navbar-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.navbar-username {
+  font-weight: 500;
+}
+
+.navbar-userbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;            
+  background-color: #f0f0f0; 
+  padding: 6px 10px;      
+  border-radius: 20px;   
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.navbar-userbox:hover {
+  background-color: #e0e0e0;
+}
+
+.navbar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.navbar-username {
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
 }
 
 .navbar-avatar {
@@ -1287,6 +1333,17 @@ textarea:disabled {
   cursor: pointer;
   border: 2px solid #510303; /* aro roxo igual no exemplo */
   object-fit: cover;
+}
+
+.user-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.user-role {
+  font-size: 12px;
+  color: #ffffff76;
 }
 
 .section-with-help {
