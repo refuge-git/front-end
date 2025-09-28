@@ -22,30 +22,86 @@ export default function Cadastro() {
   const [erro, setErro] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
 
+  function maskCPF(value) {
+    return value
+      .replace(/\D/g, "")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+      .slice(0, 14);
+  }
+
+  function maskTelefone(value) {
+    return value
+      .replace(/\D/g, "")
+      .replace(/(\d{2})(\d)/, "($1) $2")
+      .replace(/(\d{5})(\d)/, "$1-$2")
+      .slice(0, 15);
+  }
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    let value = e.target.value;
+    if (e.target.name === "cpf") {
+      value = maskCPF(value);
+    }
+    if (e.target.name === "telefone") {
+      value = maskTelefone(value);
+    }
+    setForm({ ...form, [e.target.name]: value });
+  };
+
+  const validateForm = () => {
+
+    if (!form.nome || form.nome.trim().length < 3) {
+      return "Nome deve ter pelo menos 3 caracteres.";
+    }
+
+    if (!/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(form.cpf)) {
+      return "CPF inválido. Use o formato 000.000.000-00.";
+    }
+
+    if (form.telefone && !/^\(\d{2}\) \d{5}-\d{4}$/.test(form.telefone)) {
+      return "Telefone inválido. Use o formato (00) 00000-0000.";
+    }
+
+    if (!form.email || !/^\S+@\S+\.\S+$/.test(form.email)) {
+      return "Email inválido.";
+    }
+
+    if (!form.senha ||
+      form.senha.length < 6 ||
+      !/[A-Z]/.test(form.senha) ||
+      !/[a-z]/.test(form.senha) ||
+      !/[0-9]/.test(form.senha) ||
+      !/[!@#$]/.test(form.senha)
+    ) {
+      return "Senha deve ter pelo menos 6 caracteres e conter número, letra maiúscula, letra minúscula e símbolo (!, @, #, $).";
+    }
+    // Confirmar senha
+    if (form.senha !== form.confirmarSenha) {
+      return "As senhas não conferem!";
+    }
+    return null;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErro("");
 
-    // Validação simples
-    if (!form.nome || !form.cpf || !form.email || !form.senha || !form.confirmarSenha) {
-      setErro("Preencha todos os campos!");
+    const erroValidacao = validateForm();
+    if (erroValidacao) {
+      setErro(erroValidacao);
       return;
     }
 
-    if (form.senha !== form.confirmarSenha) {
-      setErro("As senhas não conferem!");
-      return;
-    }
+    const telefoneSemMascara = form.telefone.replace(/\D/g, "");
+    const cpfSemMascara = form.cpf.replace(/\D/g, "");
 
     try {
       await api.post("/funcionarios", {
         nome: form.nome,
-        cpf: form.cpf,
-        telefone: form.telefone,
+        cpf: cpfSemMascara,
+        telefone: telefoneSemMascara,
         email: form.email,
         senha: form.senha
       });
@@ -102,7 +158,6 @@ export default function Cadastro() {
         <form className="login-form" onSubmit={handleSubmit}>
           <h2>CADASTRE-SE</h2>
 
-          {erro && <p className="erro">{erro}</p>} {/* mensagem de erro */}
 
           <div className="form-group-atv">
             <label>Nome Completo</label>
