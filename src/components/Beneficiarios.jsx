@@ -480,18 +480,22 @@ export default function Beneficiarios() {
     const fetchBeneficiarios = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await api.get("/beneficiarios", {
+            const response = await api.get("/beneficiarios/frequencia-dia-semana", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
+            console.log("Dados recebidos do backend (frequencia-dia-semana):", response.data);
+
         if (Array.isArray(response.data)) {
-          setBeneficiariosList(response.data.reverse());
+          setBeneficiariosList(response.data);
         } else {
           setBeneficiariosList([]);
+          console.warn("Formato inesperado do backend:", response.data);
         }
       } catch (err) {
+            console.error("Erro ao buscar beneficiários por frequência no dia da semana:", err);
         setError("Não foi possível carregar os beneficiários.");
       } finally {
         setLoading(false);
@@ -500,6 +504,7 @@ export default function Beneficiarios() {
 
     fetchBeneficiarios();
   }, []);
+
 
   const filteredList = (beneficiariosList || []).filter((item) => {
     if (!item) return false;
