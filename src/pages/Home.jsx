@@ -147,6 +147,11 @@ import Logo from "../assets/icon-logo-branca.png";
 import "../css/Home.css";
 
 export default function Home() {
+  // Função para logout
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = "/";
+  };
   const [showMenu, setShowMenu] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [nomePerfil, setNomePerfil] = useState("");
@@ -248,7 +253,7 @@ export default function Home() {
             </button>
             <button
               className="menu-btn"
-              onClick={() => setShowMenu(false)}
+              onClick={handleLogout}
             >
               Sair
             </button>
