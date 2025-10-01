@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../provider/api";
 
@@ -31,87 +31,94 @@ export default function RegistrationForm() {
 
   const [nomeSocialAtivo, setNomeSocialAtivo] = useState(false);
   const [erro, setErro] = useState("");
-  const [activeSection, setActiveSection] = useState("prontuario");
-  const [showConfirm, setShowConfirm] = useState(false);
-
-  const [generos, setGeneros] = useState([]);
-  const [racas, setRacas] = useState([]);
-  const [sexos, setSexos] = useState([]);
-  const [sexualidade, setSexualidade] = useState([]);
-  const [locais, setLocais] = useState([]);
 
 
-  useEffect(() => {
-    api.get("/tipos_generos")
-      .then((res) => setGeneros(res.data))
-      .catch((err) => console.error("Erro ao carregar gêneros:", err));
-  }, []);
-
-  useEffect(() => {
-    async function carregarRacas() {
-      try {
-        const response = await api.get("/beneficiarios/opcoes_racas");
-        console.log("RACAS DO BACK:", response.data);
-        setRacas(response.data || []); // garante array
-      } catch (error) {
-        console.error("Erro ao carregar raças:", error);
-        setRacas([]);
-      }
-    }
-    carregarRacas();
-  }, []);
-
-  useEffect(() => {
-    async function carregarSexos() {
-      try {
-        const response = await api.get("/beneficiarios/opcoes_sexo");
-        console.log("SEXOS DO BACK:", response.data);
-        setSexos(response.data || []);
-      } catch (error) {
-        console.error("Erro ao carregar sexos:", error);
-        setSexos([]);
-      }
-    }
-    carregarSexos();
-  }, []);
-
-  useEffect(() => {
-    api.get("/tipos_sexualidades")
-      .then((res) => setSexualidade(res.data))
-      .catch((err) => console.error("Erro ao carregar sexualidades:", err));
-  }, []);
-
-  useEffect(() => {
-    async function carregarLocais() {
-      try {
-        const response = await api.get("/beneficiarios/opcoes_local");
-        console.log("LOCAIS DO BACK:", response.data);
-        setLocais(response.data || []);
-      } catch (error) {
-        console.error("Erro ao carregar locais:", error);
-        setLocais([]);
-      }
-    }
-    carregarLocais();
-  }, []);
+  // Estado de imagem
+  const [previewImg, setPreviewImg] = useState(null);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
+  // handler para imagem
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if(file){
+      setPreviewImg(URL.createObjectURL(file)); // URL temporária para preview
+
+      // Conversão para base64
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result.split(",")[1];
+        setForm({...form, imagem: base64String})
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setErro("");
+
+  //   // Validações simples
+  //   if (!form.registro || !form.cpf || !form.nascimento) {
+  //     setErro("Preencha os campos obrigatórios!");
+  //     return;
+  //   }
+
+  //   try {
+  //     const payload = {
+  //       nomeRegistro: form.registro,
+  //       nomeSocial: nomeSocialAtivo ? form.nomeSocial : form.registro,
+  //       dtNasc: form.nascimento.split("/").reverse().join("-"), 
+  //       cpf: form.cpf,
+  //       estrangeiro: false, 
+  //       raca: form.raca,
+  //       sexo: form.sexo.toUpperCase(),
+  //       nomeMae: form.nomeMae,
+  //       egressoPrisional: form.egresso === "sim",
+  //       localDorme: form.localDormir.toUpperCase(),
+  //       fotoPerfil: "", 
+  //       sisa: form.sisa,
+  //       status: form.status || "ATIVO",
+  //       observacao: form.observacao,
+  //       idFuncionario: 1, 
+  //       idEndereco: 3,   
+  //       idTipoGenero: form.genero === "masculino" ? 1 : 2, 
+  //       idTipoSexualidade:
+  //         form.sexualidade === "hetero" ? 1 :
+  //           form.sexualidade === "homo" ? 2 :
+  //             form.sexualidade === "bi" ? 3 : 4,
+  //     };
+
+  //     await api.post("/beneficiarios", payload);
+
+  //     alert("Beneficiário cadastrado com sucesso!");
+  //     navigate("/home");
+  //   } catch (error) {
+  //     console.error(error);
+  //     if (error.response && error.response.data && error.response.data.error) {
+  //       setErro(error.response.data.error);
+  //     } else {
+  //       setErro("Erro ao cadastrar beneficiário. Tente novamente.");
+  //     }
+  //   }
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErro("");
 
     if (!form.registro || !form.cpf || !form.nascimento) {
-      setErro("Preencha os campos obrigatórios! \n");
+      setErro("Preencha os campos obrigatórios!");
       return;
     }
 
     try {
       const payloadBeneficiario = {
+        ...form, // 
         nomeRegistro: form.registro,
-        nomeSocial: nomeSocialAtivo ? form.nomeSocial : null,
+        nomeSocial: nomeSocialAtivo ? form.nomeSocial : form.registro,
         dtNasc: form.nascimento.split("/").reverse().join("-"),
         cpf: form.cpf,
         estrangeiro: false,
@@ -120,23 +127,27 @@ export default function RegistrationForm() {
         nomeMae: form.nomeMae,
         egressoPrisional: form.egresso === "sim",
         localDorme: form.localDormir.toUpperCase(),
-        fotoPerfil: "",
+        imagem: form.imagem,
         sisa: form.sisa,
         status: form.status || "ATIVO",
         observacao: form.observacao,
-        idFuncionario: Number(localStorage.getItem('funcionarioId')),
-        idEndereco: null,
-        idTipoGenero: form.genero ? Number(form.genero) : null,
-        idTipoSexualidade: form.sexualidade ? Number(form.sexualidade) : null,
+        idFuncionario: 1,
+        idEndereco: null, 
+        idTipoGenero: form.genero === "masculino" ? 1 : 2,
+        idTipoSexualidade:
+          form.sexualidade === "hetero" ? 1 :
+            form.sexualidade === "homo" ? 2 :
+              form.sexualidade === "bi" ? 3 : 4,
       };
 
       const response = await api.post("/beneficiarios", payloadBeneficiario);
 
-      const idBeneficiario = response.data.id;
-      setShowConfirm(true); // Mostra o card de confirmação
-      setTimeout(() => {
-        navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
-      }, 2000); // Redireciona após 2 segundos
+      const idBeneficiario = response.data.id; // pega o ID retornado
+
+      navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
+
+      alert("Beneficiário cadastrado com sucesso! Agora cadastre o endereço.");
+
     } catch (error) {
       console.error(error);
       if (error.response && error.response.data && error.response.data.error) {
@@ -147,20 +158,12 @@ export default function RegistrationForm() {
     }
   };
 
+
   const handleClose = () => {
     navigate("/home");
   };
 
-  const handleClose2 = () => {
-    navigate("/Registro-endereco");
-  };
-
-  useEffect(() => {
-    if (erro) {
-      const timer = setTimeout(() => setErro(""), 1000); // card de erro some após 2.5s
-      return () => clearTimeout(timer);
-    }
-  }, [erro]);
+  const [activeSection, setActiveSection] = useState("prontuario");
 
   return (
     <div className="condicoes-saude-container">
@@ -183,31 +186,7 @@ export default function RegistrationForm() {
         <div className="condicoes-content">
           <h2>Cadastrar novo beneficiário</h2>
 
-          {/* Card de erro */}
-          {erro && (
-            <div className="confirm-overlay">
-              <div className="error-card">
-                <div className="error-icon"></div>
-                <div>
-                  <h3>Erro ao cadastrar</h3>
-                  <p>{erro}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Card de confirmação */}
-          {showConfirm && (
-            <div className="confirm-overlay">
-              <div className="confirm-card">
-                <div className="confirm-icon"></div>
-                <div>
-                  <h3>Cadastro realizado!</h3>
-                  <p>Beneficiário cadastrado com sucesso.<br />Você será redirecionado para cadastrar o endereço.<br /></p>
-                </div>
-              </div>
-            </div>
-          )}
+          {erro && <p className="erro">{erro}</p>}
 
           <form className="form" onSubmit={handleSubmit}>
             <div className="avatarSection">
@@ -247,23 +226,11 @@ export default function RegistrationForm() {
                   </div>
                   <div className="form-group">
                     <label>Data de Nascimento</label>
-                    {/* <Input
-                      name="nascimento"
-                      placeholder="DD/MM/AAAA"
-                      value={form.nascimento}
-                      onChange={handleChange}
-                      type="date"
-                    /> */}
-
                     <Input
-                      type="date"
                       name="nascimento"
                       placeholder="DD/MM/AAAA"
                       value={form.nascimento}
                       onChange={handleChange}
-                      style={{
-                        color: form.nascimento ? "#000000" : "#aaa", // preto ao digitar, cinza quando vazio
-                      }}
                     />
                   </div>
                 </div>
@@ -290,31 +257,13 @@ export default function RegistrationForm() {
                   className="select-categoria"
                 >
                   <option value="">Selecione</option>
-                  {generos.map((g) => (
-                    <option key={g.id} value={g.id}>
-                      {g.nome}
-                    </option>
-                  ))}
+                  <option value="masculino">Masculino</option>
+                  <option value="feminino">Feminino</option>
                 </select>
               </div>
               <div className="form-group">
                 <label>Raça</label>
-
                 <select
-                  name="raca"
-                  value={form.raca}
-                  onChange={handleChange}
-                  className="select-categoria"
-                >
-                  <option value="">Selecione</option>
-                  {racas.map((raca, index) => (
-                    <option key={index} value={raca.value}>
-                      {raca.descricao}
-                    </option>
-                  ))}
-                </select>
-
-                {/* <select
                   name="raca"
                   value={form.raca}
                   onChange={handleChange}
@@ -326,7 +275,8 @@ export default function RegistrationForm() {
                   <option value="AMARELA">Amarelo(a)</option>
                   <option value="INDIGENA">Indigena</option>
                   <option value="NAO_DECLARADO">Não declarado</option>
-                </select> */}
+
+                </select>
               </div>
               <div className="form-group">
                 <label>Egresso Prisional</label>
@@ -354,14 +304,8 @@ export default function RegistrationForm() {
                   className="select-categoria"
                 >
                   <option value="">Selecione</option>
-                  {sexos.map((sexo, index) => (
-                    <option key={index} value={sexo.value}>
-                      {sexo.descricao}
-                    </option>
-                  ))}
-                  {/* <option value="">Selecione</option>
                   <option value="masculino">Masculino</option>
-                  <option value="feminino">Feminino</option> */}
+                  <option value="feminino">Feminino</option>
                 </select>
               </div>
               <div className="form-group">
@@ -372,18 +316,11 @@ export default function RegistrationForm() {
                   onChange={handleChange}
                   className="select-categoria"
                 >
-
                   <option value="">Selecione</option>
-                  {sexualidade.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.nome}
-                    </option>
-                  ))}
-                  {/* <option value="">Selecione</option>
                   <option value="hetero">Heterossexual</option>
                   <option value="homo">Homossexual</option>
                   <option value="bi">Bissexual</option>
-                  <option value="outro">Outro</option> */}
+                  <option value="outro">Outro</option>
                 </select>
               </div>
               <div className="form-group">
@@ -394,30 +331,20 @@ export default function RegistrationForm() {
                   onChange={handleChange}
                   className="select-categoria"
                 >
-
                   <option value="">Selecione</option>
-                  {locais.map((local, index) => (
-                    <option key={index} value={local.value}>
-                      {local.descricao}
-                    </option>
-                  ))}
-                  {/* <option value="">Selecione</option>
                   <option value="casa">Casa</option>
                   <option value="abrigo">Abrigo</option>
-                  <option value="rua">Rua</option> */}
+                  <option value="rua">Rua</option>
                 </select>
               </div>
               <div className="form-group">
                 <label>Status</label>
-                <div className="input-with-indicator">
-                  <span className="status-indicator"></span>
-                  <Input
-                    name="status"
-                    value="Ativo"
-                    disabled
-                    className="input-des"
-                  />
-                </div>
+                <Input
+                  name="status"
+                  placeholder="Status"
+                  value={form.status}
+                  onChange={handleChange}
+                />
               </div>
             </div>
 
@@ -458,8 +385,8 @@ export default function RegistrationForm() {
 
             {/* Botões */}
             <div className="form-buttons">
-              <Botao type="button" className="btn-pular" onClick={handleClose2}>
-                Proximo
+              <Botao type="button" className="btn-pular" onClick={handleClose}>
+                Cancelar
               </Botao>
               <Botao type="submit" className="btn-salvar">
                 Salvar
