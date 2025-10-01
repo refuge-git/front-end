@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { color } from "chart.js/helpers";
 
 Chart.register(
   LineController,
@@ -49,8 +50,8 @@ export default function DashboardGraficos() {
     let data = [];
 
     if (mode === "mes") {
-      labels = Array.from({ length: 30 }, (_, i) => `${i + 1}`);
-      data = Array.from({ length: 30 }, () => Math.floor(Math.random() * 1000));
+      labels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+      data = Array.from({ length: 12 }, () => Math.floor(Math.random() * 1000));
     } else if (mode === "semana") {
       labels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
       data = [450, 700, 320, 800, 950, 600, 400];
@@ -178,6 +179,7 @@ export default function DashboardGraficos() {
           onChange={(e) => setViewMode(e.target.value)}
           style={{
             position: "absolute",
+            width: "200px",
             top: "10px",
             right: "20px",
             padding: "5px 10px",
@@ -200,7 +202,10 @@ export default function DashboardGraficos() {
         <h2 className="dashboard-grafico-title">Serviços no Mês (2025)</h2>
         <div className="dashboard-legenda">
           <div>
-            <span className="dashboard-legenda-dot dashboard-legenda-banho"></span>{" "}
+            <span className="dashboard-legenda-dot dashboard-legenda-banho" 
+            style={{
+              
+            }}></span>{" "}
             Banho
           </div>
           <div>
