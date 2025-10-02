@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../provider/api";
 
@@ -36,6 +36,9 @@ export default function RegistrationForm() {
   // Estado de imagem
   const [previewImg, setPreviewImg] = useState(null);
 
+  // Referência para o input file (fica escondido)
+  const fileInputRef = useRef(null);
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -43,18 +46,26 @@ export default function RegistrationForm() {
   // handler para imagem
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if(file){
+    if (file) {
       setPreviewImg(URL.createObjectURL(file)); // URL temporária para preview
 
       // Conversão para base64
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result.split(",")[1];
-        setForm({...form, imagem: base64String})
+        setForm({ ...form, imagem: base64String })
       };
       reader.readAsDataURL(file);
     }
   }
+
+  
+
+  const handleAvatarClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
@@ -132,7 +143,7 @@ export default function RegistrationForm() {
         status: form.status || "ATIVO",
         observacao: form.observacao,
         idFuncionario: 1,
-        idEndereco: null, 
+        idEndereco: null,
         idTipoGenero: form.genero === "masculino" ? 1 : 2,
         idTipoSexualidade:
           form.sexualidade === "hetero" ? 1 :
@@ -190,7 +201,21 @@ export default function RegistrationForm() {
 
           <form className="form" onSubmit={handleSubmit}>
             <div className="avatarSection">
-              <img src={Perfil} alt="Avatar" className="avatar" />
+              <img
+                src={previewImg || Perfil}
+                alt="Avatar"
+                className="avatar"
+                onClick={handleAvatarClick}
+                style={{ cursor: "pointer" }}
+              />
+
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                accept="image/*"
+                onChange={handleImageChange}
+              />
 
               <div className="avatar-fields">
                 <div className="form-row">
