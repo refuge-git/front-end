@@ -105,9 +105,10 @@
 
 .dashboard-legenda {
   position: absolute;
-  top: 32px;
+  top: 10px;
   right: 32px;
   background: #fff;
+  color: #000;
   border-radius: 12px;
   box-shadow: 0 2px 8px #0001;
   padding: 12px 24px;

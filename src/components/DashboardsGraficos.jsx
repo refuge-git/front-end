@@ -125,17 +125,17 @@ export default function DashboardGraficos() {
           {
             label: "Banho",
             data: dadosServicos.map((d) => d.banho),
-            backgroundColor: "#800000",
+            backgroundColor: "#003366",
           },
           {
             label: "Refeição",
             data: dadosServicos.map((d) => d.refeicao),
-            backgroundColor: "#111",
+            backgroundColor: "#A52A2A ",  
           },
           {
             label: "Outros",
             data: dadosServicos.map((d) => d.outros),
-            backgroundColor: "#ffffe0",
+            backgroundColor: "#F5DEB3",
             borderColor: "#eee",
             borderWidth: 1,
           },
@@ -145,17 +145,17 @@ export default function DashboardGraficos() {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { position: "top", labels: { color: "#555" } },
+          legend: { display: false },
         },
         scales: {
           x: {
-            grid: { color: "#eee" },
+            grid: { color: "#a03737ff" },
             ticks: { color: "#888", font: { size: 14 } },
           },
           y: {
             beginAtZero: true,
             max: 1000,
-            grid: { color: "#eee" },
+            grid: { color: "#9b3c3cff" },
             ticks: { stepSize: 250, color: "#888", font: { size: 14 } },
           },
         },
@@ -198,14 +198,13 @@ export default function DashboardGraficos() {
       </div>
 
       {/* DASHBOARD DE SERVIÇOS */}
-      <div className="dashboard-grafico dashboard-grafico-bar">
+      <div className="dashboard-grafico dashboard-grafico-bar" style={{
+        margintop: "10px",   
+      }}>
         <h2 className="dashboard-grafico-title">Serviços no Mês (2025)</h2>
         <div className="dashboard-legenda">
           <div>
-            <span className="dashboard-legenda-dot dashboard-legenda-banho" 
-            style={{
-              
-            }}></span>{" "}
+            <span className="dashboard-legenda-dot dashboard-legenda-banho" ></span>{" "}
             Banho
           </div>
           <div>
