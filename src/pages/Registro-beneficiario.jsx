@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../provider/api";
 
@@ -31,6 +31,8 @@ export default function RegistrationForm() {
 
   const [nomeSocialAtivo, setNomeSocialAtivo] = useState(false);
   const [erro, setErro] = useState("");
+  const [activeSection, setActiveSection] = useState("prontuario");
+  const [showConfirm, setShowConfirm] = useState(false);
 
 
   // Estado de imagem
@@ -59,7 +61,7 @@ export default function RegistrationForm() {
     }
   }
 
-  
+
 
   const handleAvatarClick = () => {
     if (fileInputRef.current) {
@@ -153,11 +155,17 @@ export default function RegistrationForm() {
 
       const response = await api.post("/beneficiarios", payloadBeneficiario);
 
-      const idBeneficiario = response.data.id; // pega o ID retornado
+      // const idBeneficiario = response.data.id; // pega o ID retornado
 
-      navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
+      // navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
 
-      alert("Beneficiário cadastrado com sucesso! Agora cadastre o endereço.");
+      // alert("Beneficiário cadastrado com sucesso! Agora cadastre o endereço.");
+
+      const idBeneficiario = response.data.id;
+      setShowConfirm(true); // Mostra o card de confirmação
+      setTimeout(() => {
+        navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
+      }, 2000); // Redireciona após 2 segundos
 
     } catch (error) {
       console.error(error);
@@ -174,7 +182,14 @@ export default function RegistrationForm() {
     navigate("/home");
   };
 
-  const [activeSection, setActiveSection] = useState("prontuario");
+  // const [activeSection, setActiveSection] = useState("prontuario");
+
+  useEffect(() => {
+    if (erro) {
+      const timer = setTimeout(() => setErro(""), 1000); // card de erro some após 2.5s
+      return () => clearTimeout(timer);
+    }
+  }, [erro]);
 
   return (
     <div className="condicoes-saude-container">
@@ -197,7 +212,33 @@ export default function RegistrationForm() {
         <div className="condicoes-content">
           <h2>Cadastrar novo beneficiário</h2>
 
-          {erro && <p className="erro">{erro}</p>}
+          {/* {erro && <p className="erro">{erro}</p>} */}
+
+          {/* Card de erro */}
+          {erro && (
+            <div className="confirm-overlay">
+              <div className="error-card">
+                <div className="error-icon"></div>
+                <div>
+                  <h3>Erro ao cadastrar</h3>
+                  <p>{erro}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Card de confirmação */}
+          {showConfirm && (
+            <div className="confirm-overlay">
+              <div className="confirm-card">
+                <div className="confirm-icon"></div>
+                <div>
+                  <h3>Cadastro realizado!</h3>
+                  <p>Beneficiário cadastrado com sucesso.<br />Você será redirecionado para cadastrar o endereço.<br /></p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <form className="form" onSubmit={handleSubmit}>
             <div className="avatarSection">
@@ -252,10 +293,14 @@ export default function RegistrationForm() {
                   <div className="form-group">
                     <label>Data de Nascimento</label>
                     <Input
+                      type="date"
                       name="nascimento"
                       placeholder="DD/MM/AAAA"
                       value={form.nascimento}
                       onChange={handleChange}
+                      style={{
+                        color: form.nascimento ? "#000000" : "#aaa", // preto ao digitar, cinza quando vazio
+                      }}
                     />
                   </div>
                 </div>
@@ -294,6 +339,7 @@ export default function RegistrationForm() {
                   onChange={handleChange}
                   className="select-categoria"
                 >
+                  <option value="">Selecione</option>
                   <option value="BRANCO">Branco(a)</option>
                   <option value="PRETO">Preto(a)</option>
                   <option value="PARDO">Pardo(a)</option>
@@ -364,12 +410,15 @@ export default function RegistrationForm() {
               </div>
               <div className="form-group">
                 <label>Status</label>
-                <Input
-                  name="status"
-                  placeholder="Status"
-                  value={form.status}
-                  onChange={handleChange}
-                />
+                <div className="input-with-indicator">
+                  <span className="status-indicator"></span>
+                  <Input
+                    name="status"
+                    value="Ativo"
+                    disabled
+                    className="input-des"
+                  />
+                </div>
               </div>
             </div>
 
@@ -377,7 +426,7 @@ export default function RegistrationForm() {
             <div className="form-group full-width nome-social-section">
               <label>Nome Social</label>
               <div className="switch-container">
-                <label className="switch">
+                <label className="switch-two">
                   <input
                     type="checkbox"
                     checked={nomeSocialAtivo}
