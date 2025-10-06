@@ -143,6 +143,7 @@
 .beneficiarios-title {
   font-size: 1.5rem;
   font-weight: bold;
+  color: #333;
 }
 
 .beneficiarios-count {
@@ -288,10 +289,16 @@
 
 .modal-card h3 {
   font-size: 25px;
+    text-align: left; 
+  margin: 0; 
+  margin-bottom: 20px;
 }
 
 .modal-card p {
-  font-size: 20px;
+  color: #555;
+  font-size: 18px;
+  text-align: left; 
+  margin: 0; 
 }
 
 /* Botão X */
@@ -315,6 +322,7 @@
   display: flex;
   justify-content: center;
   gap: 15px;
+  margin-left: 180px;
 }
 
 /* Botões de confirmação */
@@ -367,7 +375,8 @@
   flex-direction: column;
   gap: 20px;
   margin: 30px 0;
-  margin-left: 100px;
+  /* margin-left: 100px; */
+  /* background-color: #9a1a1a; */
 }
 
 /* estrutura do switch */
@@ -377,12 +386,11 @@
   justify-content: space-between;
   font-weight: 500;
   width: 100%;
-  max-width: 300px;
+  color: #555;
+  font-size: 17px;
+  /* max-width: 300px; */
 }
 
-.switch {
-  font-size: 18px;
-}
 
 /* esconde o checkbox padrão */
 .switch input {
@@ -423,17 +431,20 @@
 }
 
 .btn-add-atividade {
-  background-color: #7e020000;
-  color: rgb(0, 0, 0);
+  background-color: transparent;
+  color: #1f1e1e;
   border: none;
-  /* padding: 10px 20px; */
   border-radius: 6px;
-  /* font-weight: bold; */
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: color 0.2s ease;
   margin-top: 10px;
-  margin-right: 100px;
-  transition: 0.1s;
+  margin-left: 0;         /* garante alinhamento à esquerda */
+  margin-right: 0;        /* remove empurrão para a direita */
+  display: inline-block;  /* mantém o botão na mesma linha */
+  white-space: nowrap;    /* impede quebra de linha no texto */
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: left;
 }
 
 .btn-add-atividade:hover {
@@ -471,3 +482,5 @@
   margin-right: 450px;
   white-space: nowrap;
 }
+
+  

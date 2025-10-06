@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import  Cadastro  from '../pages/Cadastro';
 import  Login  from '../pages/Login';
-import  RegistroAtividade  from '../pages/Registro-atividade';
+// import  RegistroAtividade  from '../pages/Registro-atividade';
 import  RegistroNovaAtividade  from '../pages/Registro-nova-atividade';
 import RegistroEndereco from '../pages/Registro-endereco';
 import RegistroCadastro from '../pages/Registro-beneficiario'; 
@@ -21,12 +21,12 @@ export default function AppRoutes() {
                 <Routes>
                         <Route path="/" element={<Login />} />
                         <Route path="/cadastro" element={<Cadastro />} />
-                        <Route path="/registro-atividade" element={
+                        {/* <Route path="/registro-atividade" element={
                             <ProtectedRoute><RegistroAtividade /></ProtectedRoute>
-                        } />
-                        <Route path="/registro-nova-atividade" element={
+                        } /> */}
+                        {/* <Route path="/registro-nova-atividade" element={
                             <ProtectedRoute><RegistroNovaAtividade /></ProtectedRoute>
-                        } />
+                        } /> */}
                         <Route path="/registro-endereco" element={
                             <ProtectedRoute><RegistroEndereco /></ProtectedRoute>
                         } />
