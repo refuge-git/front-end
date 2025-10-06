@@ -16,6 +16,7 @@ export default function EnderecoForm() {
 
   const [form, setForm] = useState({
     cep: "",
+    tipoLogradouro: "",
     logradouro: "",
     numero: "",
     complemento: "",
@@ -42,11 +43,12 @@ export default function EnderecoForm() {
     try {
       const payload = {
         cep: form.cep,
-        logradouro: form.logradouro,
+        tipoLogradouro: form.tipoLogradouro,
+        nomeLogradouro: form.logradouro,
         numero: form.numero,
         complemento: form.complemento,
         bairro: form.bairro,
-        cidade: form.cidade,
+        nomeLocalidade: form.cidade,
         observacao: form.observacao,
         idBeneficiario: idBeneficiario,
       };
@@ -82,7 +84,7 @@ export default function EnderecoForm() {
             if (sectionId === "prontuario") {
               navigate("/registro-cadastro");
             } else if (sectionId === "condicao-saude") {
-          navigate("/condicoes-saude");
+              navigate("/condicoes-saude");
             } else {
               setActiveSection(sectionId);
             }
@@ -99,6 +101,15 @@ export default function EnderecoForm() {
               <div className="form-group">
                 <label>CEP</label>
                 <Input name="cep" placeholder="CEP" value={form.cep} onChange={handleChange} />
+              </div>
+              <div className="form-group">
+                <label>Tipo de Logradouro</label>
+                <Input
+                  name="tipoLogradouro"
+                  placeholder="Rua, Avenida, Travessa..."
+                  value={form.tipoLogradouro || ""}
+                  onChange={handleChange}
+                />
               </div>
               <div className="form-group">
                 <label>Logradouro</label>
