@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../provider/api";
-
 import Perfil from "../assets/Avatar.png";
 import Input from "../components/Input";
 import Botao from "../components/Botao";
@@ -69,55 +68,6 @@ export default function RegistrationForm() {
     }
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setErro("");
-
-  //   // Validações simples
-  //   if (!form.registro || !form.cpf || !form.nascimento) {
-  //     setErro("Preencha os campos obrigatórios!");
-  //     return;
-  //   }
-
-  //   try {
-  //     const payload = {
-  //       nomeRegistro: form.registro,
-  //       nomeSocial: nomeSocialAtivo ? form.nomeSocial : form.registro,
-  //       dtNasc: form.nascimento.split("/").reverse().join("-"), 
-  //       cpf: form.cpf,
-  //       estrangeiro: false, 
-  //       raca: form.raca,
-  //       sexo: form.sexo.toUpperCase(),
-  //       nomeMae: form.nomeMae,
-  //       egressoPrisional: form.egresso === "sim",
-  //       localDorme: form.localDormir.toUpperCase(),
-  //       fotoPerfil: "", 
-  //       sisa: form.sisa,
-  //       status: form.status || "ATIVO",
-  //       observacao: form.observacao,
-  //       idFuncionario: 1, 
-  //       idEndereco: 3,   
-  //       idTipoGenero: form.genero === "masculino" ? 1 : 2, 
-  //       idTipoSexualidade:
-  //         form.sexualidade === "hetero" ? 1 :
-  //           form.sexualidade === "homo" ? 2 :
-  //             form.sexualidade === "bi" ? 3 : 4,
-  //     };
-
-  //     await api.post("/beneficiarios", payload);
-
-  //     alert("Beneficiário cadastrado com sucesso!");
-  //     navigate("/home");
-  //   } catch (error) {
-  //     console.error(error);
-  //     if (error.response && error.response.data && error.response.data.error) {
-  //       setErro(error.response.data.error);
-  //     } else {
-  //       setErro("Erro ao cadastrar beneficiário. Tente novamente.");
-  //     }
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErro("");
@@ -155,17 +105,15 @@ export default function RegistrationForm() {
 
       const response = await api.post("/beneficiarios", payloadBeneficiario);
 
-      // const idBeneficiario = response.data.id; // pega o ID retornado
-
-      // navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
-
-      // alert("Beneficiário cadastrado com sucesso! Agora cadastre o endereço.");
-
       const idBeneficiario = response.data.id;
-      setShowConfirm(true); // Mostra o card de confirmação
+      console.log("ID do beneficiário cadastrado:", idBeneficiario);
+      localStorage.setItem("formBeneficiario", JSON.stringify(form));
+      localStorage.setItem("idBeneficiario", idBeneficiario);
+      setShowConfirm(true); 
+
       setTimeout(() => {
         navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
-      }, 2000); // Redireciona após 2 segundos
+      }, 2000); 
 
     } catch (error) {
       console.error(error);
@@ -179,17 +127,31 @@ export default function RegistrationForm() {
 
 
   const handleClose = () => {
+    localStorage.removeItem("formBeneficiario");
     navigate("/home");
   };
 
-  // const [activeSection, setActiveSection] = useState("prontuario");
+
 
   useEffect(() => {
     if (erro) {
-      const timer = setTimeout(() => setErro(""), 1000); // card de erro some após 2.5s
+      const timer = setTimeout(() => setErro(""), 1000);
       return () => clearTimeout(timer);
     }
   }, [erro]);
+
+  useEffect(() => {
+
+    const savedForm = localStorage.getItem("formBeneficiario");
+    if (savedForm) {
+      setForm(JSON.parse(savedForm));
+    }
+
+    const savedNomeSocial = localStorage.getItem("nomeSocialAtivo");
+    if (savedNomeSocial) {
+      setNomeSocialAtivo(savedNomeSocial === "true");
+    }
+  }, []);
 
   return (
     <div className="condicoes-saude-container">
@@ -202,8 +164,19 @@ export default function RegistrationForm() {
             if (sectionId === "condicao-saude") {
               navigate("/condicoes-saude");
             } else if (sectionId === "endereco") {
-              navigate("/Registro-endereco");
-            } else {
+              const idBeneficiario = localStorage.getItem("idBeneficiario");
+              if (idBeneficiario) {
+                navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
+              } else {
+                alert("Cadastre um beneficiário antes de cadastrar um endereço.");
+              }
+            }
+
+            //   if (sectionId === "endereco") {
+            //   navigate("/Registro-endereco");
+            // } 
+
+            else {
               setActiveSection(sectionId);
             }
           }}
