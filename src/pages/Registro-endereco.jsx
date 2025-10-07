@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "../provider/api";
 
@@ -28,7 +28,10 @@ export default function EnderecoForm() {
   const [erro, setErro] = useState("");
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    // setForm({ ...form, [e.target.name]: e.target.value });
+    const updatedForm = { ...form, [e.target.name]: e.target.value };
+    setForm(updatedForm);
+    sessionStorage.setItem("formEndereco", JSON.stringify(updatedForm));
   };
 
   const handleSubmit = async (e) => {
@@ -56,22 +59,31 @@ export default function EnderecoForm() {
       const response = await api.post("/enderecos", payload);
 
       alert("Endereço cadastrado com sucesso!");
-      navigate("/home"); // volta para a home ou onde quiser
+      navigate("/condicoes-saude"); // volta para a home ou onde quiser
     } catch (error) {
       console.error(error);
       setErro("Erro ao cadastrar endereço. Tente novamente.");
     }
   };
 
-  const handleClose = () => {
-    navigate("/home");
-  };
-
   const handleClose2 = () => {
     navigate("/condicoes-saude");
   };
 
+  const handleClose = () => {
+    sessionStorage.removeItem("formEndereco"); 
+    navigate("/home");
+  };
+
+
   const [activeSection, setActiveSection] = useState("endereco");
+
+  useEffect(() => {
+    const savedForm = sessionStorage.getItem("formEndereco");
+    if (savedForm) {
+      setForm(JSON.parse(savedForm));
+    }
+  }, []);
 
   return (
     <div className="condicoes-saude-container">

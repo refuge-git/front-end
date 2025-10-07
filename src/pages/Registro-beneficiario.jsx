@@ -131,8 +131,6 @@ export default function RegistrationForm() {
     navigate("/home");
   };
 
-
-
   useEffect(() => {
     if (erro) {
       const timer = setTimeout(() => setErro(""), 1000);
@@ -171,11 +169,6 @@ export default function RegistrationForm() {
                 alert("Cadastre um beneficiário antes de cadastrar um endereço.");
               }
             }
-
-            //   if (sectionId === "endereco") {
-            //   navigate("/Registro-endereco");
-            // } 
-
             else {
               setActiveSection(sectionId);
             }
