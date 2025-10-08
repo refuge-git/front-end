@@ -26,6 +26,7 @@ export default function EnderecoForm() {
   });
 
   const [erro, setErro] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleChange = (e) => {
     // setForm({ ...form, [e.target.name]: e.target.value });
@@ -58,8 +59,11 @@ export default function EnderecoForm() {
 
       const response = await api.post("/enderecos", payload);
 
-      alert("Endereço cadastrado com sucesso!");
-      navigate("/condicoes-saude"); // volta para a home ou onde quiser
+      setShowConfirm(true);
+
+      setTimeout(() => {
+        navigate("/condicoes-saude");
+      }, 2000);
     } catch (error) {
       console.error(error);
       setErro("Erro ao cadastrar endereço. Tente novamente.");
@@ -71,7 +75,9 @@ export default function EnderecoForm() {
   };
 
   const handleClose = () => {
-    sessionStorage.removeItem("formEndereco"); 
+    localStorage.removeItem("formBeneficiario");
+    localStorage.removeItem("formEndereco");
+    localStorage.removeItem("idBeneficiario");
     navigate("/home");
   };
 
@@ -107,6 +113,19 @@ export default function EnderecoForm() {
           <h2>Cadastrar Endereço</h2>
 
           {erro && <p className="erro">{erro}</p>}
+
+          {/* Card de confirmação reutilizado */}
+          {showConfirm && (
+            <div className="confirm-overlay">
+              <div className="confirm-card">
+                <div className="confirm-icon"></div>
+                <div>
+                  <h3>Cadastro realizado!</h3>
+                  <p>Endereço cadastrado com sucesso.<br />Você será redirecionado para as condições de saúde.<br /></p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <form className="form" onSubmit={handleSubmit}>
             <div className="form-row">

@@ -32,6 +32,7 @@ export default function RegistrationForm() {
   const [erro, setErro] = useState("");
   const [activeSection, setActiveSection] = useState("prontuario");
   const [showConfirm, setShowConfirm] = useState(false);
+  const [alerta, setAlerta] = useState(""); // Novo estado para o card de alerta
 
 
   // Estado de imagem
@@ -44,11 +45,10 @@ export default function RegistrationForm() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // handler para imagem
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setPreviewImg(URL.createObjectURL(file)); // URL temporária para preview
+      setPreviewImg(URL.createObjectURL(file));
 
       // Conversão para base64
       const reader = new FileReader();
@@ -109,11 +109,11 @@ export default function RegistrationForm() {
       console.log("ID do beneficiário cadastrado:", idBeneficiario);
       localStorage.setItem("formBeneficiario", JSON.stringify(form));
       localStorage.setItem("idBeneficiario", idBeneficiario);
-      setShowConfirm(true); 
+      setShowConfirm(true);
 
       setTimeout(() => {
         navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
-      }, 2000); 
+      }, 2000);
 
     } catch (error) {
       console.error(error);
@@ -128,6 +128,8 @@ export default function RegistrationForm() {
 
   const handleClose = () => {
     localStorage.removeItem("formBeneficiario");
+    localStorage.removeItem("formEndereco");
+    localStorage.removeItem("idBeneficiario");
     navigate("/home");
   };
 
@@ -151,6 +153,13 @@ export default function RegistrationForm() {
     }
   }, []);
 
+  // faz o card de alerta sumir automaticamente após 2 segundos
+  useEffect(() => {
+    if (!alerta) return;
+    const timer = setTimeout(() => setAlerta(""), 2000);
+    return () => clearTimeout(timer);
+  }, [alerta]);
+
   return (
     <div className="condicoes-saude-container">
       <div className="condicoes-saude-box">
@@ -166,7 +175,7 @@ export default function RegistrationForm() {
               if (idBeneficiario) {
                 navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
               } else {
-                alert("Cadastre um beneficiário antes de cadastrar um endereço.");
+                setAlerta("Cadastre um beneficiário antes de cadastrar um endereço.");
               }
             }
             else {
@@ -177,8 +186,6 @@ export default function RegistrationForm() {
 
         <div className="condicoes-content">
           <h2>Cadastrar novo beneficiário</h2>
-
-          {/* {erro && <p className="erro">{erro}</p>} */}
 
           {/* Card de erro */}
           {erro && (
@@ -201,6 +208,25 @@ export default function RegistrationForm() {
                 <div>
                   <h3>Cadastro realizado!</h3>
                   <p>Beneficiário cadastrado com sucesso.<br />Você será redirecionado para cadastrar o endereço.<br /></p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Card de alerta */}
+          {alerta && (
+            <div className="confirm-overlay">
+              <div
+                className="error-card"
+                style={{
+                  height: 150,     
+
+                }}
+              >
+                <div className="error-icon" style={{ marginRight: 16 }}></div>
+                <div style={{ textAlign: "center" }}>
+                  <h3>Atenção</h3>
+                  <p>{alerta}</p>
                 </div>
               </div>
             </div>

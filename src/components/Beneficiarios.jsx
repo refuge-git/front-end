@@ -1,4 +1,4 @@
-  import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
   import { useNavigate } from "react-router-dom";
   import "../css/Beneficiarios.css";
   import Icon from "../assets/perfil-s-fundo.png";
@@ -11,6 +11,8 @@
   export default function Beneficiarios() {
     const [search, setSearch] = useState("");
     const [beneficiariosList, setBeneficiariosList] = useState([]);
+    const [totalCount, setTotalCount] = useState(0);
+    const [ativosCount, setAtivosCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedBeneficiario, setSelectedBeneficiario] = useState(null); // para exclusão
@@ -35,19 +37,33 @@
       const fetchBeneficiarios = async () => {
         try {
           const token = localStorage.getItem("token");
-          const response = await api.get("/beneficiarios/frequencia-dia-semana", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          // buscar lista de frequência (o que você já fazia) e também a lista completa
+          const [frequenciaRes, allRes] = await Promise.all([
+            api.get("/beneficiarios/frequencia-dia-semana", {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            api.get("/beneficiarios", {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+          ]);
 
-          console.log("Dados recebidos do backend:", response.data);
+          console.log("Frequência:", frequenciaRes.data);
+          console.log("Todos os beneficiários:", allRes.data);
 
-          if (Array.isArray(response.data)) {
-            setBeneficiariosList(response.data);
+          if (Array.isArray(frequenciaRes.data)) {
+            setBeneficiariosList(frequenciaRes.data);
           } else {
             setBeneficiariosList([]);
-            console.warn("Formato inesperado:", response.data);
+            console.warn("Formato inesperado (frequência):", frequenciaRes.data);
+          }
+
+          if (Array.isArray(allRes.data)) {
+            setTotalCount(allRes.data.length);
+            setAtivosCount(allRes.data.filter((b) => b && b.status === "ATIVO").length);
+          } else {
+            setTotalCount(0);
+            setAtivosCount(0);
+            console.warn("Formato inesperado (todos):", allRes.data);
           }
         } catch (err) {
           console.error("Erro ao buscar beneficiários:", err);
@@ -138,7 +154,7 @@
           </div>
 
           <span className="beneficiarios-count">
-            {filteredList.length} ativo(s) de {beneficiariosList.length} total
+            {ativosCount} ativo(s) de {totalCount} total
           </span>
         </div>
 
@@ -202,7 +218,7 @@
                 </strong>?
               </p>
 
-              <div className="modal-actions">
+              <div className="modal-actions-delete">
                 <button
                   className="btn-verde"
                   onClick={() => handleDelete(selectedBeneficiario)}

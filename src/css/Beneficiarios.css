@@ -317,13 +317,22 @@
   color: #000;
 }
 
+.modal-actions-delete {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-left: 345px;
+}
+
 .modal-actions {
   margin-top: 20px;
   display: flex;
   justify-content: center;
   gap: 15px;
-  margin-left: 180px;
+  margin-left: 185px;
 }
+
 
 /* Botões de confirmação */
 .btn-verde {
