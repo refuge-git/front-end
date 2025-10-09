@@ -81,7 +81,7 @@ export default function Login() {
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
-          <h2>ENTRAR</h2>
+          <h2>SAIR</h2>
 
           <div className="form-group-atv">
             <label>Email</label>
