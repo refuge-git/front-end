@@ -128,7 +128,7 @@ export default function RegistrationForm() {
 
   const handleClose = () => {
     localStorage.removeItem("formBeneficiario");
-    localStorage.removeItem("formEndereco");
+    sessionStorage.removeItem("formEndereco");
     localStorage.removeItem("idBeneficiario");
     navigate("/home");
   };
@@ -219,7 +219,7 @@ export default function RegistrationForm() {
               <div
                 className="error-card"
                 style={{
-                  height: 150,     
+                  height: 150,
 
                 }}
               >

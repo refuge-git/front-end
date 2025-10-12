@@ -76,7 +76,7 @@ export default function EnderecoForm() {
 
   const handleClose = () => {
     localStorage.removeItem("formBeneficiario");
-    localStorage.removeItem("formEndereco");
+    sessionStorage.removeItem("formEndereco");
     localStorage.removeItem("idBeneficiario");
     navigate("/home");
   };
