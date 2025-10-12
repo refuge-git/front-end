@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import api, { apiPrefix } from "../provider/api";
 import {
   Chart,
   LineController,
@@ -25,6 +26,7 @@ Chart.register(
   Legend
 );
 
+
 export default function DashboardGraficos() {
   const lineChartRef = useRef(null);
   const barChartRef = useRef(null);
@@ -41,67 +43,99 @@ export default function DashboardGraficos() {
     }
   };
 
+
   // Função que cria o gráfico de atendimentos conforme o modo selecionado
-  const createChart = (mode) => {
-    const ctx = lineChartRef.current;
-    if (!ctx) return;
+  const createChart = async (mode) => {
+  const ctx = lineChartRef.current;
+  if (!ctx) return;
 
-    let labels = [];
-    let data = [];
+  let labels = [];
+  let data = [];
 
-    if (mode === "mes") {
-      labels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-      data = Array.from({ length: 12 }, () => Math.floor(Math.random() * 1000));
-    } else if (mode === "semana") {
-      labels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
-      data = [450, 700, 320, 800, 950, 600, 400];
-    } else if (mode === "dia") {
-      labels = ["6h", "8h", "10h", "12h", "14h", "16h", "18h", "20h"];
-      data = [120, 300, 450, 800, 600, 500, 350, 200];
+  if (mode === "mes") {
+    labels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+    data = Array.from({ length: 12 }, () => Math.floor(Math.random() * 1000));
+  } else if (mode === "semana") {
+    labels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+    data = [450, 700, 320, 800, 950, 600, 400];
+  } else if (mode === "dia") {
+    try {
+
+  const response = await apiPrefix.get("/atendimentos/dia");
+      const registros = response.data;
+
+      labels = registros.map((item) => item.hora);
+      data = registros.map((item) => item.quantidade_atendimentos);
+    } catch (error) {
+      console.error("Erro ao buscar dados de atendimentos por dia:", error);
     }
+  }
 
-    lineChartInstance.current = new Chart(ctx, {
-      type: "line",
-      data: {
-        labels,
-        datasets: [
-          {
-            label: "Atendimentos",
-            data,
-            borderColor: "#800000",
-            backgroundColor: "#800000",
-            pointBackgroundColor: "#fff",
-            pointBorderColor: "#800000",
-            pointBorderWidth: 2,
-            tension: 0.3,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
+  // Destroi o gráfico anterior se existir
+  if (lineChartInstance.current) {
+    lineChartInstance.current.destroy();
+  }
+
+  // Cria o gráfico atualizado
+  lineChartInstance.current = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Atendimentos",
+          data,
+          borderColor: "#800000",
+          backgroundColor: "#800000",
+          pointBackgroundColor: "#fff",
+          pointBorderColor: "#800000",
+          pointBorderWidth: 2,
+          tension: 0.3,
         },
-        scales: {
-          x: {
-            grid: { color: "#eee" },
-            ticks: { color: "#888", font: { size: 14 } },
-          },
-          y: {
-            beginAtZero: true,
-            grid: { color: "#eee" },
-            ticks: { stepSize: 250, color: "#888", font: { size: 14 } },
-          },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        x: {
+          grid: { color: "#eee" },
+          ticks: { color: "#888", font: { size: 14 } },
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: "#eee" },
+          ticks: { stepSize: 250, color: "#888", font: { size: 14 } },
         },
       },
-    });
-  };
+    },
+  });
+};
 
   // Atualiza o gráfico quando o modo muda
   useEffect(() => {
     destroyChart();
     createChart(viewMode);
+  }, [viewMode]);
+
+  useEffect(() => {
+    if (viewMode !== 'dia') return undefined;
+
+    let intervalId = null;
+    const doUpdate = () => {
+      createChart('dia');
+    };
+
+    doUpdate();
+    intervalId = setInterval(doUpdate, 30 * 1000)
+    console.log("Intervalo iniciado para atualizar gráfico de dia a cada 30s");
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [viewMode]);
 
   // Cria o gráfico de barras uma única vez
@@ -115,12 +149,18 @@ export default function DashboardGraficos() {
       { banho: 340, refeicao: 750, outros: 280 },
       { banho: 90, refeicao: 770, outros: 160 },
       { banho: 120, refeicao: 210, outros: 900 },
+      { banho: 620, refeicao: 520, outros: 180 },
+      { banho: 20, refeicao: 800, outros: 740 },
+      { banho: 900, refeicao: 420, outros: 120 },
+      { banho: 340, refeicao: 750, outros: 280 },
+      { banho: 90, refeicao: 770, outros: 160 },
+      { banho: 120, refeicao: 210, outros: 900 },
     ];
 
     barChartInstance.current = new Chart(barChartRef.current, {
       type: "bar",
       data: {
-        labels: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"],
+        labels: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun","Jan", "Fev", "Mar", "Abr", "Mai", "Jun"],
         datasets: [
           {
             label: "Banho",

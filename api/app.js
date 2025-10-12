@@ -6,10 +6,17 @@ import atendimentosRoutes from "./routes/atendimentosRoutes.js";
 dotenv.config();
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-app.use("/atendimentos", atendimentosRoutes);
+// Rotas principais
+app.use("/api/atendimentos", atendimentosRoutes);
+
+// Rota raiz para teste
+app.get("/", (req, res) => {
+  res.send("API Refuge rodando!");
+});
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {

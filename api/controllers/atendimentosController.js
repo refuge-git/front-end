@@ -1,26 +1,21 @@
 import { connection } from "../database/connection.js";
 
-export const listarAtendimentos = async (req, res) => {
+export async function getAtendimentosDia(req, res) {
   try {
-    const [rows] = await connection.execute("SELECT * FROM atendimentos");
-    res.json(rows);
-  } catch (error) {
-    console.error("Erro ao listar atendimentos:", error);
-    res.status(500).json({ message: "Erro no servidor" });
-  }
-};
+    const [rows] = await connection.query(`
+      SELECT 
+        DATE_FORMAT(data_hora, '%H:00') AS hora,
+        COUNT(*) AS quantidade_atendimentos
+      FROM registro_atendimento
+      WHERE DATE(data_hora) = CURDATE()
+      GROUP BY DATE_FORMAT(data_hora, '%H:00')
+      ORDER BY hora;
+    `);
 
-export const criarAtendimento = async (req, res) => {
-  const { nome, descricao } = req.body;
-
-  try {
-    const [result] = await connection.execute(
-      "INSERT INTO atendimentos (nome, descricao) VALUES (?, ?)",
-      [nome, descricao]
-    );
-    res.status(201).json({ id: result.insertId, nome, descricao });
+    res.status(200).json(rows);
   } catch (error) {
-    console.error("Erro ao criar atendimento:", error);
-    res.status(500).json({ message: "Erro no servidor" });
+    console.error("❌ Erro ao buscar atendimentos do dia:", error);
+    res.status(500).json({ error: "Erro ao buscar dados de atendimentos." });
   }
-};
+}
+

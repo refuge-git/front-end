@@ -1,9 +1,10 @@
 import express from "express";
-import { listarAtendimentos, criarAtendimento } from "../controllers/atendimentosController.js";
+import { getAtendimentosDia } from "../controllers/atendimentosController.js";
 
 const router = express.Router();
 
-router.get("/", listarAtendimentos);
-router.post("/", criarAtendimento);
+// Rota que retorna os atendimentos do dia atual
+router.get("/dia", getAtendimentosDia);
 
 export default router;
+
