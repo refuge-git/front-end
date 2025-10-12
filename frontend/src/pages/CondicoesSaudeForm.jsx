@@ -6,7 +6,7 @@ import SidebarCondicoes from '../components/SideBarCondicoes';
 import ListaCondicoesSaude from '../components/ListaCondicoesSaude';
 import CondicaoSaudeForm from '../components/CondicaoSaudeFor';
 import api from '../provider/api';
-import Botao from '../components/Botao';
+// import Botao from '../components/Botao';
 
 export default function CondicoesSaude() {
   const [categorias, setCategorias] = useState([]);
@@ -32,15 +32,15 @@ export default function CondicoesSaude() {
         const response = await api.get('/condicoes-saude/beneficiario/1');
         const data = Array.isArray(response.data) ? response.data : (response.data ? [response.data] : []);
         setCondicoesSaude(data);
-          if (data.length > 0) {
-            setShowForm(false);
-          }
-        } catch (error) {
-          setCondicoesSaude([]);
-          setShowForm(true);
-          setShowForm(data.length === 0);
+        if (data.length > 0) {
+          setShowForm(false);
         }
-        // setShowForm(data.length === 0);
+      } catch (error) {
+        setCondicoesSaude([]);
+        setShowForm(true);
+        setShowForm(data.length === 0);
+      }
+      // setShowForm(data.length === 0);
       // } catch (error) {
       //   setCondicoesSaude([]);
       //   setShowForm(true);
@@ -158,10 +158,11 @@ export default function CondicoesSaude() {
         <SidebarCondicoes
           activeSection={activeSection}
           onSectionChange={(sectionId) => {
+            const idBeneficiario = localStorage.getItem("idBeneficiario");
             if (sectionId === 'prontuario') {
               navigate('/registro-cadastro');
             } else if (sectionId === 'endereco') {
-              navigate('/Registro-endereco');
+              navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
 
             }
             else {

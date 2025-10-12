@@ -9,7 +9,7 @@ import CondicoesSaude from '../pages/CondicoesSaudeForm';
 import Home from '../pages/Home';
 import Prontuario from '../pages/Prontuario';
 import Endereco from '../pages/Endereco';
-import CondicoesSaudeTeste from '../pages/CondSaude';
+// import CondicoesSaudeTeste from '../pages/CondSaude';
 
 function ProtectedRoute({ children }) {
     const isAuthenticated = !!localStorage.getItem('token');
@@ -45,9 +45,9 @@ export default function AppRoutes() {
                         <Route path="/endereco" element={
                             <ProtectedRoute><Endereco /></ProtectedRoute>
                         } />
-                        <Route path="/condicoes-saude-teste" element={
+                        {/* <Route path="/condicoes-saude-teste" element={
                             <ProtectedRoute><CondicoesSaudeTeste /></ProtectedRoute>
-                        } />
+                        } /> */}
                 </Routes>
         );
 }

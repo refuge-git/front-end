@@ -62,7 +62,7 @@ export default function EnderecoForm() {
       setShowConfirm(true);
 
       setTimeout(() => {
-        navigate("/condicoes-saude");
+        navigate(`/condicoes-saude?idBeneficiario=${idBeneficiario}`);
       }, 2000);
     } catch (error) {
       console.error(error);
@@ -71,7 +71,7 @@ export default function EnderecoForm() {
   };
 
   const handleClose2 = () => {
-    navigate("/condicoes-saude");
+    navigate(`/condicoes-saude?idBeneficiario=${idBeneficiario}`);
   };
 
   const handleClose = () => {
@@ -99,10 +99,11 @@ export default function EnderecoForm() {
         <SidebarCondicoes
           activeSection={activeSection}
           onSectionChange={(sectionId) => {
+            const idBeneficiario = localStorage.getItem("idBeneficiario");
             if (sectionId === "prontuario") {
               navigate("/registro-cadastro");
             } else if (sectionId === "condicao-saude") {
-              navigate("/condicoes-saude");
+              navigate(`/condicoes-saude?idBeneficiario=${idBeneficiario}`);
             } else {
               setActiveSection(sectionId);
             }

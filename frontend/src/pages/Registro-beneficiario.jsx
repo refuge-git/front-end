@@ -168,10 +168,16 @@ export default function RegistrationForm() {
         <SidebarCondicoes
           activeSection={activeSection}
           onSectionChange={(sectionId) => {
+
+            const idBeneficiario = localStorage.getItem("idBeneficiario");
+
             if (sectionId === "condicao-saude") {
-              navigate("/condicoes-saude");
+              if (idBeneficiario) {
+                navigate(`/condicoes-saude?idBeneficiario=${idBeneficiario}`);
+              } else {
+                setAlerta("Cadastre um beneficiário antes de cadastrar condições de saúde.");
+              }
             } else if (sectionId === "endereco") {
-              const idBeneficiario = localStorage.getItem("idBeneficiario");
               if (idBeneficiario) {
                 navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
               } else {
