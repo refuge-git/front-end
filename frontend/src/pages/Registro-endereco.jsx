@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "../provider/api";
 
@@ -16,6 +16,7 @@ export default function EnderecoForm() {
 
   const [form, setForm] = useState({
     cep: "",
+    tipoLogradouro: "",
     logradouro: "",
     numero: "",
     complemento: "",
@@ -25,9 +26,13 @@ export default function EnderecoForm() {
   });
 
   const [erro, setErro] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    // setForm({ ...form, [e.target.name]: e.target.value });
+    const updatedForm = { ...form, [e.target.name]: e.target.value };
+    setForm(updatedForm);
+    sessionStorage.setItem("formEndereco", JSON.stringify(updatedForm));
   };
 
   const handleSubmit = async (e) => {
@@ -42,34 +47,49 @@ export default function EnderecoForm() {
     try {
       const payload = {
         cep: form.cep,
-        logradouro: form.logradouro,
+        tipoLogradouro: form.tipoLogradouro,
+        nomeLogradouro: form.logradouro,
         numero: form.numero,
         complemento: form.complemento,
         bairro: form.bairro,
-        cidade: form.cidade,
+        nomeLocalidade: form.cidade,
         observacao: form.observacao,
         idBeneficiario: idBeneficiario,
       };
 
       const response = await api.post("/enderecos", payload);
 
-      alert("Endereço cadastrado com sucesso!");
-      navigate("/home"); // volta para a home ou onde quiser
+      setShowConfirm(true);
+
+      setTimeout(() => {
+        navigate(`/condicoes-saude?idBeneficiario=${idBeneficiario}`);
+      }, 2000);
     } catch (error) {
       console.error(error);
       setErro("Erro ao cadastrar endereço. Tente novamente.");
     }
   };
 
+  const handleClose2 = () => {
+    navigate(`/condicoes-saude?idBeneficiario=${idBeneficiario}`);
+  };
+
   const handleClose = () => {
+    localStorage.removeItem("formBeneficiario");
+    sessionStorage.removeItem("formEndereco");
+    localStorage.removeItem("idBeneficiario");
     navigate("/home");
   };
 
-  const handleClose2 = () => {
-    navigate("/condicoes-saude");
-  };
 
   const [activeSection, setActiveSection] = useState("endereco");
+
+  useEffect(() => {
+    const savedForm = sessionStorage.getItem("formEndereco");
+    if (savedForm) {
+      setForm(JSON.parse(savedForm));
+    }
+  }, []);
 
   return (
     <div className="condicoes-saude-container">
@@ -79,10 +99,11 @@ export default function EnderecoForm() {
         <SidebarCondicoes
           activeSection={activeSection}
           onSectionChange={(sectionId) => {
+            const idBeneficiario = localStorage.getItem("idBeneficiario");
             if (sectionId === "prontuario") {
               navigate("/registro-cadastro");
             } else if (sectionId === "condicao-saude") {
-          navigate("/condicoes-saude");
+              navigate(`/condicoes-saude?idBeneficiario=${idBeneficiario}`);
             } else {
               setActiveSection(sectionId);
             }
@@ -94,11 +115,33 @@ export default function EnderecoForm() {
 
           {erro && <p className="erro">{erro}</p>}
 
+          {/* Card de confirmação reutilizado */}
+          {showConfirm && (
+            <div className="confirm-overlay">
+              <div className="confirm-card">
+                <div className="confirm-icon"></div>
+                <div>
+                  <h3>Cadastro realizado!</h3>
+                  <p>Endereço cadastrado com sucesso.<br />Você será redirecionado para as condições de saúde.<br /></p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <form className="form" onSubmit={handleSubmit}>
             <div className="form-row">
               <div className="form-group">
                 <label>CEP</label>
                 <Input name="cep" placeholder="CEP" value={form.cep} onChange={handleChange} />
+              </div>
+              <div className="form-group">
+                <label>Tipo de Logradouro</label>
+                <Input
+                  name="tipoLogradouro"
+                  placeholder="Rua, Avenida, Travessa..."
+                  value={form.tipoLogradouro || ""}
+                  onChange={handleChange}
+                />
               </div>
               <div className="form-group">
                 <label>Logradouro</label>

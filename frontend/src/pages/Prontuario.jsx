@@ -38,9 +38,9 @@ export default function RegistrationForm() {
     // Sidebar
     const [activeSection, setActiveSection] = useState('prontuario');
 
-    const handleClosetwo= () => {
-        navigate('/registro-atividade');
-    };
+    // const handleClosetwo = () => {
+    //     navigate('/registro-atividade');
+    // };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -336,16 +336,14 @@ export default function RegistrationForm() {
                         <div className="form-buttons" style={{ display: 'flex', gap: 8 }}>
                             {!isEditing ? (
                                 <>
-                                    {/* Mantive o botão original "Registrar Atividade".
-                      Se ele não deve submeter o form, troque para type="button". */}
+{/* 
                                     <button type="button" className="btn-salvar" onClick={handleClosetwo}>
                                         Registrar Atividade
-                                    </button>
+                                    </button> */}
 
-                                    {/* Editar: AGORA liga o modo de edição (não navega mais) */}
                                     <button
                                         type="button"
-                                        className="btn-pular"
+                                        className="btn-salvar"
                                         onClick={handleStartEdit}
                                     >
                                         Editar

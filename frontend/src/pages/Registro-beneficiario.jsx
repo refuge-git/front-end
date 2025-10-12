@@ -1,7 +1,6 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../provider/api";
-
 import Perfil from "../assets/Avatar.png";
 import Input from "../components/Input";
 import Botao from "../components/Botao";
@@ -31,6 +30,9 @@ export default function RegistrationForm() {
 
   const [nomeSocialAtivo, setNomeSocialAtivo] = useState(false);
   const [erro, setErro] = useState("");
+  const [activeSection, setActiveSection] = useState("prontuario");
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [alerta, setAlerta] = useState(""); // Novo estado para o card de alerta
 
 
   // Estado de imagem
@@ -43,11 +45,10 @@ export default function RegistrationForm() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // handler para imagem
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setPreviewImg(URL.createObjectURL(file)); // URL temporária para preview
+      setPreviewImg(URL.createObjectURL(file));
 
       // Conversão para base64
       const reader = new FileReader();
@@ -59,62 +60,13 @@ export default function RegistrationForm() {
     }
   }
 
-  
+
 
   const handleAvatarClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setErro("");
-
-  //   // Validações simples
-  //   if (!form.registro || !form.cpf || !form.nascimento) {
-  //     setErro("Preencha os campos obrigatórios!");
-  //     return;
-  //   }
-
-  //   try {
-  //     const payload = {
-  //       nomeRegistro: form.registro,
-  //       nomeSocial: nomeSocialAtivo ? form.nomeSocial : form.registro,
-  //       dtNasc: form.nascimento.split("/").reverse().join("-"), 
-  //       cpf: form.cpf,
-  //       estrangeiro: false, 
-  //       raca: form.raca,
-  //       sexo: form.sexo.toUpperCase(),
-  //       nomeMae: form.nomeMae,
-  //       egressoPrisional: form.egresso === "sim",
-  //       localDorme: form.localDormir.toUpperCase(),
-  //       fotoPerfil: "", 
-  //       sisa: form.sisa,
-  //       status: form.status || "ATIVO",
-  //       observacao: form.observacao,
-  //       idFuncionario: 1, 
-  //       idEndereco: 3,   
-  //       idTipoGenero: form.genero === "masculino" ? 1 : 2, 
-  //       idTipoSexualidade:
-  //         form.sexualidade === "hetero" ? 1 :
-  //           form.sexualidade === "homo" ? 2 :
-  //             form.sexualidade === "bi" ? 3 : 4,
-  //     };
-
-  //     await api.post("/beneficiarios", payload);
-
-  //     alert("Beneficiário cadastrado com sucesso!");
-  //     navigate("/home");
-  //   } catch (error) {
-  //     console.error(error);
-  //     if (error.response && error.response.data && error.response.data.error) {
-  //       setErro(error.response.data.error);
-  //     } else {
-  //       setErro("Erro ao cadastrar beneficiário. Tente novamente.");
-  //     }
-  //   }
-  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -153,11 +105,15 @@ export default function RegistrationForm() {
 
       const response = await api.post("/beneficiarios", payloadBeneficiario);
 
-      const idBeneficiario = response.data.id; // pega o ID retornado
+      const idBeneficiario = response.data.id;
+      console.log("ID do beneficiário cadastrado:", idBeneficiario);
+      localStorage.setItem("formBeneficiario", JSON.stringify(form));
+      localStorage.setItem("idBeneficiario", idBeneficiario);
+      setShowConfirm(true);
 
-      navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
-
-      alert("Beneficiário cadastrado com sucesso! Agora cadastre o endereço.");
+      setTimeout(() => {
+        navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
+      }, 2000);
 
     } catch (error) {
       console.error(error);
@@ -171,10 +127,38 @@ export default function RegistrationForm() {
 
 
   const handleClose = () => {
+    localStorage.removeItem("formBeneficiario");
+    sessionStorage.removeItem("formEndereco");
+    localStorage.removeItem("idBeneficiario");
     navigate("/home");
   };
 
-  const [activeSection, setActiveSection] = useState("prontuario");
+  useEffect(() => {
+    if (erro) {
+      const timer = setTimeout(() => setErro(""), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [erro]);
+
+  useEffect(() => {
+
+    const savedForm = localStorage.getItem("formBeneficiario");
+    if (savedForm) {
+      setForm(JSON.parse(savedForm));
+    }
+
+    const savedNomeSocial = localStorage.getItem("nomeSocialAtivo");
+    if (savedNomeSocial) {
+      setNomeSocialAtivo(savedNomeSocial === "true");
+    }
+  }, []);
+
+  // faz o card de alerta sumir automaticamente após 2 segundos
+  useEffect(() => {
+    if (!alerta) return;
+    const timer = setTimeout(() => setAlerta(""), 2000);
+    return () => clearTimeout(timer);
+  }, [alerta]);
 
   return (
     <div className="condicoes-saude-container">
@@ -184,11 +168,23 @@ export default function RegistrationForm() {
         <SidebarCondicoes
           activeSection={activeSection}
           onSectionChange={(sectionId) => {
+
+            const idBeneficiario = localStorage.getItem("idBeneficiario");
+
             if (sectionId === "condicao-saude") {
-              navigate("/condicoes-saude");
+              if (idBeneficiario) {
+                navigate(`/condicoes-saude?idBeneficiario=${idBeneficiario}`);
+              } else {
+                setAlerta("Cadastre um beneficiário antes de cadastrar condições de saúde.");
+              }
             } else if (sectionId === "endereco") {
-              navigate("/Registro-endereco");
-            } else {
+              if (idBeneficiario) {
+                navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
+              } else {
+                setAlerta("Cadastre um beneficiário antes de cadastrar um endereço.");
+              }
+            }
+            else {
               setActiveSection(sectionId);
             }
           }}
@@ -197,7 +193,50 @@ export default function RegistrationForm() {
         <div className="condicoes-content">
           <h2>Cadastrar novo beneficiário</h2>
 
-          {erro && <p className="erro">{erro}</p>}
+          {/* Card de erro */}
+          {erro && (
+            <div className="confirm-overlay">
+              <div className="error-card">
+                <div className="error-icon"></div>
+                <div>
+                  <h3>Erro ao cadastrar</h3>
+                  <p>{erro}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Card de confirmação */}
+          {showConfirm && (
+            <div className="confirm-overlay">
+              <div className="confirm-card">
+                <div className="confirm-icon"></div>
+                <div>
+                  <h3>Cadastro realizado!</h3>
+                  <p>Beneficiário cadastrado com sucesso.<br />Você será redirecionado para cadastrar o endereço.<br /></p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Card de alerta */}
+          {alerta && (
+            <div className="confirm-overlay">
+              <div
+                className="error-card"
+                style={{
+                  height: 150,
+
+                }}
+              >
+                <div className="error-icon" style={{ marginRight: 16 }}></div>
+                <div style={{ textAlign: "center" }}>
+                  <h3>Atenção</h3>
+                  <p>{alerta}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <form className="form" onSubmit={handleSubmit}>
             <div className="avatarSection">
@@ -252,10 +291,14 @@ export default function RegistrationForm() {
                   <div className="form-group">
                     <label>Data de Nascimento</label>
                     <Input
+                      type="date"
                       name="nascimento"
                       placeholder="DD/MM/AAAA"
                       value={form.nascimento}
                       onChange={handleChange}
+                      style={{
+                        color: form.nascimento ? "#000000" : "#aaa", // preto ao digitar, cinza quando vazio
+                      }}
                     />
                   </div>
                 </div>
@@ -294,6 +337,7 @@ export default function RegistrationForm() {
                   onChange={handleChange}
                   className="select-categoria"
                 >
+                  <option value="">Selecione</option>
                   <option value="BRANCO">Branco(a)</option>
                   <option value="PRETO">Preto(a)</option>
                   <option value="PARDO">Pardo(a)</option>
@@ -364,12 +408,15 @@ export default function RegistrationForm() {
               </div>
               <div className="form-group">
                 <label>Status</label>
-                <Input
-                  name="status"
-                  placeholder="Status"
-                  value={form.status}
-                  onChange={handleChange}
-                />
+                <div className="input-with-indicator">
+                  <span className="status-indicator"></span>
+                  <Input
+                    name="status"
+                    value="Ativo"
+                    disabled
+                    className="input-des"
+                  />
+                </div>
               </div>
             </div>
 
@@ -377,7 +424,7 @@ export default function RegistrationForm() {
             <div className="form-group full-width nome-social-section">
               <label>Nome Social</label>
               <div className="switch-container">
-                <label className="switch">
+                <label className="switch-two">
                   <input
                     type="checkbox"
                     checked={nomeSocialAtivo}

@@ -1,11 +1,16 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // ✅ import para navegação
+import { useNavigate, useLocation } from 'react-router-dom'; 
 import api from '../provider/api';
 import Botao from './Botao';
 
 export default function CondicaoSaudeForm({ onSalvar, condicao }) {
-  const navigate = useNavigate(); // ✅ hook para navegação
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const queryParams = new URLSearchParams(location.search);
+  const idBeneficiario = queryParams.get('idBeneficiario');
+
   const [categorias, setCategorias] = useState([]);
   const [form, setForm] = useState({
     diagnostico: condicao?.diagnostico || '',
@@ -15,7 +20,7 @@ export default function CondicaoSaudeForm({ onSalvar, condicao }) {
     categoria: condicao?.idCategoria || condicao?.categoria?.id || ''
   });
 
-  // 🔹 Buscar categorias
+ 
   useEffect(() => {
     const token = localStorage.getItem('token');
     api.get('/categorias', {
@@ -27,7 +32,7 @@ export default function CondicaoSaudeForm({ onSalvar, condicao }) {
       .catch(() => setCategorias([]));
   }, []);
 
-  // 🔹 Atualiza form se condicao for passada via props
+
   useEffect(() => {
     if (condicao) {
       setForm({
@@ -49,12 +54,18 @@ export default function CondicaoSaudeForm({ onSalvar, condicao }) {
   // 🔹 Submissão do formulário
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!idBeneficiario) {
+      alert("ID do beneficiário não encontrado na URL!");
+      return;
+    }
+
     const condicaoData = {
       diagnostico: form.diagnostico,
       descricao: form.descricao,
       tratamento: form.tratamento,
       observacoes: form.observacoes,
-      idBeneficiario: 1, // ⚠️ depois substituir pelo ID dinâmico
+      idBeneficiario: idBeneficiario,
       idCategoria: Number(form.categoria)
     };
     try {
@@ -100,17 +111,6 @@ export default function CondicaoSaudeForm({ onSalvar, condicao }) {
               onChange={handleChange}
             />
           </div>
-
-          {/*
-          <div className="form-group">
-            <label htmlFor="dataDiagnostico">Data de diagnóstico:</label>
-            <input 
-              type="date" 
-              id="dataDiagnostico" 
-              name="dataDiagnostico" 
-            />
-          </div>
-          */}
 
           <div className="form-group">
             <label htmlFor="categoria">Categoria:</label>
