@@ -2,10 +2,7 @@ import { useState } from 'react';
 import iconDelete from '../assets/icon-delete.svg';
 
 export default function CondicaoSaudeCard({ condicao, onMaisDetalhes, onExcluir }) {
-  // Função para formatar datas
-  const [condicoesSaude, setCondicoesSaude] = useState([]);
-const [condicaoEditando, setCondicaoEditando] = useState(null);
-const [showForm, setShowForm] = useState(false);
+
 
   const [showConfirm, setShowConfirm] = useState(false);
   const formatarData = (dataValue) => {

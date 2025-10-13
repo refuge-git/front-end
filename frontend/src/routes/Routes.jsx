@@ -5,7 +5,7 @@ import  Login  from '../pages/Login';
 import  RegistroNovaAtividade  from '../pages/Registro-nova-atividade';
 import RegistroEndereco from '../pages/Registro-endereco';
 import RegistroCadastro from '../pages/Registro-beneficiario'; 
-import CondicoesSaude from '../pages/CondicoesSaudeForm'; 
+import CondicoesSaude from '../pages/CondicoesSaude'; 
 import Home from '../pages/Home';
 import Prontuario from '../pages/Prontuario';
 import Endereco from '../pages/Endereco';

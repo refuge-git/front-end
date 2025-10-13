@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../css/App.css';
 import SidebarCondicoes from '../components/SideBarCondicoes';
 import ListaCondicoesSaude from '../components/ListaCondicoesSaude';
-import CondicaoSaudeForm from '../components/CondicaoSaudeFor';
+import CondicaoSaudeForm from '../components/CondicaoSaudeForm';
 import api from '../provider/api';
-// import Botao from '../components/Botao';
+
 
 export default function CondicoesSaude() {
   const [categorias, setCategorias] = useState([]);
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const idBeneficiario = queryParams.get('idBeneficiario');
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -23,22 +27,25 @@ export default function CondicoesSaude() {
   }, []);
   const [activeSection, setActiveSection] = useState('condicao-saude');
   const [condicoesSaude, setCondicoesSaude] = useState([]);
-  // const [showForm, setShowForm] = useState(false);
   const [showForm, setShowForm] = useState(true);
   const [condicaoEditando, setCondicaoEditando] = useState(null);
+
   useEffect(() => {
     const fetchCondicoes = async () => {
+      if (!idBeneficiario) return;
       try {
-        const response = await api.get('/condicoes-saude/beneficiario/1');
+        const response = await api.get(`/condicoes-saude/beneficiario/${idBeneficiario}`);
+        console.log("Condições retornadas:", response.data);
         const data = Array.isArray(response.data) ? response.data : (response.data ? [response.data] : []);
         setCondicoesSaude(data);
-        if (data.length > 0) {
-          setShowForm(false);
-        }
+        setShowForm(data.length === 0);
+        // if (data.length > 0) {
+        //   setShowForm(false);
+        // }
       } catch (error) {
         setCondicoesSaude([]);
         setShowForm(true);
-        setShowForm(data.length === 0);
+        // setShowForm(data.length === 0);
       }
       // setShowForm(data.length === 0);
       // } catch (error) {
@@ -47,11 +54,14 @@ export default function CondicoesSaude() {
       // }
     };
     fetchCondicoes();
-  }, []);
+  }, [idBeneficiario]);
 
   const navigate = useNavigate();
 
   const handleClose = () => {
+    localStorage.removeItem("formBeneficiario");
+    sessionStorage.removeItem("formEndereco");
+    localStorage.removeItem("idBeneficiario");
     navigate('/home');
   };
 
