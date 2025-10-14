@@ -4,10 +4,11 @@ export async function getAtendimentosDia(req, res) {
   try {
     const [rows] = await connection.query(`
       SELECT 
-        DATE_FORMAT(data_hora, '%H:00') AS hora,
-        COUNT(*) AS quantidade_atendimentos
+      DATE_FORMAT(data_hora, '%H:00') AS hora,
+      COUNT(*) AS quantidade_atendimentos
       FROM registro_atendimento
-      WHERE DATE(data_hora) = CURDATE()
+      WHERE data_hora BETWEEN CONCAT(CURDATE(), ' 07:00:00')
+                        AND CONCAT(CURDATE(), ' 20:00:00')
       GROUP BY DATE_FORMAT(data_hora, '%H:00')
       ORDER BY hora;
     `);
