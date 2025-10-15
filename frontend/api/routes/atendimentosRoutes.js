@@ -1,10 +1,16 @@
 import express from "express";
-import { getAtendimentosDia } from "../controllers/atendimentosController.js";
+import {
+	getAtendimentosDia,
+	getAtendimentosSemana,
+	getAtendimentosMes,
+} from "../controllers/atendimentosController.js";
 
 const router = express.Router();
 
-// Rota que retorna os atendimentos do dia atual
+// Rotas que retornam atendimentos por período
 router.get("/dia", getAtendimentosDia);
+router.get("/semana", getAtendimentosSemana);
+router.get("/mes", getAtendimentosMes);
 
 export default router;
 

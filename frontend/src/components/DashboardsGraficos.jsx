@@ -25,6 +25,8 @@ Chart.register(
   Tooltip,
   Legend
 );
+import axios from "axios";
+import { Bar } from "react-chartjs-2";
 
 
 export default function DashboardGraficos() {
@@ -46,74 +48,74 @@ export default function DashboardGraficos() {
 
   // Função que cria o gráfico de atendimentos conforme o modo selecionado
   const createChart = async (mode) => {
-  const ctx = lineChartRef.current;
-  if (!ctx) return;
+    const ctx = lineChartRef.current;
+    if (!ctx) return;
 
-  let labels = [];
-  let data = [];
+    let labels = [];
+    let data = [];
 
-  if (mode === "mes") {
-    labels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-    data = Array.from({ length: 12 }, () => Math.floor(Math.random() * 1000));
-  } else if (mode === "semana") {
-    labels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
-    data = [450, 700, 320, 800, 950, 600, 400];
-  } else if (mode === "dia") {
-    try {
+    if (mode === "mes") {
+      labels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+      data = Array.from({ length: 12 }, () => Math.floor(Math.random() * 1000));
+    } else if (mode === "semana") {
+      labels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+      data = [450, 700, 320, 800, 950, 600, 400];
+    } else if (mode === "dia") {
+      try {
 
-  const response = await apiPrefix.get("/atendimentos/dia");
-      const registros = response.data;
+        const response = await apiPrefix.get("/atendimentos/dia");
+        const registros = response.data;
 
-      labels = registros.map((item) => item.hora);
-      data = registros.map((item) => item.quantidade_atendimentos);
-    } catch (error) {
-      console.error("Erro ao buscar dados de atendimentos por dia:", error);
+        labels = registros.map((item) => item.hora);
+        data = registros.map((item) => item.quantidade_atendimentos);
+      } catch (error) {
+        console.error("Erro ao buscar dados de atendimentos por dia:", error);
+      }
     }
-  }
 
-  // Destroi o gráfico anterior se existir
-  if (lineChartInstance.current) {
-    lineChartInstance.current.destroy();
-  }
+    // Destroi o gráfico anterior se existir
+    if (lineChartInstance.current) {
+      lineChartInstance.current.destroy();
+    }
 
-  // Cria o gráfico atualizado
-  lineChartInstance.current = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [
-        {
-          label: "Atendimentos",
-          data,
-          borderColor: "#800000",
-          backgroundColor: "#800000",
-          pointBackgroundColor: "#fff",
-          pointBorderColor: "#800000",
-          pointBorderWidth: 2,
-          tension: 0.3,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
+    // Cria o gráfico atualizado
+    lineChartInstance.current = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "Atendimentos",
+            data,
+            borderColor: "#800000",
+            backgroundColor: "#800000",
+            pointBackgroundColor: "#fff",
+            pointBorderColor: "#800000",
+            pointBorderWidth: 2,
+            tension: 0.3,
+          },
+        ],
       },
-      scales: {
-        x: {
-          grid: { color: "#eee" },
-          ticks: { color: "#888", font: { size: 14 } },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
         },
-        y: {
-          beginAtZero: true,
-          grid: { color: "#eee" },
-          ticks: { stepSize: 250, color: "#888", font: { size: 14 } },
+        scales: {
+          x: {
+            grid: { color: "#eee" },
+            ticks: { color: "#888", font: { size: 14 } },
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: "#eee" },
+            ticks: { stepSize: 250, color: "#888", font: { size: 14 } },
+          },
         },
       },
-    },
-  });
-};
+    });
+  };
 
   // Atualiza o gráfico quando o modo muda
   useEffect(() => {
@@ -139,73 +141,55 @@ export default function DashboardGraficos() {
   }, [viewMode]);
 
   // Cria o gráfico de barras uma única vez
-  useEffect(() => {
-    if (barChartInstance.current) barChartInstance.current.destroy();
+  function DashAtendimentos() {
+    const [dados, setDados] = useState([]);
 
-    const dadosServicos = [
-      { banho: 620, refeicao: 520, outros: 180 },
-      { banho: 20, refeicao: 800, outros: 740 },
-      { banho: 900, refeicao: 420, outros: 120 },
-      { banho: 340, refeicao: 750, outros: 280 },
-      { banho: 90, refeicao: 770, outros: 160 },
-      { banho: 120, refeicao: 210, outros: 900 },
-      { banho: 620, refeicao: 520, outros: 180 },
-      { banho: 20, refeicao: 800, outros: 740 },
-      { banho: 900, refeicao: 420, outros: 120 },
-      { banho: 340, refeicao: 750, outros: 280 },
-      { banho: 90, refeicao: 770, outros: 160 },
-      { banho: 120, refeicao: 210, outros: 900 },
-    ];
+    useEffect(() => {
+      axios
+        .get("http://localhost:3001/api/atendimentos/mes")
+        .then((res) => setDados(res.data))
+        .catch((err) => console.error("Erro ao buscar dados:", err));
+    }, []);
 
-    barChartInstance.current = new Chart(barChartRef.current, {
-      type: "bar",
-      data: {
-        labels: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun","Jan", "Fev", "Mar", "Abr", "Mai", "Jun"],
-        datasets: [
-          {
-            label: "Banho",
-            data: dadosServicos.map((d) => d.banho),
-            backgroundColor: "#003366",
-          },
-          {
-            label: "Refeição",
-            data: dadosServicos.map((d) => d.refeicao),
-            backgroundColor: "#A52A2A ",  
-          },
-          {
-            label: "Outros",
-            data: dadosServicos.map((d) => d.outros),
-            backgroundColor: "#F5DEB3",
-            borderColor: "#eee",
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-        },
-        scales: {
-          x: {
-            grid: { color: "#a03737ff" },
-            ticks: { color: "#888", font: { size: 14 } },
-          },
-          y: {
-            beginAtZero: true,
-            max: 1000,
-            grid: { color: "#9b3c3cff" },
-            ticks: { stepSize: 250, color: "#888", font: { size: 14 } },
-          },
-        },
-      },
-    });
+    const meses = [...new Set(dados.map((item) => item.mes))];
+    const tipos = [...new Set(dados.map((item) => item.tipo_atendimento))];
 
-    return () => {
-      if (barChartInstance.current) barChartInstance.current.destroy();
+    const colorFor = (tipo) => {
+      if (!tipo) return '#F5DEB3';
+      const t = tipo.toLowerCase();
+      if (t.includes('refei')) return '#A52A2A'; // Refeição
+      if (t.includes('banho')) return '#003366';
+      return '#F5DEB3';
     };
-  }, []);
+
+    const datasets = tipos.map((tipo) => ({
+      label: tipo,
+      data: meses.map((m) => {
+        const registro = dados.find(
+          (item) => item.mes === m && item.tipo_atendimento === tipo
+        );
+        return registro ? registro.total : 0;
+      }),
+      backgroundColor: colorFor(tipo),
+    }));
+
+    return (
+      <div style={{ marginTop: "8px", height: '100%' }}>
+        <h2 style={{ marginBottom: '8px' }}>Atendimentos por Tipo e Mês</h2>
+        <div style={{ width: '100%', height: 'calc(100% - 36px)' }}>
+          <Bar
+            data={{ labels: meses, datasets }}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { position: 'top' } },
+              scales: { y: { beginAtZero: true, title: { display: true, text: 'Qtd. de Atendimentos' } } },
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -239,25 +223,16 @@ export default function DashboardGraficos() {
 
       {/* DASHBOARD DE SERVIÇOS */}
       <div className="dashboard-grafico dashboard-grafico-bar" style={{
-        margintop: "10px",   
+        margintop: "10px",
       }}>
-        <h2 className="dashboard-grafico-title">Serviços no Mês (2025)</h2>
-        <div className="dashboard-legenda">
-          <div>
-            <span className="dashboard-legenda-dot dashboard-legenda-banho" ></span>{" "}
-            Banho
+        <h2 className="dashboard-grafico-title " style={{ color: 'black'}}>Serviços no Mês (2025)</h2>
+        
+        {/* Container com altura fixa para o gráfico ocupar totalmente */}
+        <div style={{ width: "90%", height: "360px", margin: "0 auto" }}>
+          <div style={{ width: '100%', height: '100%' }}>
+            {/* Render da DashAtendimentos (gráfico de barras por tipo/mês) */}
+            <DashAtendimentos />
           </div>
-          <div>
-            <span className="dashboard-legenda-dot dashboard-legenda-refeicao"></span>{" "}
-            Refeição
-          </div>
-          <div>
-            <span className="dashboard-legenda-dot dashboard-legenda-outros"></span>{" "}
-            Outros
-          </div>
-        </div>
-        <div style={{ width: "90%", height: "320px", margin: "0 auto" }}>
-          <canvas ref={barChartRef}></canvas>
         </div>
       </div>
     </>
