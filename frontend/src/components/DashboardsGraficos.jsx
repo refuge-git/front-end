@@ -504,7 +504,7 @@ export default function DashboardGraficos() {
   const lineChartInstance = useRef(null);
   const barChartInstance = useRef(null);
 
-  const [viewMode, setViewMode] = useState("mes");
+  const [viewMode, setViewMode] = useState("dia");
 
   const destroyChart = () => {
     if (lineChartInstance.current) {
@@ -513,6 +513,7 @@ export default function DashboardGraficos() {
     }
   };
 
+
   const createChart = async (mode) => {
     const ctx = lineChartRef.current;
     if (!ctx) return;
@@ -520,29 +521,35 @@ export default function DashboardGraficos() {
     let labels = [];
     let data = [];
 
-    if (mode === "mes") {
-      try {
-        const response = await axios.get("http://localhost:3001/api/atendimentos/mes");
-        const registros = response.data;
+    try {
+      let response;
 
-        labels = registros.map(item => item.dia_mes);
-        data = registros.map(item => item.quantidade_atendimentos);
-      } catch (error) {
-        console.error("Erro ao buscar dados de atendimentos do mês:", error);
+      if (mode === "mes") {
+        response = await api.get("/registros-atendimentos/mes");
+      } else if (mode === "semana") {
+        response = await api.get("/registros-atendimentos/semana");
+      } else if (mode === "dia") {
+        response = await api.get("/registros-atendimentos/dia");
       }
 
+      // LOG do que o backend retornou
+      console.log(`Dados recebidos para o modo "${mode}":`, response.data);
 
-    } else if (mode === "semana") {
-      try {
-        const response = await axios.get("http://localhost:3001/api/atendimentos/semana");
-        const registros = response.data;
+      const registros = response.data;
 
-        // Ordena os dias na sequência correta (Seg → Dom)
+      if (mode === "mes") {
+
+        labels = registros.map(item => item.diaMes);
+        data = registros.map(item => item.quantidadeAtendimentos);
+
+
+      } else if (mode === "semana") {
         const ordemDias = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-        registros.sort((a, b) => ordemDias.indexOf(a.dia_semana) - ordemDias.indexOf(b.dia_semana));
+        registros.sort((a, b) => ordemDias.indexOf(a.dia_semana ?? a.diaSemana) - ordemDias.indexOf(b.dia_semana ?? b.diaSemana));
 
         labels = registros.map(item => {
-          switch (item.dia_semana) {
+          const dia = item.dia_semana ?? item.diaSemana;
+          switch (dia) {
             case "Mon": return "Seg";
             case "Tue": return "Ter";
             case "Wed": return "Qua";
@@ -550,26 +557,18 @@ export default function DashboardGraficos() {
             case "Fri": return "Sex";
             case "Sat": return "Sáb";
             case "Sun": return "Dom";
-            default: return item.dia_semana;
+            default: return dia;
           }
         });
 
-        data = registros.map(item => item.quantidade_atendimentos);
-      } catch (error) {
-        console.error("Erro ao buscar dados de atendimentos semanais:", error);
+        data = registros.map(item => item.quantidade_atendimentos ?? item.quantidadeAtendimentos);
+      } else if (mode === "dia") {
+        labels = registros.map(item => item.hora);
+        data = registros.map(item => item.quantidade_atendimentos ?? item.quantidadeAtendimento);
       }
 
-    } else if (mode === "dia") {
-      try {
-
-        const response = await apiPrefix.get("/atendimentos/dia");
-        const registros = response.data;
-
-        labels = registros.map((item) => item.hora);
-        data = registros.map((item) => item.quantidade_atendimentos);
-      } catch (error) {
-        console.error("Erro ao buscar dados de atendimentos por dia:", error);
-      }
+    } catch (error) {
+      console.error(`Erro ao buscar dados de atendimentos (${mode}):`, error);
     }
 
     // Destroi o gráfico anterior se existir
@@ -598,19 +597,10 @@ export default function DashboardGraficos() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-        },
+        plugins: { legend: { display: false } },
         scales: {
-          x: {
-            grid: { color: "#eee" },
-            ticks: { color: "#888", font: { size: 14 } },
-          },
-          y: {
-            beginAtZero: true,
-            grid: { color: "#eee" },
-            ticks: { stepSize: 250, color: "#888", font: { size: 14 } },
-          },
+          x: { grid: { color: "#eee" }, ticks: { color: "#888", font: { size: 14 } } },
+          y: { beginAtZero: true, grid: { color: "#eee" }, ticks: { stepSize: 250, color: "#888", font: { size: 14 } } },
         },
       },
     });
@@ -622,22 +612,19 @@ export default function DashboardGraficos() {
     createChart(viewMode);
   }, [viewMode]);
 
+  // Atualiza o gráfico de "dia" a cada 30 segundos
   useEffect(() => {
-    if (viewMode !== 'dia') return undefined;
+    if (viewMode !== "dia") return undefined;
 
-    let intervalId = null;
-    const doUpdate = () => {
-      createChart('dia');
-    };
+    const doUpdate = () => createChart("dia");
 
-    doUpdate();
-    intervalId = setInterval(doUpdate, 30 * 1000)
+    doUpdate(); // primeira atualização imediata
+    const intervalId = setInterval(doUpdate, 30 * 1000);
     console.log("Intervalo iniciado para atualizar gráfico de dia a cada 30s");
 
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
+    return () => clearInterval(intervalId);
   }, [viewMode]);
+
 
   function DashAtendimentos() {
     const [dados, setDados] = useState([]);
@@ -652,34 +639,50 @@ export default function DashboardGraficos() {
         .catch((err) => console.error("Erro ao buscar dados do backend:", err));
     }, []);
 
-    const dias = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    const meses = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const mesesPortugues = {
+      Jan: 'Jan',
+      Feb: 'Fev',
+      Mar: 'Mar',
+      Apr: 'Abr',
+      May: 'Mai',
+      Jun: 'Jun',
+      Jul: 'Jul',
+      Aug: 'Ago',
+      Sep: 'Set',
+      Oct: 'Out',
+      Nov: 'Nov',
+      Dec: 'Dez',
+    };
 
     const datasets = [
       {
         label: "Banhos",
-        data: dias.map((d) => {
-          const registro = dados.find((item) => item.label === d);
+        data: meses.map((m) => {
+          const registro = dados.find((item) => item.label === m);
           return registro ? registro.quantidadeBanhos : 0;
         }),
-        backgroundColor: "#141515ff", // azul
+        backgroundColor: "#141515ff",
       },
       {
         label: "Refeições",
-        data: dias.map((d) => {
-          const registro = dados.find((item) => item.label === d);
+        data: meses.map((m) => {
+          const registro = dados.find((item) => item.label === m);
           return registro ? registro.quantidadeRefeicoes : 0;
         }),
-        backgroundColor: "#A52A2A", // marrom
+        backgroundColor: "#A52A2A",
       },
       {
         label: "Outros",
-        data: dias.map((d) => {
-          const registro = dados.find((item) => item.label === d);
+        data: meses.map((m) => {
+          const registro = dados.find((item) => item.label === m);
           return registro ? registro.quantidadeOutros : 0;
         }),
-        backgroundColor: "#d4dac6ff", // azul
+        backgroundColor: "#d4dac6ff",
       },
     ];
+
 
 
     return (
@@ -687,7 +690,10 @@ export default function DashboardGraficos() {
         <h2 style={{ marginBottom: "8px" }}>Atendimentos por Dia da Semana</h2>
         <div style={{ width: "100%", height: "calc(100% - 36px)" }}>
           <Bar
-            data={{ labels: dias, datasets }}
+            data={{
+              labels: meses.map((m) => mesesPortugues[m]),
+              datasets,
+            }}
             options={{
               responsive: true,
               maintainAspectRatio: false,
@@ -723,9 +729,9 @@ export default function DashboardGraficos() {
             border: "1px solid #ccc",
           }}
         >
-          <option value="mes">Mês</option>
-          <option value="semana">Semana</option>
           <option value="dia">Dia</option>
+          <option value="semana">Semana</option>
+          <option value="mes">Mês</option>
         </select>
 
         <div style={{ width: "90%", height: "320px", margin: "0 auto" }}>
