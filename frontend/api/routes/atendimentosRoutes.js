@@ -3,6 +3,7 @@ import {
 	getAtendimentosDia,
 	getAtendimentosSemana,
 	getAtendimentosMes,
+    getServicosMes,
 } from "../controllers/atendimentosController.js";
 
 const router = express.Router();
@@ -11,6 +12,8 @@ const router = express.Router();
 router.get("/dia", getAtendimentosDia);
 router.get("/semana", getAtendimentosSemana);
 router.get("/mes", getAtendimentosMes);
+
+router.get("/servicosmes", getServicosMes);
 
 export default router;
 

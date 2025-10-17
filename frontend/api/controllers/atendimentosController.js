@@ -16,7 +16,7 @@ export async function getAtendimentosDia(req, res) {
 
     res.status(200).json(rows);
   } catch (error) {
-    console.error("❌ Erro ao buscar atendimentos do dia:", error);
+    console.error("Erro ao buscar atendimentos do dia:", error);
     res.status(500).json({ error: "Erro ao buscar dados de atendimentos." });
   }
 }
@@ -25,23 +25,45 @@ export async function getAtendimentosSemana(req, res) {
   try {
     const connection = await getConnection();
     const [rows] = await connection.query(`
-      SELECT DATE_FORMAT(data_hora, '%a') AS label,
-             COUNT(*) AS quantidade_atendimentos
+      SELECT 
+          DATE_FORMAT(data_hora, '%a') AS dia_semana,
+          COUNT(*) AS quantidade_atendimentos
       FROM registro_atendimento
-      WHERE data_hora BETWEEN DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) + 1 DAY)
-                        AND DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) + 1 DAY), INTERVAL 6 DAY)
-      GROUP BY DATE(data_hora)
-      ORDER BY DATE(data_hora);
+      WHERE data_hora >= DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
+        AND data_hora <  DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 7 DAY)
+      GROUP BY DATE_FORMAT(data_hora, '%a'), DAYOFWEEK(data_hora)
+      ORDER BY DAYOFWEEK(data_hora);
     `);
 
     res.status(200).json(rows);
   } catch (error) {
-    console.error("❌ Erro ao buscar atendimentos da semana:", error);
+    console.error("Erro ao buscar atendimentos da semana:", error);
     res.status(500).json({ error: "Erro ao buscar dados de atendimentos." });
   }
 }
 
 export async function getAtendimentosMes(req, res) {
+  try {
+    const connection = await getConnection();
+    const [rows] = await connection.query(`
+      SELECT 
+          DATE_FORMAT(data_hora, '%d/%m') AS dia_mes,
+          COUNT(*) AS quantidade_atendimentos
+      FROM registro_atendimento
+      WHERE MONTH(data_hora) = MONTH(CURRENT_DATE())
+        AND YEAR(data_hora) = YEAR(CURRENT_DATE())
+      GROUP BY dia_mes
+      ORDER BY STR_TO_DATE(dia_mes, '%d/%m');
+    `);
+
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("Erro ao buscar atendimentos da semana:", error);
+    res.status(500).json({ error: "Erro ao buscar dados de atendimentos." });
+  }
+}
+
+export async function getServicosMes(req, res) {
   const query = `
     SELECT 
         DATE_FORMAT(ra.data_hora, '%b') AS mes,

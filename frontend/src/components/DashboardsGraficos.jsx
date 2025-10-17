@@ -55,11 +55,44 @@ export default function DashboardGraficos() {
     let data = [];
 
     if (mode === "mes") {
-      labels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-      data = Array.from({ length: 12 }, () => Math.floor(Math.random() * 1000));
+      try {
+        const response = await axios.get("http://localhost:3001/api/atendimentos/mes");
+        const registros = response.data;
+
+        labels = registros.map(item => item.dia_mes);
+        data = registros.map(item => item.quantidade_atendimentos);
+      } catch (error) {
+        console.error("Erro ao buscar dados de atendimentos do mês:", error);
+      }
+
+
     } else if (mode === "semana") {
-      labels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
-      data = [450, 700, 320, 800, 950, 600, 400];
+      try {
+        const response = await axios.get("http://localhost:3001/api/atendimentos/semana");
+        const registros = response.data;
+
+        // Ordena os dias na sequência correta (Seg → Dom)
+        const ordemDias = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        registros.sort((a, b) => ordemDias.indexOf(a.dia_semana) - ordemDias.indexOf(b.dia_semana));
+
+        labels = registros.map(item => {
+          switch (item.dia_semana) {
+            case "Mon": return "Seg";
+            case "Tue": return "Ter";
+            case "Wed": return "Qua";
+            case "Thu": return "Qui";
+            case "Fri": return "Sex";
+            case "Sat": return "Sáb";
+            case "Sun": return "Dom";
+            default: return item.dia_semana;
+          }
+        });
+
+        data = registros.map(item => item.quantidade_atendimentos);
+      } catch (error) {
+        console.error("Erro ao buscar dados de atendimentos semanais:", error);
+      }
+
     } else if (mode === "dia") {
       try {
 
@@ -146,7 +179,7 @@ export default function DashboardGraficos() {
 
     useEffect(() => {
       axios
-        .get("http://localhost:3001/api/atendimentos/mes")
+        .get("http://localhost:3001/api/atendimentos/servicosmes")
         .then((res) => setDados(res.data))
         .catch((err) => console.error("Erro ao buscar dados:", err));
     }, []);
@@ -195,7 +228,7 @@ export default function DashboardGraficos() {
     <>
       {/* DASHBOARD DE ATENDIMENTOS */}
       <div className="dashboard-grafico" style={{ position: "relative" }}>
-        <h2 className="dashboard-grafico-title">Atendimentos</h2>
+        <h2 className="dashboard-grafico-title" style={{ color: 'black' }}>Atendimentos</h2>
 
         {/* Select no canto superior direito */}
         <select
@@ -225,8 +258,8 @@ export default function DashboardGraficos() {
       <div className="dashboard-grafico dashboard-grafico-bar" style={{
         margintop: "10px",
       }}>
-        <h2 className="dashboard-grafico-title " style={{ color: 'black'}}>Serviços no Mês (2025)</h2>
-        
+        <h2 className="dashboard-grafico-title " style={{ color: 'black' }}>Serviços no Mês (2025)</h2>
+
         {/* Container com altura fixa para o gráfico ocupar totalmente */}
         <div style={{ width: "90%", height: "360px", margin: "0 auto" }}>
           <div style={{ width: '100%', height: '100%' }}>
