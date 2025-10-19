@@ -145,6 +145,7 @@ import Indicadores from "../components/Indicadores";
 import Avatar from "../assets/Avatar.png";
 import Logo from "../assets/icon-logo-branca.png";
 import "../css/Home.css";
+import Relatorio from "../components/Relatorio";
 
 export default function Home() {
   // Função para logout
@@ -157,6 +158,7 @@ export default function Home() {
   const [nomePerfil, setNomePerfil] = useState("");
 
   const dashboardRef = useRef(null);
+  const relatorioRef = useRef(null);
 
   // 👉 Busca nome do usuário ao carregar a página
   useEffect(() => {
@@ -178,6 +180,10 @@ export default function Home() {
     dashboardRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const handleGoToRelatorio = () => {
+    relatorioRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
+
   return (
     <div className="home-root">
       {/* Header estilo navbar */}
@@ -188,7 +194,7 @@ export default function Home() {
         <nav className="navbar-center">
           <span onClick={handleGoToDashboard}>Atendimentos ao mês</span>
           <span>Serviços ao mês</span>
-          <span>Relatório</span>
+          <span onClick={handleGoToRelatorio}>Relatório</span>
         </nav>
         {/* <div className="navbar-right">
           {nomePerfil && <span className="navbar-username">{nomePerfil}</span>}
@@ -236,6 +242,11 @@ export default function Home() {
       {/* Seção Dashboard */}
       <section ref={dashboardRef}>
         <Dashboards />
+      </section>
+
+      {/* Seção Relatório */}
+      <section ref={relatorioRef}>
+        <Relatorio />
       </section>
 
       {/* Overlay Menu */}
