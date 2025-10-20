@@ -182,7 +182,12 @@ import React, { useState, useEffect } from "react";
                   onClick={() => setPresencaBeneficiario(item)} 
                   style={{ cursor: "pointer" }}
                 >
-                  <img src={Icon} alt={nome} className="beneficiarios-card-img" />
+                  {/* Caso não exista e imagem sera utilizado ícone padrão */}
+                  <img
+                    src={item.imagemUrl || Icon}
+                    alt={nome}
+                    className="beneficiarios-card-img"
+                  />
                   <span className="beneficiarios-card-name">{nome}</span>
                 </div>
 
