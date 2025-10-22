@@ -184,7 +184,7 @@ import React, { useState, useEffect } from "react";
                 >
                   {/* Caso não exista e imagem sera utilizado ícone padrão */}
                   <img
-                    src={item.imagemUrl || Icon}
+                    src={item.fotoPerfil || Icon}
                     alt={nome}
                     className="beneficiarios-card-img"
                   />
