@@ -4,7 +4,7 @@ import axios from "axios";
 // Use VITE_ROOT_HOST e VITE_API_HOST se quiser sobrescrever em desenvolvimento/produção
 const ROOT_HOST = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_ROOT_HOST
   ? import.meta.env.VITE_ROOT_HOST
-  : 'http://localhost:8080';
+  : 'http://10.0.0.26:8080';
 
 const API_HOST = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_HOST
   ? import.meta.env.VITE_API_HOST
