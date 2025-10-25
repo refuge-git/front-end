@@ -1,58 +1,90 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../css/App.css';
 import Perfil from '../assets/Avatar.png';
 import Input from "../components/Input";
 import SidebarCondicoes from '../components/SideBarCondicoes';
+import api from '../provider/api'; // sua instância axios
 
-export default function RegistrationForm() {
+export default function Prontuario() {
     const navigate = useNavigate();
+    const location = useLocation();
 
-    // Dados iniciais (último salvo)
-    const initialData = {
-        registro: "José Santos",
-        sisa: "123456",
-        nomeMae: "Maria Souza Santos",
-        nascimento: "12/05/1985",
-        cpf: "123.456.789-00",
-        genero: "Masculino",
-        raca: "Parda",
-        egresso: "Não",
-        estrangeiro: "Não",
-        sexo: "Masculino",
-        sexualidade: "Heterossexual",
-        nomeSocial: "",
-        localDormir: "Centro de acolhimento",
-        status: "Ativo",
-        observacao: "Beneficiário compareceu pela primeira vez em 2025.",
+    // Pegar idBeneficiario da query string
+    const queryParams = new URLSearchParams(location.search);
+    const idBeneficiario = queryParams.get("idBeneficiario");
+
+    // Estado do formulário
+    const [form, setForm] = useState(null);
+    const [backupBeforeEdit, setBackupBeforeEdit] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [nomeSocialAtivo, setNomeSocialAtivo] = useState(false);
+    const [activeSection, setActiveSection] = useState('prontuario');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    const formatDateBR = (isoDate) => {
+        if (!isoDate) return '';
+        const [year, month, day] = isoDate.split('-');
+        return `${day}/${month}/${year}`;
     };
 
-    // Estado atual do formulário
-    const [form, setForm] = useState(initialData);
-    // Backup para restaurar quando clicar em "Cancelar"
-    const [backupBeforeEdit, setBackupBeforeEdit] = useState(initialData);
-    // Controle de edição
-    const [isEditing, setIsEditing] = useState(false);
-    // Toggle do Nome Social (começa ativo se houver valor)
-    const [nomeSocialAtivo, setNomeSocialAtivo] = useState(Boolean(initialData.nomeSocial));
-    // Sidebar
-    const [activeSection, setActiveSection] = useState('prontuario');
+    const capitalize = (str) => {
+        if (!str) return '';
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    };
 
-    // const handleClosetwo = () => {
-    //     navigate('/registro-atividade');
-    // };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await api.get(`/beneficiarios/${idBeneficiario}`);
+                const data = response.data;
+
+                console.log('Dados do beneficiário recebidos do backend:', data);
+
+                setForm({
+                    registro: data.nomeRegistro || '',
+                    sisa: data.sisa || '',
+                    nomeMae: data.nomeMae || '',
+                    nascimento: formatDateBR(data.dtNasc),
+                    cpf: data.cpf || '',
+                    genero: data.tipoGenero?.nome || '',
+                    raca: capitalize(data.raca),
+                    egresso: data.egressoPrisional ? 'Sim' : 'Não',
+                    estrangeiro: data.estrangeiro ? 'Sim' : 'Não',
+                    sexo: capitalize(data.sexo) || '',
+                    sexualidade: data.tipoSexualidade?.nome || '',
+                    nomeSocial: data.nomeSocial || '',
+                    localDormir: capitalize(data.localDorme) || '',
+                    status: data.status || '',
+                    observacao: data.observacao || '',
+                });
+
+                // Ativa o toggle do nome social se houver valor
+                setNomeSocialAtivo(Boolean(data.nomeSocial));
+
+                setLoading(false); // ✅ MUITO IMPORTANTE
+            } catch (error) {
+                console.error('Erro ao carregar beneficiário:', error);
+                setError('Erro ao carregar dados do beneficiário.');
+                setLoading(false); // ✅ também desativa loading em caso de erro
+            }
+        };
+
+        fetchData();
+    }, [idBeneficiario]);
+
+
+
+
+    if (loading) return <p>Carregando dados do beneficiário...</p>;
+    if (error) return <p>{error}</p>;
+    if (!form) return <p>Beneficiário não encontrado.</p>;
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // TODO: enviar form para API aqui
-        setBackupBeforeEdit(form);
-        setIsEditing(false);
-        alert('Dados salvos com sucesso!');
     };
 
     const handleStartEdit = () => {
@@ -63,6 +95,19 @@ export default function RegistrationForm() {
     const handleCancel = () => {
         setForm(backupBeforeEdit);
         setIsEditing(false);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await api.put(`/beneficiarios/${idBeneficiario}`, form);
+            setBackupBeforeEdit(form);
+            setIsEditing(false);
+            alert('Dados salvos com sucesso!');
+        } catch (err) {
+            console.error(err);
+            alert('Erro ao salvar dados!');
+        }
     };
 
     const handleClose = () => navigate('/home');
@@ -76,9 +121,9 @@ export default function RegistrationForm() {
                     activeSection={activeSection}
                     onSectionChange={(sectionId) => {
                         if (sectionId === 'condicao-saude') {
-                            navigate('/condicoes-saude-teste');
+                            navigate('/condicoes-saude');
                         } else if (sectionId === 'endereco') {
-                            navigate('/Endereco');
+                            navigate(`/endereco?idBeneficiario=${idBeneficiario}`);
                         } else {
                             setActiveSection(sectionId);
                         }
@@ -98,9 +143,8 @@ export default function RegistrationForm() {
                                         <label>Nome de Registro</label>
                                         <Input
                                             className="input-des"
-                                            name="registro"
-                                            placeholder="Nome de Registro"
-                                            value={form.registro}
+                                            name="nomeRegistro"
+                                            value={form.registro || ''}
                                             onChange={handleChange}
                                             disabled={!isEditing}
                                         />
@@ -110,8 +154,7 @@ export default function RegistrationForm() {
                                         <Input
                                             className="input-des"
                                             name="sisa"
-                                            placeholder="SISA"
-                                            value={form.sisa}
+                                            value={form.sisa || ''}
                                             onChange={handleChange}
                                             disabled={!isEditing}
                                         />
@@ -124,8 +167,7 @@ export default function RegistrationForm() {
                                         <Input
                                             className="input-des"
                                             name="nomeMae"
-                                            placeholder="Nome da Mãe"
-                                            value={form.nomeMae}
+                                            value={form.nomeMae || ''}
                                             onChange={handleChange}
                                             disabled={!isEditing}
                                         />
@@ -134,9 +176,8 @@ export default function RegistrationForm() {
                                         <label>Data de Nascimento</label>
                                         <Input
                                             className="input-des"
-                                            name="nascimento"
-                                            placeholder="DD/MM/AAAA"
-                                            value={form.nascimento}
+                                            name="dtNasc"
+                                            value={form.nascimento || ''}
                                             onChange={handleChange}
                                             disabled={!isEditing}
                                         />
@@ -152,8 +193,7 @@ export default function RegistrationForm() {
                                 <Input
                                     className="input-des"
                                     name="cpf"
-                                    placeholder="CPF"
-                                    value={form.cpf}
+                                    value={form.cpf || ''}
                                     onChange={handleChange}
                                     disabled={!isEditing}
                                 />
@@ -164,9 +204,8 @@ export default function RegistrationForm() {
                                 {isEditing ? (
                                     <select
                                         name="genero"
-                                        value={form.genero}
+                                        value={form.genero || ''}
                                         onChange={handleChange}
-                                        className="select-categoria"
                                     >
                                         <option value="">Selecione</option>
                                         <option value="Masculino">Masculino</option>
@@ -174,7 +213,8 @@ export default function RegistrationForm() {
                                         <option value="Outro">Outro</option>
                                     </select>
                                 ) : (
-                                    <Input className="input-des" value={form.genero} disabled />
+                                    <Input value={form.genero || ''} disabled />
+
                                 )}
                             </div>
 
@@ -183,9 +223,8 @@ export default function RegistrationForm() {
                                 {isEditing ? (
                                     <select
                                         name="raca"
-                                        value={form.raca}
+                                        value={form.raca || ''}
                                         onChange={handleChange}
-                                        className="select-categoria"
                                     >
                                         <option value="">Selecione</option>
                                         <option value="Branca">Branca</option>
@@ -195,7 +234,7 @@ export default function RegistrationForm() {
                                         <option value="Indígena">Indígena</option>
                                     </select>
                                 ) : (
-                                    <Input className="input-des" value={form.raca} disabled />
+                                    <Input value={form.raca || ''} disabled />
                                 )}
                             </div>
 
@@ -204,16 +243,15 @@ export default function RegistrationForm() {
                                 {isEditing ? (
                                     <select
                                         name="egresso"
-                                        value={form.egresso}
+                                        value={form.egresso || ''}
                                         onChange={handleChange}
-                                        className="select-categoria"
                                     >
                                         <option value="">Selecione</option>
                                         <option value="Sim">Sim</option>
                                         <option value="Não">Não</option>
                                     </select>
                                 ) : (
-                                    <Input className="input-des" value={form.egresso} disabled />
+                                    <Input value={form.egresso || ''} disabled />
                                 )}
                             </div>
                         </div>
@@ -225,9 +263,8 @@ export default function RegistrationForm() {
                                 {isEditing ? (
                                     <select
                                         name="sexo"
-                                        value={form.sexo}
+                                        value={form.sexo || ''}
                                         onChange={handleChange}
-                                        className="select-categoria"
                                     >
                                         <option value="">Selecione</option>
                                         <option value="Masculino">Masculino</option>
@@ -236,7 +273,7 @@ export default function RegistrationForm() {
                                         <option value="Outro">Outro</option>
                                     </select>
                                 ) : (
-                                    <Input className="input-des" value={form.sexo} disabled />
+                                    <Input value={form.sexo || ''} disabled />
                                 )}
                             </div>
 
@@ -245,9 +282,8 @@ export default function RegistrationForm() {
                                 {isEditing ? (
                                     <select
                                         name="sexualidade"
-                                        value={form.sexualidade}
+                                        value={form.sexualidade || ''}
                                         onChange={handleChange}
-                                        className="select-categoria"
                                     >
                                         <option value="">Selecione</option>
                                         <option value="Heterossexual">Heterossexual</option>
@@ -257,7 +293,7 @@ export default function RegistrationForm() {
                                         <option value="Outro">Outro</option>
                                     </select>
                                 ) : (
-                                    <Input className="input-des" value={form.sexualidade} disabled />
+                                    <Input value={form.sexualidade || ''} disabled />
                                 )}
                             </div>
 
@@ -266,9 +302,8 @@ export default function RegistrationForm() {
                                 {isEditing ? (
                                     <select
                                         name="localDormir"
-                                        value={form.localDormir}
+                                        value={form.localDormir || ''}
                                         onChange={handleChange}
-                                        className="select-categoria"
                                     >
                                         <option value="">Selecione</option>
                                         <option value="Casa">Casa</option>
@@ -276,7 +311,7 @@ export default function RegistrationForm() {
                                         <option value="Rua">Rua</option>
                                     </select>
                                 ) : (
-                                    <Input className="input-des" value={form.localDormir} disabled />
+                                    <Input value={form.localDormir || ''} disabled />
                                 )}
                             </div>
 
@@ -284,12 +319,7 @@ export default function RegistrationForm() {
                                 <label>Status</label>
                                 <div className="input-with-indicator">
                                     <span className="status-indicator"></span>
-                                    <Input
-                                        name="status"
-                                        value={form.status}
-                                        disabled
-                                        className="input-des"
-                                    />
+                                    <Input value={form.status || ''} disabled />
                                 </div>
                             </div>
                         </div>
@@ -310,8 +340,7 @@ export default function RegistrationForm() {
                                 <div className='nome-social-input'>
                                     <Input
                                         name="nomeSocial"
-                                        placeholder="Nome Social"
-                                        value={form.nomeSocial}
+                                        value={form.nomeSocial || ''}
                                         onChange={handleChange}
                                         disabled={!nomeSocialAtivo || !isEditing}
                                     />
@@ -324,37 +353,27 @@ export default function RegistrationForm() {
                             <label>Observação</label> <br />
                             <textarea
                                 name="observacao"
-                                placeholder="Observação"
-                                value={form.observacao}
+                                value={form.observacao || ''}
                                 onChange={handleChange}
                                 disabled={!isEditing}
                                 className="input-des"
                             />
                         </div>
 
-                        {/* BOTÕES DO RODAPÉ */}
+                        {/* BOTÕES */}
                         <div className="form-buttons" style={{ display: 'flex', gap: 8 }}>
                             {!isEditing ? (
-                                <>
-{/* 
-                                    <button type="button" className="btn-salvar" onClick={handleClosetwo}>
-                                        Registrar Atividade
-                                    </button> */}
-
-                                    <button
-                                        type="button"
-                                        className="btn-salvar"
-                                        onClick={handleStartEdit}
-                                    >
-                                        Editar
-                                    </button>
-                                </>
+                                <button
+                                    type="button"
+                                    className="btn-salvar"
+                                    onClick={handleStartEdit}
+                                >
+                                    Editar
+                                </button>
                             ) : (
                                 <>
-                                    <div className="form-buttons">
-                                        <button type="button" className="btn-pular" onClick={handleCancel}>Cancelar</button>
-                                        <button type="submit" className="btn-salvar">Salvar</button>
-                                    </div>
+                                    <button type="button" className="btn-pular" onClick={handleCancel}>Cancelar</button>
+                                    <button type="submit" className="btn-salvar">Salvar</button>
                                 </>
                             )}
                         </div>
