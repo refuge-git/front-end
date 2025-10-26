@@ -12,12 +12,20 @@ const API_HOST = typeof import.meta !== 'undefined' && import.meta.env && import
 
 // Instância principal apontando para a raiz (mantida como default)
 const api = axios.create({
-  baseURL: ROOT_HOST
+  baseURL: ROOT_HOST,
+  headers: {
+    'Content-Type': 'application/json; charset=UTF-8',
+    'Accept': 'application/json; charset=UTF-8',
+  }
 });
 
 // Segunda instância para rotas montadas em /api (exportada como named export)
 const apiPrefix = axios.create({
-  baseURL: `${API_HOST}/api`
+  baseURL: `${API_HOST}/api`,
+  headers: {
+    'Content-Type': 'application/json; charset=UTF-8',
+    'Accept': 'application/json; charset=UTF-8',
+  }
 });
 
 // Função utilitária para anexar o interceptor de autenticação em uma instância
@@ -28,7 +36,18 @@ function attachAuthInterceptor(instance) {
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+      // Garantir charset UTF-8 em todas as requisições
+      config.headers['Content-Type'] = 'application/json; charset=UTF-8';
+      config.headers['Accept'] = 'application/json; charset=UTF-8';
       return config;
+    },
+    (error) => Promise.reject(error)
+  );
+
+  // Interceptor de resposta para garantir UTF-8
+  instance.interceptors.response.use(
+    (response) => {
+      return response;
     },
     (error) => Promise.reject(error)
   );
