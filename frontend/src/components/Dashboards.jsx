@@ -5,6 +5,7 @@ import IconGreen from "../assets/Avatars-verde.png";
 import IconPcGreen from "../assets/icon-pc.png";
 import IconRedCad from "../assets/Icon-red-cad.png";
 import DashboardGraficos from "./DashboardsGraficos";
+import api from "../provider/api";
 
 export default function Dashboards() {
   const [indicadores, setIndicadores] = useState(null);
@@ -14,13 +15,12 @@ export default function Dashboards() {
       console.log("🔄 Buscando indicadores do backend...");
 
       const token = localStorage.getItem("token");
-      axios
-        .get("http://localhost:8080/indicadores", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((response) => {
-          console.log("✅ Dados recebidos:", response.data);
-          setIndicadores(response.data);
+      api.get("/indicadores", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        console.log("✅ Dados recebidos:", response.data);
+        setIndicadores(response.data);
         })
         .catch((error) => {
           console.error("❌ Erro ao buscar indicadores:", error);
