@@ -33,26 +33,52 @@ export default function CondicoesSaude() {
   useEffect(() => {
     const fetchCondicoes = async () => {
       if (!idBeneficiario) return;
+
       try {
-        const response = await api.get(`/condicoes-saude/beneficiario/${idBeneficiario}`);
-        console.log("Condições retornadas:", response.data);
-        const data = Array.isArray(response.data) ? response.data : (response.data ? [response.data] : []);
+        const token = localStorage.getItem('token');
+
+        const response = await api.get(
+          `/condicoes-saude/beneficiario/${idBeneficiario}`,
+          {
+            headers: {
+              // Se o seu axios `api` já tem interceptor de Authorization, pode remover esta seção
+              Authorization: token ? `Bearer ${token}` : undefined,
+              Accept: 'application/json'
+            },
+            validateStatus: () => true // deixa a gente inspecionar status sem cair no catch
+          }
+        );
+
+        console.log('GET condicoes-saude status:', response.status);
+        if (response.status === 204) {
+          setCondicoesSaude([]);
+          setShowForm(true);
+          return;
+        }
+
+        if (response.status >= 400) {
+          console.error('Erro backend:', response.status, response.data);
+          setCondicoesSaude([]);
+          setShowForm(true);
+          return;
+        }
+
+        const data = Array.isArray(response.data)
+          ? response.data
+          : (response.data ? [response.data] : []);
         setCondicoesSaude(data);
         setShowForm(data.length === 0);
-        // if (data.length > 0) {
-        //   setShowForm(false);
-        // }
       } catch (error) {
+        console.error('Falha na requisição:', {
+          message: error.message,
+          status: error.response?.status,
+          data: error.response?.data
+        });
         setCondicoesSaude([]);
         setShowForm(true);
-        // setShowForm(data.length === 0);
       }
-      // setShowForm(data.length === 0);
-      // } catch (error) {
-      //   setCondicoesSaude([]);
-      //   setShowForm(true);
-      // }
     };
+
     fetchCondicoes();
   }, [idBeneficiario]);
 

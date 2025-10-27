@@ -525,7 +525,7 @@ export default function DashboardGraficos() {
       let response;
 
       if (mode === "mes") {
-        response = await api.get("/registros-atendimentos/mes");
+        response = await api.get("/registros-atendimentos/relatorios/atendimentos-mes");
       } else if (mode === "semana") {
         response = await api.get("/registros-atendimentos/semana");
       } else if (mode === "dia") {

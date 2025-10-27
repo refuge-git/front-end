@@ -403,7 +403,7 @@ export default function Beneficiarios() {
 
 
       {/* === MODAL DE ATIVIDADES === */}
-      {/* === MODAL DE ATIVIDADES === */}
+
       {modalAtividadesOpen && (
         <div className="modal-overlay">
           <div className="modal-card">
