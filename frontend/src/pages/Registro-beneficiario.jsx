@@ -128,8 +128,8 @@ export default function RegistrationForm() {
 
   const handleClose = () => {
     localStorage.removeItem("formBeneficiario");
-    sessionStorage.removeItem("formEndereco");
-    localStorage.removeItem("idBeneficiario");
+    // sessionStorage.removeItem("formEndereco");
+    // localStorage.removeItem("idBeneficiario");
     navigate("/home");
   };
 
@@ -142,10 +142,10 @@ export default function RegistrationForm() {
 
   useEffect(() => {
 
-    const savedForm = localStorage.getItem("formBeneficiario");
-    if (savedForm) {
-      setForm(JSON.parse(savedForm));
-    }
+    // const savedForm = localStorage.getItem("formBeneficiario");
+    // if (savedForm) {
+    //   setForm(JSON.parse(savedForm));
+    // }
 
     const savedNomeSocial = localStorage.getItem("nomeSocialAtivo");
     if (savedNomeSocial) {

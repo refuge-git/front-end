@@ -110,8 +110,10 @@ export default function Prontuario() {
         }
     };
 
-    const handleClose = () => navigate('/home');
-
+    const handleClose = () => {
+        localStorage.removeItem("idBeneficiario");
+        navigate('/home');
+    }
     return (
         <div className="condicoes-saude-container">
             <div className="condicoes-saude-box">
@@ -121,7 +123,7 @@ export default function Prontuario() {
                     activeSection={activeSection}
                     onSectionChange={(sectionId) => {
                         if (sectionId === 'condicao-saude') {
-                            navigate('/condicoes-saude');
+                            navigate(`/condicoes-saude?idBeneficiario=${idBeneficiario}`);
                         } else if (sectionId === 'endereco') {
                             navigate(`/endereco?idBeneficiario=${idBeneficiario}`);
                         } else {

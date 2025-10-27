@@ -168,11 +168,12 @@ export default function CondicoesSaude() {
         <SidebarCondicoes
           activeSection={activeSection}
           onSectionChange={(sectionId) => {
-            const idBeneficiario = localStorage.getItem("idBeneficiario");
+            navigate(`/prontuario?idBeneficiario=${idBeneficiario}`);
+
             if (sectionId === 'prontuario') {
-              navigate('/registro-cadastro');
+              navigate(`/prontuario?idBeneficiario=${idBeneficiario}`);
             } else if (sectionId === 'endereco') {
-              navigate(`/Registro-endereco?idBeneficiario=${idBeneficiario}`);
+              navigate(`/endereco?idBeneficiario=${idBeneficiario}`);
 
             }
             else {

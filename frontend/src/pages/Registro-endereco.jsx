@@ -32,7 +32,7 @@ export default function EnderecoForm() {
     // setForm({ ...form, [e.target.name]: e.target.value });
     const updatedForm = { ...form, [e.target.name]: e.target.value };
     setForm(updatedForm);
-    sessionStorage.setItem("formEndereco", JSON.stringify(updatedForm));
+    // sessionStorage.setItem("formEndereco", JSON.stringify(updatedForm));
   };
 
   const handleSubmit = async (e) => {
@@ -76,7 +76,7 @@ export default function EnderecoForm() {
 
   const handleClose = () => {
     localStorage.removeItem("formBeneficiario");
-    sessionStorage.removeItem("formEndereco");
+    // sessionStorage.removeItem("formEndereco");
     localStorage.removeItem("idBeneficiario");
     navigate("/home");
   };
@@ -85,10 +85,10 @@ export default function EnderecoForm() {
   const [activeSection, setActiveSection] = useState("endereco");
 
   useEffect(() => {
-    const savedForm = sessionStorage.getItem("formEndereco");
-    if (savedForm) {
-      setForm(JSON.parse(savedForm));
-    }
+    // const savedForm = sessionStorage.getItem("formEndereco");
+    // if (savedForm) {
+    //   setForm(JSON.parse(savedForm));
+    // }
   }, []);
 
   return (
@@ -101,7 +101,7 @@ export default function EnderecoForm() {
           onSectionChange={(sectionId) => {
             const idBeneficiario = localStorage.getItem("idBeneficiario");
             if (sectionId === "prontuario") {
-              navigate("/registro-cadastro");
+              navigate(`/prontuario?idBeneficiario=${idBeneficiario}`);
             } else if (sectionId === "condicao-saude") {
               navigate(`/condicoes-saude?idBeneficiario=${idBeneficiario}`);
             } else {

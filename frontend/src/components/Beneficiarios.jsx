@@ -17,6 +17,22 @@ export default function Beneficiarios() {
   const [error, setError] = useState(null);
   const [selectedBeneficiario, setSelectedBeneficiario] = useState(null); // para exclusão
   const [presencaBeneficiario, setPresencaBeneficiario] = useState(null); // para presença
+  const [modalAtividadesOpen, setModalAtividadesOpen] = useState(false);
+
+  // Função para abrir modal
+  const handleAbrirModalAtividades = () => {
+    setModalAtividadesOpen(true);
+  };
+
+  // Função para fechar modal
+  const handleFecharModalAtividades = () => {
+    setModalAtividadesOpen(false);
+  };
+
+  // Função para adicionar nova atividade ao estado
+  const handleAdicionarAtividade = (atividade) => {
+    setAtividadesCadastradas((prev) => [...prev, { nome: atividade.nome }]);
+  };
 
   const [atividades, setAtividades] = useState({
     PRESENCA: false,
@@ -75,6 +91,37 @@ export default function Beneficiarios() {
 
     fetchBeneficiarios();
   }, []);
+
+  // Estado para atividades cadastradas
+  const [atividadesCadastradas, setAtividadesCadastradas] = useState([]);
+  const [loadingAtividades, setLoadingAtividades] = useState(true);
+  const [errorAtividades, setErrorAtividades] = useState(null);
+
+  // Busca atividades do banco
+  useEffect(() => {
+    const fetchAtividades = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await api.get("/atendimentos", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (Array.isArray(res.data)) {
+          setAtividadesCadastradas(res.data);
+        } else {
+          setAtividadesCadastradas([]);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar atividades:", err);
+        setErrorAtividades("Não foi possível carregar as atividades");
+      } finally {
+        setLoadingAtividades(false);
+      }
+    };
+
+    fetchAtividades();
+  }, []);
+
 
   const filteredList = (beneficiariosList || []).filter((item) => {
     if (!item) return false;
@@ -266,45 +313,30 @@ export default function Beneficiarios() {
                 </p>
 
                 <div className="modal-switches">
-
-
-                  <label className="switch">
-                    Banho
-                    <input
-                      type="checkbox"
-                      checked={atividades.BANHO}
-                      onChange={() =>
-                        setAtividades((prev) => ({
-                          ...prev,
-                          BANHO: !prev.BANHO
-                        }))
-                      }
-                    />
-                    <span className="slider"></span>
-                  </label>
-
-                  <label className="switch">
-                    Refeição
-                    <input
-                      type="checkbox"
-                      checked={atividades.REFEICAO}
-                      onChange={() =>
-                        setAtividades((prev) => ({
-                          ...prev,
-                          REFEICAO: !prev.REFEICAO
-                        }))
-                      }
-                    />
-                    <span className="slider"></span>
-                  </label>
-
-                  <button
-                    type="button"
-                    className="btn-add-atividade"
-                    onClick={() => setNovaAtividadeMode(true)}
-                  >
-                    + Adicionar nova atividade
-                  </button>
+                  {loadingAtividades ? (
+                    <p>Carregando atividades...</p>
+                  ) : errorAtividades ? (
+                    <p>{errorAtividades}</p>
+                  ) : atividadesCadastradas.length === 0 ? (
+                    <p>Nenhuma atividade cadastrada.</p>
+                  ) : (
+                    atividadesCadastradas.map((atividade) => (
+                      <label key={atividade.id} className="switch">
+                        {atividade.nome}
+                        <input
+                          type="checkbox"
+                          checked={atividades[atividade.nome] || false}
+                          onChange={() =>
+                            setAtividades((prev) => ({
+                              ...prev,
+                              [atividade.nome]: !prev[atividade.nome],
+                            }))
+                          }
+                        />
+                        <span className="slider"></span>
+                      </label>
+                    ))
+                  )}
                 </div>
 
                 <div className="modal-actions">
@@ -313,16 +345,13 @@ export default function Beneficiarios() {
                     onClick={() => {
                       setPresencaBeneficiario(null);
                       navigate(`/prontuario?idBeneficiario=${presencaBeneficiario.id}`);
-                      // navigate("/prontuario");
                     }}
-
                   >
                     Visualizar prontuário
                   </button>
                   <button className="btn-vermelho" onClick={handleConfirmarPresenca}>
                     Salvar
                   </button>
-
                 </div>
               </>
             ) : (
@@ -355,7 +384,6 @@ export default function Beneficiarios() {
                 </div>
                 <div className="beneficiarios-actions">
                   <div className="modal-actions">
-
                     <button
                       className="btn-verde"
                       onClick={() => setNovaAtividadeMode(false)}
@@ -373,10 +401,130 @@ export default function Beneficiarios() {
         </div>
       )}
 
+
+      {/* === MODAL DE ATIVIDADES === */}
+      {/* === MODAL DE ATIVIDADES === */}
+      {modalAtividadesOpen && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <button className="modal-close" onClick={handleFecharModalAtividades}>
+              ✕
+            </button>
+
+            {!novaAtividadeMode ? (
+              <>
+                <h3>Atividades Cadastradas</h3>
+
+                <div className="modal-atividades-list">
+                  {loadingAtividades ? (
+                    <p>Carregando atividades...</p>
+                  ) : errorAtividades ? (
+                    <p>{errorAtividades}</p>
+                  ) : atividadesCadastradas.length === 0 ? (
+                    <p>Nenhuma atividade cadastrada.</p>
+                  ) : (
+                    atividadesCadastradas.map((atividade) => (
+                      <div key={atividade.id} className="atividade-card">
+                        <span className="atividade-nome">{atividade.nome}</span>
+                        <img
+                          src={DeleteIcon}
+                          alt="Deletar"
+                          className="beneficiarios-delete-icon"
+                          onClick={async () => {
+                            try {
+                              const token = localStorage.getItem("token");
+                              await api.delete(`/atendimentos/${atividade.id}`, {
+                                headers: { Authorization: `Bearer ${token}` },
+                              });
+                              setAtividadesCadastradas(prev =>
+                                prev.filter(a => a.id !== atividade.id)
+                              );
+                            } catch (err) {
+                              console.error("Erro ao deletar atividade:", err);
+                              alert("Não foi possível excluir a atividade");
+                            }
+                          }}
+                        />
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <Botao
+                  type="button"
+                  className="botao botao-primario btn-salvar"
+                  onClick={() => setNovaAtividadeMode(true)}
+                >
+                  Adicionar nova atividade
+                </Botao>
+              </>
+            ) : (
+              <>
+                <h3>Cadastrar nova atividade</h3>
+                <div className="modal-form">
+                  <label>Nome de Atividade</label>
+                  <input
+                    type="text"
+                    placeholder="Nome da atividade"
+                    value={novaAtividade.nome}
+                    onChange={(e) =>
+                      setNovaAtividade((prev) => ({ ...prev, nome: e.target.value }))
+                    }
+                  />
+                  <label>Observação</label>
+                  <textarea
+                    placeholder="Observação"
+                    value={novaAtividade.observacao}
+                    onChange={(e) =>
+                      setNovaAtividade((prev) => ({ ...prev, observacao: e.target.value }))
+                    }
+                  />
+                </div>
+
+                <div className="modal-actions">
+                  <button
+                    className="btn-verde"
+                    onClick={() => setNovaAtividadeMode(false)}
+                  >
+                    Voltar
+                  </button>
+                  <button
+                    className="btn-vermelho"
+                    onClick={async () => {
+                      if (!novaAtividade.nome.trim()) {
+                        alert("Informe o nome da atividade!");
+                        return;
+                      }
+
+                      try {
+                        const token = localStorage.getItem("token");
+                        const res = await api.post("/atendimentos", novaAtividade, {
+                          headers: { Authorization: `Bearer ${token}` },
+                        });
+                        setAtividadesCadastradas(prev => [...prev, res.data]);
+                        setNovaAtividade({ nome: "", observacao: "" });
+                        setNovaAtividadeMode(false);
+                      } catch (err) {
+                        console.error("Erro ao cadastrar nova atividade:", err);
+                        alert("Não foi possível cadastrar a atividade");
+                      }
+                    }}
+                  >
+                    Salvar
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Botões do rodapé */}
       <div className="beneficiarios-actions">
 
-
+        <Botao type="button" className="btn-pular" onClick={handleAbrirModalAtividades}>
+          Atividades
+        </Botao>
         <Botao className="btn-salvar" type="button" onClick={handleCadastro}>
           Cadastrar novo beneficiário
         </Botao>

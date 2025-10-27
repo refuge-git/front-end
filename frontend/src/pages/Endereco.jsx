@@ -256,7 +256,6 @@ export default function EnderecoForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aqui você pode fazer um PUT para atualizar no backend
     setBackupBeforeEdit(form);
     setIsEditing(false);
     alert('Dados salvos com sucesso!');
@@ -273,7 +272,9 @@ export default function EnderecoForm() {
   };
 
   const handleClose = () => navigate(`/prontuario?idBeneficiario=${idBeneficiario}`);
-  const handleClose2 = () => navigate('/home');
+  const handleClose2 = () => {
+    localStorage.removeItem("idBeneficiario");
+    navigate('/home');}
 
   return (
     <div className="condicoes-saude-container">
@@ -284,7 +285,7 @@ export default function EnderecoForm() {
           activeSection={activeSection}
           onSectionChange={(sectionId) => {
             if (sectionId === 'condicao-saude') {
-              navigate('/condicoes-saude');
+              navigate(`/condicoes-saude?idBeneficiario=${idBeneficiario}`);
             } else if (sectionId === 'prontuario') {
               navigate(`/prontuario?idBeneficiario=${idBeneficiario}`);
             } else {
