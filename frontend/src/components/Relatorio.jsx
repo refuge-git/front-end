@@ -6,9 +6,7 @@ export default function Relatorio() {
   const [message, setMessage] = useState("");
 
   const relatorios = [
-    { id: 1, nome: "Relatório do mês de Outubro de 2025" },
-    { id: 2, nome: "Relatório do mês de Setembro de 2025" },
-    { id: 3, nome: "Relatório do mês de Agosto de 2025" }
+    { id: 1, nome: "Relatório do mês de Outubro de 2025" }
   ];
 
   const handleSendEmail = async (id) => {
