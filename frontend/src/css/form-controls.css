@@ -67,13 +67,15 @@
   background-color: transparent;
   color: #7E0300;
   border: 1px solid #7E0300;
-  padding: 10px 32px;
+  /* padding: 10px 32px; */
   border-radius: 4px;
   font-size: 14px;
-  font-weight: 500;
+  /* font-weight: 500; */
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-top: 10px;
+  margin-top: 23px;
+  height: 40px;
+  width: 100px;
 }
 
 .btn-pular:hover {
