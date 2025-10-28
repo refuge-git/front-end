@@ -4,7 +4,7 @@ import axios from "axios";
 // Use VITE_ROOT_HOST e VITE_API_HOST se quiser sobrescrever em desenvolvimento/produção
 const ROOT_HOST = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_ROOT_HOST
   ? import.meta.env.VITE_ROOT_HOST
-  : 'http://alb-principal-1700035384.us-east-1.elb.amazonaws.com';
+  : 'http://alb-principal-971728974.us-east-1.elb.amazonaws.com';
 
 // const ROOT_HOST = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_ROOT_HOST
 //  ? import.meta.env.VITE_ROOT_HOST
