@@ -227,7 +227,7 @@ export default function Beneficiarios() {
       <div className="beneficiarios-list">
         {filteredList.map((item, i) => {
           const nome = item.nomeRegistro || item.nome || item.nomeSocial || "";
-
+          console.log("🧩 item recebido:", item);
           return (
             <div key={i} className="beneficiarios-card">
               <div
@@ -237,7 +237,7 @@ export default function Beneficiarios() {
               >
                 {/* Caso não exista e imagem sera utilizado ícone padrão */}
                 <img
-                  src={item.fotoPerfil || Icon}
+                  src={item.imagemUrl || Icon}
                   alt={nome}
                   className="beneficiarios-card-img"
                 />
