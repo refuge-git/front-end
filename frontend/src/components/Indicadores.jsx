@@ -109,15 +109,15 @@ export default function Dashboards() {
   </div>
   <div className="dashboard-card-info dashboard-card-info-horizontal">
     <div className="dashboard-card-block">
-      <span className="dashboard-card-label">Pessoas atendidas:</span>
-      <span className="dashboard-card-value">{indicadores.atendimentosMesAtual}</span>
+      <span className="dashboard-card-label">Atendimentos do dia:</span>
+      <span className="dashboard-card-value">{indicadores.atendimentosDiaAtual}</span>
     </div>
 
     {/* Linha separadora */}
     <div className="dashboard-card-divider"></div>
 
     <div className="dashboard-card-block">
-      <span className="dashboard-card-label">Atendimentos esperados (média):  </span>
+      <span className="dashboard-card-label">Atendimentos esperados:  </span>
       <span className="dashboard-card-value">{indicadores.mediaAtendimentosMesAtual}</span>
     </div>
   </div>
@@ -132,7 +132,7 @@ export default function Dashboards() {
   <div className="dashboard-card-info dashboard-card-info-horizontal">
     <div className="dashboard-card-block">
       <span className="dashboard-card-label">1º Atividade mais requisitada</span>
-      <span className="dashboard-card-value">{indicadores.atividadeMaisRequisitadaMes}</span>
+      <span className="dashboard-card-value">{indicadores.atividadeMaisRequisitadaDia}</span>
     </div>
 
     <div className="dashboard-card-divider"></div>
