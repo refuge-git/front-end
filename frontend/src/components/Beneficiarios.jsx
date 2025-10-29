@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/Beneficiarios.css";
 import Icon from "../assets/perfil-s-fundo.png";
@@ -17,6 +17,18 @@ export default function Beneficiarios() {
   const [error, setError] = useState(null);
   const [selectedBeneficiario, setSelectedBeneficiario] = useState(null); // para exclusão
   const [presencaBeneficiario, setPresencaBeneficiario] = useState(null); // para presença
+
+  // Estados para paginação
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [pageSize] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  
+  // Estado para debounce da busca
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  // Estado para controlar loading apenas da lista
+  const [listLoading, setListLoading] = useState(false);
   const [modalAtividadesOpen, setModalAtividadesOpen] = useState(false);
 
   // Função para abrir modal (reseta paginação)
@@ -50,47 +62,72 @@ export default function Beneficiarios() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchBeneficiarios = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        // buscar lista de frequência (o que você já fazia) e também a lista completa
-        const [frequenciaRes, allRes] = await Promise.all([
-          api.get("/beneficiarios/frequencia-dia-semana", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          api.get("/beneficiarios", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
+  // Função para buscar beneficiários com paginação
+  const fetchBeneficiarios = useCallback(async (page = currentPage, searchValue = searchTerm, isSearch = false) => {
+    // Se for busca, usar listLoading; se for carregamento inicial, usar loading
+    if (isSearch) {
+      setListLoading(true);
+    } else {
+      setLoading(true);
+    }
+    
+    try {
+      const token = localStorage.getItem("token");
 
-        console.log("Frequência:", frequenciaRes.data);
-        console.log("Todos os beneficiários:", allRes.data);
+      const hoje = new Date();
+      const diaSemana = hoje.getDay() === 0 ? 1 : hoje.getDay() + 1;
 
-        if (Array.isArray(frequenciaRes.data)) {
-          setBeneficiariosList(frequenciaRes.data);
-        } else {
-          setBeneficiariosList([]);
-          console.warn("Formato inesperado (frequência):", frequenciaRes.data);
-        }
+      const [frequenciaRes, allRes] = await Promise.all([
+        api.get("/beneficiarios/listar-page-frequencia", {
+          params: {
+            diaSemana,
+            page,
+            size: pageSize,
+            search: searchValue || null
+          },
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        api.get("/beneficiarios", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
 
-        if (Array.isArray(allRes.data)) {
-          setTotalCount(allRes.data.length);
-          setAtivosCount(allRes.data.filter((b) => b && b.status === "ATIVO").length);
-        } else {
-          setTotalCount(0);
-          setAtivosCount(0);
-          console.warn("Formato inesperado (todos):", allRes.data);
-        }
-      } catch (err) {
-        console.error("Erro ao buscar beneficiários:", err);
-        setError("Não foi possível carregar os beneficiários.");
-      } finally {
-        setLoading(false);
+      console.log("Frequência:", frequenciaRes.data);
+      console.log("Todos os beneficiários:", allRes.data);
+
+      // Lista paginada
+      if (frequenciaRes.data && Array.isArray(frequenciaRes.data.items)) {
+        setBeneficiariosList(frequenciaRes.data.items);
+        setTotalItems(frequenciaRes.data.total);
+        setTotalPages(Math.ceil(frequenciaRes.data.total / pageSize));
+        setCurrentPage(frequenciaRes.data.page);
+      } else {
+        setBeneficiariosList([]);
+        setTotalItems(0);
+        setTotalPages(0);
+        console.warn("Formato inesperado (frequência):", frequenciaRes.data);
       }
-    };
 
-    fetchBeneficiarios();
+      // Lista completa
+      if (Array.isArray(allRes.data)) {
+        setTotalCount(allRes.data.length);
+        setAtivosCount(allRes.data.filter((b) => b && b.status === "ATIVO").length);
+      } else {
+        setTotalCount(0);
+        setAtivosCount(0);
+        console.warn("Formato inesperado (todos):", allRes.data);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar beneficiários:", err);
+      setError("Não foi possível carregar os beneficiários.");
+    } finally {
+      setLoading(false);
+      setListLoading(false);
+    }
+  }, [currentPage, pageSize, searchTerm]);
+
+  useEffect(() => {
+    fetchBeneficiarios(1);
   }, []);
 
   // Estado para atividades cadastradas
@@ -128,14 +165,48 @@ export default function Beneficiarios() {
     fetchAtividades();
   }, []);
 
+  // Debounce para a busca
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchTerm !== search) {
+        setSearchTerm(search);
+        setCurrentPage(1);
+        fetchBeneficiarios(1, search, true); // true indica que é uma busca
+      }
+    }, 500); // 500ms de delay
 
-  const filteredList = (beneficiariosList || []).filter((item) => {
-    if (!item) return false;
-    if (item.status !== "ATIVO") return false;
+    return () => clearTimeout(timeoutId);
+  }, [search, fetchBeneficiarios]);
 
-    const nome = item.nomeRegistro || item.nome || item.nomeSocial;
-    return nome && nome.toLowerCase().includes(search.toLowerCase());
-  });
+  // Função para navegar para uma página específica
+  const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      fetchBeneficiarios(page, searchTerm, true); // true indica que é navegação
+    }
+  };
+
+  // Função para ir para a página anterior
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      goToPage(currentPage - 1);
+    }
+  };
+
+  // Função para ir para a próxima página
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      goToPage(currentPage + 1);
+    }
+  };
+
+  // Função para lidar com mudanças no campo de busca
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+  };
+
+
+  const filteredList = beneficiariosList || [];
 
   const handleCadastro = () => {
     navigate("/registro-cadastro");
@@ -218,47 +289,110 @@ export default function Beneficiarios() {
           type="text"
           placeholder="Busque pelo nome..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={handleSearchChange}
           className="beneficiarios-input"
         />
       </div>
 
       {/* Lista de beneficiários */}
       <div className="beneficiarios-list">
-        {filteredList.map((item, i) => {
-          const nome = item.nomeRegistro || item.nome || item.nomeSocial || "";
+        {listLoading ? (
+          <div className="beneficiarios-list-loading">
+            <div className="loading-spinner"></div>
+            <span>Carregando...</span>
+          </div>
+        ) : (
+          <>
+            {filteredList.map((item, i) => {
+              const nome = item.nomeRegistro || item.nome || item.nomeSocial || "";
           console.log("🧩 item recebido:", item);
-          return (
-            <div key={i} className="beneficiarios-card">
-              <div
-                className="beneficiarios-card-info"
-                onClick={() => { setPresencaAtividadesPage(0); setPresencaBeneficiario(item); }}
-                style={{ cursor: "pointer" }}
-              >
-                {/* Caso não exista e imagem sera utilizado ícone padrão */}
-                <img
-                  src={item.imagemUrl || Icon}
-                  alt={nome}
-                  className="beneficiarios-card-img"
-                />
-                <span className="beneficiarios-card-name">{nome}</span>
-              </div>
+              return (
+                <div key={item.id || i} className="beneficiarios-card">
+                  <div
+                    className="beneficiarios-card-info"
+                    onClick={() => setPresencaBeneficiario(item)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    {/* Caso não exista e imagem sera utilizado ícone padrão */}
+                    <img
+                      src={item.imagemUrl || Icon}
+                      alt={nome}
+                      className="beneficiarios-card-img"
+                    />
+                    <span className="beneficiarios-card-name">{nome}</span>
+                  </div>
 
-              {/* Ícone de deletar */}
-              <img
-                src={DeleteIcon}
-                alt="Deletar"
-                className="beneficiarios-delete-icon"
-                onClick={() => setSelectedBeneficiario(item)} // abre modal de exclusão
-              />
-            </div>
-          );
-        })}
+                  {/* Ícone de deletar */}
+                  <img
+                    src={DeleteIcon}
+                    alt="Deletar"
+                    className="beneficiarios-delete-icon"
+                    onClick={() => setSelectedBeneficiario(item)} // abre modal de exclusão
+                  />
+                </div>
+              );
+            })}
 
-        {filteredList.length === 0 && (
-          <div className="beneficiarios-empty">Nenhum beneficiário encontrado.</div>
+            {filteredList.length === 0 && !listLoading && (
+              <div className="beneficiarios-empty">Nenhum beneficiário encontrado.</div>
+            )}
+          </>
         )}
       </div>
+
+      {/* Componente de Paginação */}
+      {totalPages > 1 && (
+        <div className="pagination-container">
+          <button
+            className="pagination-btn"
+            onClick={goToPreviousPage}
+            disabled={currentPage === 1}
+          >
+            &#8249;
+          </button>
+
+          {/* Números das páginas */}
+          <div className="pagination-numbers">
+            {(() => {
+              const pages = [];
+              const maxVisiblePages = 5;
+
+              let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+              let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+              if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+              }
+
+              for (let i = startPage; i <= endPage; i++) {
+                pages.push(
+                  <button
+                    key={i}
+                    className={`pagination-number ${currentPage === i ? 'active' : ''}`}
+                    onClick={() => goToPage(i)}
+                  >
+                    {i}
+                  </button>
+                );
+              }
+
+              return pages;
+            })()}
+          </div>
+
+          <button
+            className="pagination-btn"
+            onClick={goToNextPage}
+            disabled={currentPage === totalPages}
+          >
+            &#8250;
+          </button>
+
+          <div className="pagination-info">
+            Página {currentPage} de {totalPages} ({totalItems} itens)
+          </div>
+        </div>
+      )}
 
       {/* === MODAL DE EXCLUSÃO === */}
       {selectedBeneficiario && (
