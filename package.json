@@ -1,0 +1,6 @@
+{
+	"dependencies": {
+		"flask": "^0.2.10",
+		"pika": "^0.0.1-security"
+	}
+}

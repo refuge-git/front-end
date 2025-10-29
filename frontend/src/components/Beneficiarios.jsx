@@ -21,7 +21,7 @@ export default function Beneficiarios() {
   // Estados para paginação
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [pageSize] = useState(10);
+  const [pageSize] = useState(5);
   const [totalItems, setTotalItems] = useState(0);
   
   // Estado para debounce da busca
@@ -231,8 +231,9 @@ export default function Beneficiarios() {
 
   const handleConfirmarPresenca = () => {
     const selecionadas = Object.keys(atividades).filter((k) => atividades[k]);
+    const nomeBeneficiario = presencaBeneficiario?.nomeRegistro || presencaBeneficiario?.nome || presencaBeneficiario?.nomeSocial || "Beneficiário";
     console.log(
-      `Atividades confirmadas para ${presencaBeneficiario?.nome}:`,
+      `Atividades confirmadas para ${nomeBeneficiario}:`,
       selecionadas
     );
 
@@ -305,7 +306,7 @@ export default function Beneficiarios() {
           <>
             {filteredList.map((item, i) => {
               const nome = item.nomeRegistro || item.nome || item.nomeSocial || "";
-          console.log("🧩 item recebido:", item);
+              console.log("🧩 item recebido:", item);
               return (
                 <div key={item.id || i} className="beneficiarios-card">
                   <div
@@ -444,11 +445,13 @@ export default function Beneficiarios() {
 
             {!novaAtividadeMode ? (
               <>
+                {console.log("🔍 Modal - presencaBeneficiario:", presencaBeneficiario)}
+                {console.log("🔍 Modal - Propriedades:", Object.keys(presencaBeneficiario || {}))}
                 <h3>Selecione a Atividade Realizada</h3>
                 <p>
                   Beneficiário:{" "}
                   <strong>
-                    {presencaBeneficiario.nomeRegistro || presencaBeneficiario.nome}
+                    {presencaBeneficiario.nomeRegistro || presencaBeneficiario.nome || presencaBeneficiario.nomeSocial || "Nome não encontrado"}
                   </strong>
                 </p>
 
