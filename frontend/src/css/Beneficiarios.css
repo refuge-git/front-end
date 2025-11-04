@@ -10,7 +10,7 @@
   flex: 1 1 320px;
   display: flex;
   flex-direction: column;
-  height: 530px;
+  height: 640px;
 }
 
 .beneficiarios-title {
@@ -61,7 +61,7 @@
 }
 
 .beneficiarios-list {
-  max-height: calc((50px + 14px) * 5);
+  max-height: calc((500px + 140px) * 5);
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -530,13 +530,14 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 20px;
-  padding: 16px 0;
+  margin-top: 10px;
+  margin-bottom: -20px;
+  padding: 0px 0;
 }
 
 .pagination-btn {
   background: #fff;
-  border: 1px solid #ddd;
+  border: 1px solid #ffffff;
   border-radius: 4px;
   width: 40px;
   height: 40px;
@@ -550,14 +551,14 @@
 }
 
 .pagination-btn:hover:not(:disabled) {
-  background: #f5f5f5;
-  border-color: #7E0300;
+  /* background: #f5f5f5; */
+  border-color: #ffffff;
   color: #7E0300;
 }
 
 .pagination-btn:disabled {
   background: #f9f9f9;
-  border-color: #e0e0e0;
+  /* border-color: #e0e0e0; */
   color: #ccc;
   cursor: not-allowed;
 }
@@ -569,7 +570,7 @@
 
 .pagination-number {
   background: #fff;
-  border: 1px solid #ddd;
+  border: 1px solid #ffffff;
   border-radius: 4px;
   width: 40px;
   height: 40px;
@@ -584,7 +585,7 @@
 
 .pagination-number:hover {
   background: #f5f5f5;
-  border-color: #7E0300;
+  /* border-color: #7E0300; */
   color: #7E0300;
 }
 
@@ -592,6 +593,7 @@
   background: #7E0300;
   border-color: #7E0300;
   color: #fff;
+  border-radius: 20px;
 }
 
 .pagination-info {

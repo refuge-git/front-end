@@ -23,10 +23,10 @@ export default function Beneficiarios() {
   const [totalPages, setTotalPages] = useState(0);
   const [pageSize] = useState(5);
   const [totalItems, setTotalItems] = useState(0);
-  
+
   // Estado para debounce da busca
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   // Estado para controlar loading apenas da lista
   const [listLoading, setListLoading] = useState(false);
   const [modalAtividadesOpen, setModalAtividadesOpen] = useState(false);
@@ -70,7 +70,7 @@ export default function Beneficiarios() {
     } else {
       setLoading(true);
     }
-    
+
     try {
       const token = localStorage.getItem("token");
 
@@ -345,9 +345,9 @@ export default function Beneficiarios() {
       {totalPages > 1 && (
         <div className="pagination-container">
           <button
-            className="pagination-btn"
-            onClick={goToPreviousPage}
-            disabled={currentPage === 1}
+          className="pagination-btn"
+          onClick={goToPreviousPage}
+          disabled={currentPage === 1}
           >
             &#8249;
           </button>
@@ -385,12 +385,13 @@ export default function Beneficiarios() {
             className="pagination-btn"
             onClick={goToNextPage}
             disabled={currentPage === totalPages}
+
           >
             &#8250;
           </button>
 
           <div className="pagination-info">
-            Página {currentPage} de {totalPages} ({totalItems} itens)
+            {currentPage} / {totalPages} ({totalItems} itens)
           </div>
         </div>
       )}

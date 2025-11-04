@@ -378,7 +378,7 @@ export default function Status() {
           </button>
 
           <div className="pagination-info">
-            Página {currentPage} de {totalPages} ({totalItems} itens)
+             {currentPage} / {totalPages} ({totalItems} itens)
           </div>
         </div>
       )}
