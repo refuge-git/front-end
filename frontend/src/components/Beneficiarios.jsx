@@ -15,8 +15,9 @@ export default function Beneficiarios() {
   const [ativosCount, setAtivosCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null); // para exclusão
-  const [presencaBeneficiario, setPresencaBeneficiario] = useState(null); // para presença
+  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null); 
+  const [presencaBeneficiario, setPresencaBeneficiario] = useState(null);
+  const [confirmacaoDelete, setConfirmacaoDelete] = useState(null); // {status: 'sucesso' | 'erro', mensagem: string} 
 
   // Estados para paginação
   const [currentPage, setCurrentPage] = useState(1);
@@ -223,9 +224,29 @@ export default function Beneficiarios() {
         prev.filter((b) => b.id !== beneficiario.id)
       );
       setSelectedBeneficiario(null);
+      
+      // Mostrar card de sucesso
+      const nomeBeneficiario = beneficiario.nomeRegistro || beneficiario.nome || "Beneficiário";
+      setConfirmacaoDelete({
+        status: 'sucesso',
+        mensagem: `${nomeBeneficiario} foi excluído com sucesso!`
+      });
+      
+      // Fechar o card de confirmação após 3 segundos
+      setTimeout(() => {
+        setConfirmacaoDelete(null);
+      }, 3000);
     } catch (err) {
       console.error("Erro ao apagar beneficiário:", err);
-      alert("Erro ao apagar beneficiário!");
+      setConfirmacaoDelete({
+        status: 'erro',
+        mensagem: "Erro ao excluir beneficiário. Tente novamente."
+      });
+      
+      // Fechar o card de erro após 4 segundos
+      setTimeout(() => {
+        setConfirmacaoDelete(null);
+      }, 4000);
     }
   };
 
@@ -765,6 +786,25 @@ export default function Beneficiarios() {
           Cadastrar novo beneficiário
         </Botao>
       </div>
+
+      {/* === CARD DE CONFIRMAÇÃO DE EXCLUSÃO === */}
+      {confirmacaoDelete && (
+        <div className={`confirmacao-card confirmacao-${confirmacaoDelete.status}`}>
+          <div className="confirmacao-content">
+            {confirmacaoDelete.status === 'sucesso' ? (
+              <>
+                <span className="confirmacao-icon">✓</span>
+                <span className="confirmacao-mensagem">{confirmacaoDelete.mensagem}</span>
+              </>
+            ) : (
+              <>
+                <span className="confirmacao-icon confirmacao-erro-icon">✕</span>
+                <span className="confirmacao-mensagem">{confirmacaoDelete.mensagem}</span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

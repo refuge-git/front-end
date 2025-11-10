@@ -628,4 +628,78 @@
   100% { transform: rotate(360deg); }
 }
 
+/* === CARD DE CONFIRMAÇÃO DE EXCLUSÃO === */
+.confirmacao-card {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  min-width: 300px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+}
+
+.confirmacao-card.confirmacao-sucesso {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  border-left: 5px solid #28a745;
+}
+
+.confirmacao-card.confirmacao-erro {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  border-left: 5px solid #dc3545;
+}
+
+.confirmacao-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.confirmacao-icon {
+  font-size: 24px;
+  font-weight: bold;
+  color: #28a745;
+  flex-shrink: 0;
+}
+
+.confirmacao-icon.confirmacao-erro-icon {
+  color: #dc3545;
+}
+
+.confirmacao-mensagem {
+  font-size: 14px;
+  font-weight: 500;
+  color: #155724;
+}
+
+.confirmacao-card.confirmacao-erro .confirmacao-mensagem {
+  color: #721c24;
+}
+
+  
+
   
