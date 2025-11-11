@@ -656,9 +656,29 @@ export default function Beneficiarios() {
                                       setPresencaAtividadesPage((p) => Math.min(p, totalPages - 1));
                                       return updated;
                                     });
+
+                                    // Mostrar card de sucesso
+                                    setConfirmacaoDelete({
+                                      status: 'sucesso',
+                                      mensagem: `A atividade ${atividade.nome} foi excluída com sucesso!`
+                                    });
+
+                                    // Fechar o card de confirmação após 3 segundos
+                                    setTimeout(() => {
+                                      setConfirmacaoDelete(null);
+                                    }, 3000);
                                   } catch (err) {
                                     console.error("Erro ao deletar atividade:", err);
-                                    alert("Não foi possível excluir a atividade");
+                                    // Mostrar card de erro
+                                    setConfirmacaoDelete({
+                                      status: 'erro',
+                                      mensagem: "Erro ao excluir atividade. Tente novamente."
+                                    });
+
+                                    // Fechar o card de erro após 4 segundos
+                                    setTimeout(() => {
+                                      setConfirmacaoDelete(null);
+                                    }, 4000);
                                   }
                                 }}
                               />
