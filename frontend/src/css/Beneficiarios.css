@@ -322,7 +322,7 @@
   display: flex;
   justify-content: center;
   gap: 15px;
-  margin-left: 345px;
+  margin-left: 75%;
 }
 
 .modal-actions {
@@ -330,7 +330,15 @@
   display: flex;
   justify-content: center;
   gap: 15px;
-  margin-left: 375px;
+  margin-left: 76%;
+}
+
+.modal-actions-init {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-left: 50%;
 }
 
 
@@ -345,7 +353,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
 .btn-verde:hover {
@@ -371,7 +379,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
 .btn-vermelho:hover {
@@ -484,7 +492,7 @@
   min-height: 80px;
   resize: vertical;
   background-color: #ffffff;
-  width: 565px;
+  width: 97%;
   color: #333;
 }
 
@@ -493,7 +501,7 @@
   font-size: 13px;
   font-weight: 500;
   margin-bottom: 0px;
-  margin-right: 580px;
+  margin-right: 100%;
   white-space: nowrap;
 }
 

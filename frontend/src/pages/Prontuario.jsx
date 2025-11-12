@@ -320,7 +320,9 @@ export default function Prontuario() {
                             <div className="form-group">
                                 <label>Status</label>
                                 <div className="input-with-indicator">
-                                    <span className="status-indicator"></span>
+                                    <span
+                                        className={`status-indicator ${form.status?.toLowerCase()}`}
+                                    ></span>
                                     <Input value={form.status || ''} disabled />
                                 </div>
                             </div>

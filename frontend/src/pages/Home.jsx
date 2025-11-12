@@ -156,6 +156,27 @@ export default function Home() {
   const [showMenu, setShowMenu] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [nomePerfil, setNomePerfil] = useState("");
+  const [emailPerfil, setEmailPerfil] = useState("");
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    import("../provider/api").then(({ default: api }) => {
+      api
+        .get("/funcionarios/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((res) => {
+          setNomePerfil(res.data.nome || "");
+          setEmailPerfil(res.data.email || "");
+        })
+        .catch(() => {
+          setNomePerfil("");
+          setEmailPerfil("");
+        });
+    });
+  }, []);
 
   const dashboardRef = useRef(null);
   const relatorioRef = useRef(null);
@@ -256,6 +277,8 @@ export default function Home() {
             <button className="close-button" onClick={() => setShowMenu(false)}>✖</button>
             <img src={Avatar} alt="Perfil" className="menu-avatar" />
             <h3 className="perfil-nome">{nomePerfil}</h3>
+                  <p className="perfil-email">{emailPerfil}</p>
+
             <button
               className="menu-btn"
               onClick={() => setShowProfile(true)}
@@ -263,7 +286,7 @@ export default function Home() {
               Seu Perfil
             </button>
             <button
-              className="menu-btn"
+              className="menu-btn-exit"
               onClick={handleLogout}
             >
               Sair

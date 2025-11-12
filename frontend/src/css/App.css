@@ -843,6 +843,34 @@ textarea:disabled {
   background-color: #4bb543;
 }
 
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  background-color: #ccc; /* cor padrão */
+  transition: background-color 0.3s ease;
+}
+
+/* Cores específicas para cada status */
+.status-indicator.ativo {
+  background-color: #28a745; /* verde */
+}
+
+.status-indicator.inativo {
+  background-color: #90e0ef; /* cinza */
+}
+
+.status-indicator.banido {
+  background-color: #03045e; /* vermelho */
+}
+
+.status-indicator.suspenso {
+  background-color: #0096c7; /* amarelo */
+}
+
+
 /* Overlay */
 .overlay {
   position: fixed;
@@ -915,6 +943,38 @@ textarea:disabled {
   align-items: center;
   margin-bottom: 1.5rem;
 }
+
+.perfil-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.perfil-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.perfil-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.5rem;
+}
+
+.perfil-nome {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+
 
 
 .perfil-form {
@@ -1083,12 +1143,11 @@ textarea:disabled {
   display: block;
   width: 100%;
   background: #800000;
-  /* vermelho escuro */
   color: white;
   padding: 10px;
-  margin-top: 10px;
+  margin-top: 40px;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 1rem;
   cursor: pointer;
   transition: background 0.2s ease;
@@ -1097,6 +1156,20 @@ textarea:disabled {
 .menu-btn:hover {
   background: #a00400;
   /* vermelho mais claro */
+}
+
+.menu-btn-exit{
+  display: block;
+  width: 100%;
+  background: #80000000;
+  color: #7E0300;
+  border: 1px solid #7E0300;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
 
 .close-btn {
@@ -1115,7 +1188,7 @@ textarea:disabled {
   padding: 2rem;
   border-radius: 12px;
   text-align: center;
-  width: 280px;
+  width: 250px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -1130,6 +1203,15 @@ textarea:disabled {
   font-size: 1.2rem;
   font-weight: 600;
 }
+
+.perfil-email {
+    font-size: 0.9rem; /* menor que o nome */
+    color: #666; /* cinza suave para contraste */
+    margin-top: 4px; /* aproxima do nome */
+    text-align: center;
+    word-break: break-word;
+}
+
 
 .avatar-container {
   position: relative;

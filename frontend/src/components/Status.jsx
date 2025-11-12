@@ -1,98 +1,5 @@
-// import { useState } from "react";
-// import "../css/Status.css";
-// import Icon from "../assets/perfil-s-fundo.png";
-// import IconLupa from "../assets/lupa.png";
-
-// const statusList = [
-//   { nome: "Agnaldo", status: "Ativo", cor: "#4bb543" },
-//   { nome: "Pedro", status: "Banido", cor: "#ff2d2d" },
-//   { nome: "Rodolfo", status: "Suspenso", cor: "#ffe600" },
-//   { nome: "Maria", status: "Inativo", cor: "#cccccc" },
-//   { nome: "Samara", status: "Banido", cor: "#ff2d2d" },
-//   { nome: "Joana", status: "Ativo", cor: "#4bb543" },
-//   { nome: "Lucas", status: "Suspenso", cor: "#ffe600" },
-//   { nome: "Bruno", status: "Inativo", cor: "#cccccc" }
-// ];
-
-// const statusOptions = [
-//   { label: "Todos", value: "" },
-//   { label: "Ativo", value: "Ativo" },
-//   { label: "Banido", value: "Banido" },
-//   { label: "Suspenso", value: "Suspenso" },
-//   { label: "Inativo", value: "Inativo" }
-// ];
-
-// export default function Status() {
-//   const [search, setSearch] = useState("");
-//   const [filter, setFilter] = useState("");
-
-//   const filteredList = statusList.filter(item =>
-//     item.nome.toLowerCase().includes(search.toLowerCase()) &&
-//     (filter === "" || item.status === filter)
-//   );
-
-//   return (
-//     <section className="status-container">
-//       <div className="status-header">
-//         <h2 className="status-title">Status</h2>
-//         <select
-//           value={filter}
-//           onChange={e => setFilter(e.target.value)}
-//           className="status-select"
-//         >
-//           {statusOptions.map(opt => (
-//             <option key={opt.value} value={opt.value}>{opt.label}</option>
-//           ))}
-//         </select>
-//       </div>
-
-//       <div className="status-search">
-//         {/* <span className="status-search-icon">🔍</span> */}
-//         <img
-//           src={IconLupa}
-//           alt="Buscar"
-//           className="status-search-img"
-//         />
-//         <input
-//           type="text"
-//           placeholder="Busque pelo nome..."
-//           value={search}
-//           onChange={e => setSearch(e.target.value)}
-//           className="status-input"
-//         />
-//       </div>
-
-//       {/* Lista com scroll */}
-//       <div className="status-list">
-//         {filteredList.map((item, i) => (
-//           <div key={i} className="status-card">
-//             <div className="status-card-info">
-//               {/* <span className="status-card-icon">👤</span> */}
-//               <img
-//                 src={Icon}
-//                 alt={item.nome}
-//                 className="status-card-img"
-//               />
-//               <span className="status-card-name">{item.nome}</span>
-//             </div>
-//             <span
-//               title={item.status}
-//               className="status-dot"
-//               style={{ background: item.cor }}
-//             ></span>
-//           </div>
-//         ))}
-//         {filteredList.length === 0 && (
-//           <div className="status-empty">
-//             Nenhum beneficiário encontrado.
-//           </div>
-//         )}
-//       </div>
-//     </section>
-//   );
-// }
-
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../provider/api"; // seu axios
 import "../css/Status.css";
 import IconDefault from "../assets/perfil-s-fundo.png";
@@ -107,6 +14,8 @@ const statusColors = {
 };
 
 export default function Status() {
+  const navigate = useNavigate();
+  
   const [beneficiarios, setBeneficiarios] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("ALL"); // padrão "ALL" para todos
@@ -124,6 +33,14 @@ export default function Status() {
   
   // Estado para controlar loading apenas da lista
   const [listLoading, setListLoading] = useState(false);
+  
+  // Estado para modal de visualização
+  const [modalVisualizacao, setModalVisualizacao] = useState(null);
+  
+  // Estado para modal de status
+  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null);
+  const [newStatus, setNewStatus] = useState("");
+  const [confirmacao, setConfirmacao] = useState(null); // {status: 'sucesso' | 'erro', mensagem: string}
 
   // Função para buscar beneficiários com paginação
   const fetchBeneficiarios = useCallback(async (page = currentPage, searchValue = searchTerm, statusValue = filter, isSearch = false) => {
@@ -255,6 +172,96 @@ export default function Status() {
     fetchBeneficiarios(1, "", newFilter, true);
   };
 
+  // Função para abrir modal de visualização
+  const handleAbrirModalVisualizacao = (beneficiario) => {
+    setModalVisualizacao(beneficiario);
+  };
+
+  // Função para fechar modal de visualização
+  const handleFecharModalVisualizacao = () => {
+    setModalVisualizacao(null);
+  };
+
+  // Função para ir para prontuário
+  const handleVisualizarProntuario = (beneficiario) => {
+    console.log("Beneficiário clicado:", beneficiario); // 👈 Adicione isto
+    setModalVisualizacao(null);
+    navigate(`/prontuario?idBeneficiario=${beneficiario.idBeneficiario}`);
+  };
+
+  // Função para abrir modal de edição de status
+  const handleAbrirModalEditar = (beneficiario) => {
+    setModalVisualizacao(null);
+    setSelectedBeneficiario(beneficiario);
+    setNewStatus(beneficiario.status || "INATIVO");
+  };
+
+  // Função para abrir modal de status (antigo nome, mantido para compatibilidade)
+  const handleAbrirModalStatus = (beneficiario) => {
+    setModalVisualizacao(beneficiario);
+  };
+
+  // Função para fechar modal de status
+  const handleFecharModalStatus = () => {
+    setSelectedBeneficiario(null);
+    setNewStatus("");
+    // Voltar para o modal anterior
+    if (beneficiarios.length > 0) {
+      // Encontrar o beneficiário atual na lista para reabrir o modal de visualização
+      const beneficiarioAtual = beneficiarios.find(b => b.id === selectedBeneficiario?.id);
+      if (beneficiarioAtual) {
+        setModalVisualizacao(beneficiarioAtual);
+      }
+    }
+  };
+
+  // Função para salvar novo status
+  const handleSalvarStatus = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      
+      await api.put(
+        `/beneficiarios/${selectedBeneficiario.id}/status`,
+        { status: newStatus },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Atualizar localmente o status do beneficiário
+      setBeneficiarios((prev) =>
+        prev.map((b) =>
+          b.id === selectedBeneficiario.id ? { ...b, status: newStatus } : b
+        )
+      );
+
+      setSelectedBeneficiario(null);
+      setNewStatus("");
+
+      // Mostrar card de sucesso
+      setConfirmacao({
+        status: 'sucesso',
+        mensagem: `Status de ${selectedBeneficiario.nomeRegistro} alterado para ${newStatus}!`
+      });
+
+      // Fechar o card de confirmação após 3 segundos
+      setTimeout(() => {
+        setConfirmacao(null);
+      }, 3000);
+    } catch (err) {
+      console.error("Erro ao alterar status:", err);
+      setConfirmacao({
+        status: 'erro',
+        mensagem: "Erro ao alterar status. Tente novamente."
+      });
+
+      // Fechar o card de erro após 4 segundos
+      setTimeout(() => {
+        setConfirmacao(null);
+      }, 4000);
+    }
+  };
+
   // Retorna a cor baseada no status
   const getStatusColor = (status) => {
     const s = (status || "").trim().toUpperCase();
@@ -276,7 +283,7 @@ export default function Status() {
         <select
           value={filter}
           onChange={handleFilterChange}
-          className="status-select"
+          className="select-categoria"
         >
           <option value="ALL">Todos</option>
           <option value="INATIVO">Inativo</option>
@@ -306,7 +313,12 @@ export default function Status() {
           <>
             {beneficiarios.length > 0 ? (
               beneficiarios.map((item, index) => (
-                <div key={item.id || index} className="status-card">
+                <div
+                  key={item.id || index}
+                  className="status-card"
+                  onClick={() => handleAbrirModalStatus(item)}
+                  style={{ cursor: "pointer" }}
+                >
                   <div className="status-card-info">
                     <img
                       src={item.fotoPerfil || IconDefault}
@@ -379,6 +391,144 @@ export default function Status() {
 
           <div className="pagination-info">
              {currentPage} / {totalPages} ({totalItems} itens)
+          </div>
+        </div>
+      )}
+
+      {/* === MODAL DE VISUALIZAÇÃO DE STATUS === */}
+      {modalVisualizacao && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <button className="modal-close" onClick={handleFecharModalVisualizacao}>
+              ✕
+            </button>
+
+            <h3>Informações do Beneficiário</h3>
+            
+            <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
+              {/* Foto ao lado */}
+              <div style={{ flexShrink: 0 }}>
+                <img
+                  src={modalVisualizacao.fotoPerfil || IconDefault}
+                  alt={modalVisualizacao.nomeRegistro}
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    objectFit: "cover",
+                    marginTop: "50px",
+                  }}
+                />
+              </div>
+
+              {/* Campos ao lado da foto */}
+              <div className="modal-form" style={{ flex: 1 }}>
+                <label>Nome</label>
+                <input
+                  type="text"
+                  value={modalVisualizacao.nomeRegistro}
+                  disabled
+                  style={{
+                    backgroundColor: "#f0f0f0",
+                    cursor: "not-allowed"
+                  }}
+                />
+                
+                <label>Status Atual</label>
+                <input
+                  type="text"
+                  value={modalVisualizacao.status}
+                  disabled
+                  style={{
+                    backgroundColor: "#f0f0f0",
+                    cursor: "not-allowed"
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="modal-actions-init" style={{ marginTop: "20px" }}>
+              <button
+                className="btn-verde"
+                onClick={() => handleVisualizarProntuario(modalVisualizacao)}
+              >
+                Visualizar Prontuário
+              </button>
+              <button
+                className="btn-salvar"
+                onClick={() => handleAbrirModalEditar(modalVisualizacao)}
+            
+              >
+                Editar Status
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* === MODAL DE ALTERAÇÃO DE STATUS === */}
+      {selectedBeneficiario && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <button className="modal-close" onClick={handleFecharModalStatus}>
+              ✕
+            </button>
+
+            <h3>Alterar Status</h3>
+            <p>
+              Beneficiário:{" "}
+              <strong>
+                {selectedBeneficiario.nomeRegistro}
+              </strong>
+            </p>
+
+            <div className="modal-form">
+              <label htmlFor="status-select">Novo Status</label>
+              <select
+                id="status-select"
+                value={newStatus}
+                onChange={(e) => setNewStatus(e.target.value)}
+                className="select-categoria"
+              >
+                <option value="INATIVO">Inativo</option>
+                <option value="ATIVO">Ativo</option>
+                <option value="BANIDO">Banido</option>
+                <option value="SUSPENSO">Suspenso</option>
+              </select>
+            </div>
+
+            <div className="modal-actions-delete">
+              <button
+                className="btn-verde"
+                onClick={handleSalvarStatus}
+              >
+                Salvar
+              </button>
+              <button
+                className="btn-vermelho"
+                onClick={handleFecharModalStatus}
+              >
+                Voltar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* === CARD DE CONFIRMAÇÃO === */}
+      {confirmacao && (
+        <div className={`confirmacao-card confirmacao-${confirmacao.status}`}>
+          <div className="confirmacao-content">
+            {confirmacao.status === 'sucesso' ? (
+              <>
+                <span className="confirmacao-icon">✓</span>
+                <span className="confirmacao-mensagem">{confirmacao.mensagem}</span>
+              </>
+            ) : (
+              <>
+                <span className="confirmacao-icon confirmacao-erro-icon">✕</span>
+                <span className="confirmacao-mensagem">{confirmacao.mensagem}</span>
+              </>
+            )}
           </div>
         </div>
       )}

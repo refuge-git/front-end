@@ -17,7 +17,8 @@ export default function Beneficiarios() {
   const [error, setError] = useState(null);
   const [selectedBeneficiario, setSelectedBeneficiario] = useState(null); 
   const [presencaBeneficiario, setPresencaBeneficiario] = useState(null);
-  const [confirmacaoDelete, setConfirmacaoDelete] = useState(null); // {status: 'sucesso' | 'erro', mensagem: string} 
+  const [confirmacaoDelete, setConfirmacaoDelete] = useState(null); // {status: 'sucesso' | 'erro', mensagem: string}
+  const [selectedAtividade, setSelectedAtividade] = useState(null); // Para confirmar exclusão de atividade 
 
   // Estados para paginação
   const [currentPage, setCurrentPage] = useState(1);
@@ -243,6 +244,49 @@ export default function Beneficiarios() {
         mensagem: "Erro ao excluir beneficiário. Tente novamente."
       });
       
+      // Fechar o card de erro após 4 segundos
+      setTimeout(() => {
+        setConfirmacaoDelete(null);
+      }, 4000);
+    }
+  };
+
+  const handleDeleteAtividade = async (atividade) => {
+    try {
+      const token = localStorage.getItem("token");
+      await api.delete(`/atendimentos/${atividade.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // remove locally and adjust pagination pages if needed
+      setAtividadesCadastradas((prev) => {
+        const updated = prev.filter((a) => a.id !== atividade.id);
+        const totalPages = Math.max(1, Math.ceil(updated.length / ITEMS_PER_PAGE));
+        setAtividadesModalPage((p) => Math.min(p, totalPages - 1));
+        setPresencaAtividadesPage((p) => Math.min(p, totalPages - 1));
+        return updated;
+      });
+
+      setSelectedAtividade(null);
+
+      // Mostrar card de sucesso
+      setConfirmacaoDelete({
+        status: 'sucesso',
+        mensagem: `${atividade.nome} foi excluído com sucesso!`
+      });
+
+      // Fechar o card de confirmação após 3 segundos
+      setTimeout(() => {
+        setConfirmacaoDelete(null);
+      }, 3000);
+    } catch (err) {
+      console.error("Erro ao deletar atividade:", err);
+      // Mostrar card de erro
+      setConfirmacaoDelete({
+        status: 'erro',
+        mensagem: "Erro ao excluir atividade. Tente novamente."
+      });
+
       // Fechar o card de erro após 4 segundos
       setTimeout(() => {
         setConfirmacaoDelete(null);
@@ -542,7 +586,7 @@ export default function Beneficiarios() {
                     </button>
                   </div>
 
-                  <div className="modal-actions">
+                  <div className="modal-actions-init">
                     <button
                       className="btn-verde"
                       onClick={() => {
@@ -641,46 +685,7 @@ export default function Beneficiarios() {
                                 src={DeleteIcon}
                                 alt="Deletar"
                                 className="beneficiarios-delete-icon"
-                                onClick={async () => {
-                                  try {
-                                    const token = localStorage.getItem("token");
-                                    await api.delete(`/atendimentos/${atividade.id}`, {
-                                      headers: { Authorization: `Bearer ${token}` },
-                                    });
-
-                                    // remove locally and adjust pagination pages if needed
-                                    setAtividadesCadastradas((prev) => {
-                                      const updated = prev.filter((a) => a.id !== atividade.id);
-                                      const totalPages = Math.max(1, Math.ceil(updated.length / ITEMS_PER_PAGE));
-                                      setAtividadesModalPage((p) => Math.min(p, totalPages - 1));
-                                      setPresencaAtividadesPage((p) => Math.min(p, totalPages - 1));
-                                      return updated;
-                                    });
-
-                                    // Mostrar card de sucesso
-                                    setConfirmacaoDelete({
-                                      status: 'sucesso',
-                                      mensagem: `A atividade ${atividade.nome} foi excluída com sucesso!`
-                                    });
-
-                                    // Fechar o card de confirmação após 3 segundos
-                                    setTimeout(() => {
-                                      setConfirmacaoDelete(null);
-                                    }, 3000);
-                                  } catch (err) {
-                                    console.error("Erro ao deletar atividade:", err);
-                                    // Mostrar card de erro
-                                    setConfirmacaoDelete({
-                                      status: 'erro',
-                                      mensagem: "Erro ao excluir atividade. Tente novamente."
-                                    });
-
-                                    // Fechar o card de erro após 4 segundos
-                                    setTimeout(() => {
-                                      setConfirmacaoDelete(null);
-                                    }, 4000);
-                                  }
-                                }}
+                                onClick={() => setSelectedAtividade(atividade)}
                               />
                             </div>
                           ))}
@@ -780,9 +785,29 @@ export default function Beneficiarios() {
                         setAtividadesCadastradas(prev => [...prev, res.data]);
                         setNovaAtividade({ nome: "", observacao: "" });
                         setNovaAtividadeMode(false);
+
+                        // Mostrar card de sucesso
+                        setConfirmacaoDelete({
+                          status: 'sucesso',
+                          mensagem: `${payload.nome} foi cadastrado com sucesso!`
+                        });
+
+                        // Fechar o card de confirmação após 3 segundos
+                        setTimeout(() => {
+                          setConfirmacaoDelete(null);
+                        }, 3000);
                       } catch (err) {
                         console.error("Erro ao cadastrar nova atividade:", err);
-                        alert("Não foi possível cadastrar a atividade");
+                        // Mostrar card de erro
+                        setConfirmacaoDelete({
+                          status: 'erro',
+                          mensagem: "Erro ao cadastrar atividade. Tente novamente."
+                        });
+
+                        // Fechar o card de erro após 4 segundos
+                        setTimeout(() => {
+                          setConfirmacaoDelete(null);
+                        }, 4000);
                       }
                     }}
 
@@ -806,6 +831,40 @@ export default function Beneficiarios() {
           Cadastrar novo beneficiário
         </Botao>
       </div>
+
+      {/* === MODAL DE EXCLUSÃO DE ATIVIDADE === */}
+      {selectedAtividade && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <button className="modal-close" onClick={() => setSelectedAtividade(null)}>
+              ✕
+            </button>
+
+            <h3>Excluir atividade</h3>
+            <p>
+              Deseja realmente excluir{" "}
+              <strong>
+                {selectedAtividade.nome}
+              </strong>?
+            </p>
+
+            <div className="modal-actions-delete">
+              <button
+                className="btn-verde"
+                onClick={() => handleDeleteAtividade(selectedAtividade)}
+              >
+                Sim
+              </button>
+              <button
+                className="btn-vermelho"
+                onClick={() => setSelectedAtividade(null)}
+              >
+                Não
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* === CARD DE CONFIRMAÇÃO DE EXCLUSÃO === */}
       {confirmacaoDelete && (
