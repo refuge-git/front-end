@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from 'react-router-dom';
 import api from "../provider/api"; // seu axios
 import "../css/Status.css";
 import IconDefault from "../assets/perfil-s-fundo.png";
@@ -15,28 +15,37 @@ const statusColors = {
 
 export default function Status() {
   const navigate = useNavigate();
-  
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.beneficiarioSelecionado) {
+      const beneficiario = location.state.beneficiarioSelecionado;
+      setSelectedBeneficiario(beneficiario);
+      setNewStatus(beneficiario.status || "INATIVO");
+    }
+  }, [location.state]);
+
   const [beneficiarios, setBeneficiarios] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("ALL"); // padrão "ALL" para todos
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Estados para paginação
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [pageSize] = useState(5);
   const [totalItems, setTotalItems] = useState(0);
-  
+
   // Estado para debounce da busca
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   // Estado para controlar loading apenas da lista
   const [listLoading, setListLoading] = useState(false);
-  
+
   // Estado para modal de visualização
   const [modalVisualizacao, setModalVisualizacao] = useState(null);
-  
+
   // Estado para modal de status
   const [selectedBeneficiario, setSelectedBeneficiario] = useState(null);
   const [newStatus, setNewStatus] = useState("");
@@ -50,26 +59,26 @@ export default function Status() {
     } else {
       setLoading(true);
     }
-    
+
     try {
       const token = localStorage.getItem("token");
-      
+
       // Preparar parâmetros
       const params = {
         page,
         size: pageSize,
         search: searchValue ? searchValue.trim() : ""
       };
-      
+
       // Mapear "ALL" para a string "ALL", outros valores normalmente
       if (statusValue === "ALL" || statusValue === "") {
         params.status = "ALL";
       } else {
         params.status = statusValue;
       }
-      
+
       console.log("Parâmetros da requisição:", params);
-      
+
       const response = await api.get("/beneficiarios/status/page", {
         params,
         headers: { Authorization: `Bearer ${token}` },
@@ -85,7 +94,7 @@ export default function Status() {
           ...b,
           status: b.status ? b.status.trim().toUpperCase() : "INATIVO"
         }));
-        
+
         setBeneficiarios(processedData);
         setTotalItems(response.data.total);
         setTotalPages(Math.ceil(response.data.total / pageSize));
@@ -100,7 +109,7 @@ export default function Status() {
       console.error("Erro ao buscar beneficiários:", error);
       console.error("Detalhes do erro:", error.response?.data);
       console.error("Status do erro:", error.response?.status);
-      
+
       // Verificar se é um erro 204 (No Content) que é esperado quando não há dados
       if (error.response?.status === 204 || error.code === 'ERR_NETWORK' && error.response?.status === 204) {
         console.log("Sem dados para exibir (204 - No Content)");
@@ -182,32 +191,30 @@ export default function Status() {
     setModalVisualizacao(null);
   };
 
-  // Função para ir para prontuário
   const handleVisualizarProntuario = (beneficiario) => {
-    console.log("Beneficiário clicado:", beneficiario); // 👈 Adicione isto
+    console.log("Beneficiário clicado:", beneficiario);
     setModalVisualizacao(null);
     navigate(`/prontuario?idBeneficiario=${beneficiario.idBeneficiario}`);
   };
 
-  // Função para abrir modal de edição de status
+
+
+
   const handleAbrirModalEditar = (beneficiario) => {
     setModalVisualizacao(null);
     setSelectedBeneficiario(beneficiario);
     setNewStatus(beneficiario.status || "INATIVO");
   };
 
-  // Função para abrir modal de status (antigo nome, mantido para compatibilidade)
   const handleAbrirModalStatus = (beneficiario) => {
     setModalVisualizacao(beneficiario);
   };
 
-  // Função para fechar modal de status
   const handleFecharModalStatus = () => {
     setSelectedBeneficiario(null);
     setNewStatus("");
     // Voltar para o modal anterior
     if (beneficiarios.length > 0) {
-      // Encontrar o beneficiário atual na lista para reabrir o modal de visualização
       const beneficiarioAtual = beneficiarios.find(b => b.id === selectedBeneficiario?.id);
       if (beneficiarioAtual) {
         setModalVisualizacao(beneficiarioAtual);
@@ -219,20 +226,32 @@ export default function Status() {
   const handleSalvarStatus = async () => {
     try {
       const token = localStorage.getItem("token");
-      
+
       await api.put(
-        `/beneficiarios/${selectedBeneficiario.id}/status`,
+        `/beneficiarios/${selectedBeneficiario.idBeneficiario}/status`,
         { status: newStatus },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      // Atualizar localmente o status do beneficiário
       setBeneficiarios((prev) =>
         prev.map((b) =>
-          b.id === selectedBeneficiario.id ? { ...b, status: newStatus } : b
+          b.idBeneficiario === selectedBeneficiario.idBeneficiario
+            ? { ...b, status: newStatus }
+            : b
         )
+          .filter((b) => (b.status || "").toString().trim().toUpperCase() !== "ATIVO")
+
+          .filter((b) =>
+            filter === "ALL" ? true : b.status.toUpperCase() === filter.toUpperCase()
+          )
+      );
+
+      setModalVisualizacao((prev) =>
+        prev && prev.idBeneficiario === selectedBeneficiario.idBeneficiario
+          ? { ...prev, status: newStatus }
+          : prev
       );
 
       setSelectedBeneficiario(null);
@@ -390,7 +409,7 @@ export default function Status() {
           </button>
 
           <div className="pagination-info">
-             {currentPage} / {totalPages} ({totalItems} itens)
+            {currentPage} / {totalPages} ({totalItems} itens)
           </div>
         </div>
       )}
@@ -404,7 +423,7 @@ export default function Status() {
             </button>
 
             <h3>Informações do Beneficiário</h3>
-            
+
             <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
               {/* Foto ao lado */}
               <div style={{ flexShrink: 0 }}>
@@ -432,7 +451,7 @@ export default function Status() {
                     cursor: "not-allowed"
                   }}
                 />
-                
+
                 <label>Status Atual</label>
                 <input
                   type="text"
@@ -456,7 +475,7 @@ export default function Status() {
               <button
                 className="btn-salvar"
                 onClick={() => handleAbrirModalEditar(modalVisualizacao)}
-            
+
               >
                 Editar Status
               </button>

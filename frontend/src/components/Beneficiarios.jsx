@@ -15,7 +15,7 @@ export default function Beneficiarios() {
   const [ativosCount, setAtivosCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null); 
+  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null);
   const [presencaBeneficiario, setPresencaBeneficiario] = useState(null);
   const [confirmacaoDelete, setConfirmacaoDelete] = useState(null); // {status: 'sucesso' | 'erro', mensagem: string}
   const [selectedAtividade, setSelectedAtividade] = useState(null); // Para confirmar exclusão de atividade 
@@ -207,6 +207,10 @@ export default function Beneficiarios() {
     setSearch(e.target.value);
   };
 
+  const handleEditarStatus = (beneficiario) => {
+    setPresencaBeneficiario(null);
+    navigate(`/status?idBeneficiario=${beneficiario.id}`);
+  };
 
   const filteredList = beneficiariosList || [];
 
@@ -225,14 +229,14 @@ export default function Beneficiarios() {
         prev.filter((b) => b.id !== beneficiario.id)
       );
       setSelectedBeneficiario(null);
-      
+
       // Mostrar card de sucesso
       const nomeBeneficiario = beneficiario.nomeRegistro || beneficiario.nome || "Beneficiário";
       setConfirmacaoDelete({
         status: 'sucesso',
         mensagem: `${nomeBeneficiario} foi excluído com sucesso!`
       });
-      
+
       // Fechar o card de confirmação após 3 segundos
       setTimeout(() => {
         setConfirmacaoDelete(null);
@@ -243,7 +247,7 @@ export default function Beneficiarios() {
         status: 'erro',
         mensagem: "Erro ao excluir beneficiário. Tente novamente."
       });
-      
+
       // Fechar o card de erro após 4 segundos
       setTimeout(() => {
         setConfirmacaoDelete(null);
@@ -410,9 +414,9 @@ export default function Beneficiarios() {
       {totalPages > 1 && (
         <div className="pagination-container">
           <button
-          className="pagination-btn"
-          onClick={goToPreviousPage}
-          disabled={currentPage === 1}
+            className="pagination-btn"
+            onClick={goToPreviousPage}
+            disabled={currentPage === 1}
           >
             &#8249;
           </button>
@@ -557,6 +561,29 @@ export default function Beneficiarios() {
                               </label>
                             </div>
                           ))}
+                          {/* === Botão "Editar status" abaixo da lista === */}
+                          <div style={{ marginTop: "16px", textAlign: "center" }}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                // Fecha o modal atual e vai para a tela de status
+                                setPresencaBeneficiario(null); // fecha o modal atual
+                                navigate(`/status`, { state: { beneficiarioSelecionado: presencaBeneficiario } }); // manda o beneficiário
+
+                              }}
+                              style={{
+                                background: "transparent",
+                                border: "none",
+                                color: "#9B1B1B",
+                                fontWeight: "600",
+                                cursor: "pointer",
+                                padding: 0,
+                                fontSize: "0.95rem",
+                              }}
+                            >
+                              Editar status
+                            </button>
+                          </div>
                         </>
                       );
                     })()
