@@ -4,6 +4,8 @@ import api from "../provider/api"; // seu axios
 import "../css/Status.css";
 import IconDefault from "../assets/perfil-s-fundo.png";
 import IconLupa from "../assets/lupa.png";
+import ModalEditarStatus from "../components/ModalEditarStatus";
+
 
 // Cores para cada status
 const statusColors = {
@@ -333,7 +335,8 @@ export default function Status() {
             {beneficiarios.length > 0 ? (
               beneficiarios.map((item, index) => (
                 <div
-                  key={item.id || index}
+                  // key={item.id || index}
+                  key={item.idBeneficiario}
                   className="status-card"
                   onClick={() => handleAbrirModalStatus(item)}
                   style={{ cursor: "pointer" }}
@@ -485,7 +488,7 @@ export default function Status() {
       )}
 
       {/* === MODAL DE ALTERAÇÃO DE STATUS === */}
-      {selectedBeneficiario && (
+      {/* {selectedBeneficiario && (
         <div className="modal-overlay">
           <div className="modal-card">
             <button className="modal-close" onClick={handleFecharModalStatus}>
@@ -531,7 +534,16 @@ export default function Status() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
+
+      <ModalEditarStatus
+        beneficiario={selectedBeneficiario}
+        newStatus={newStatus}
+        setNewStatus={setNewStatus}
+        onClose={handleFecharModalStatus}
+        onSave={handleSalvarStatus}
+      />
+
 
       {/* === CARD DE CONFIRMAÇÃO === */}
       {confirmacao && (

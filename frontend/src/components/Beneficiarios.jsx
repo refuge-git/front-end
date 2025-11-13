@@ -7,6 +7,8 @@ import HelpIcon from "../assets/help.png";
 import DeleteIcon from "../assets/delete.png";
 import Botao from "./Botao";
 import api from "../provider/api";
+import ModalEditarStatus from "../components/ModalEditarStatus";
+
 
 export default function Beneficiarios() {
   const [search, setSearch] = useState("");
@@ -16,9 +18,12 @@ export default function Beneficiarios() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedBeneficiario, setSelectedBeneficiario] = useState(null);
+  const [deleteBeneficiario, setDeleteBeneficiario] = useState(null);
   const [presencaBeneficiario, setPresencaBeneficiario] = useState(null);
-  const [confirmacaoDelete, setConfirmacaoDelete] = useState(null); // {status: 'sucesso' | 'erro', mensagem: string}
-  const [selectedAtividade, setSelectedAtividade] = useState(null); // Para confirmar exclusão de atividade 
+  const [confirmacaoDelete, setConfirmacaoDelete] = useState(null); 
+  const [selectedAtividade, setSelectedAtividade] = useState(null); 
+  const [modalEditarStatusOpen, setModalEditarStatusOpen] = useState(false);
+
 
   // Estados para paginação
   const [currentPage, setCurrentPage] = useState(1);
@@ -207,11 +212,6 @@ export default function Beneficiarios() {
     setSearch(e.target.value);
   };
 
-  const handleEditarStatus = (beneficiario) => {
-    setPresencaBeneficiario(null);
-    navigate(`/status?idBeneficiario=${beneficiario.id}`);
-  };
-
   const filteredList = beneficiariosList || [];
 
   const handleCadastro = () => {
@@ -228,7 +228,7 @@ export default function Beneficiarios() {
       setBeneficiariosList((prev) =>
         prev.filter((b) => b.id !== beneficiario.id)
       );
-      setSelectedBeneficiario(null);
+      setDeleteBeneficiario(null);
 
       // Mostrar card de sucesso
       const nomeBeneficiario = beneficiario.nomeRegistro || beneficiario.nome || "Beneficiário";
@@ -397,7 +397,7 @@ export default function Beneficiarios() {
                     src={DeleteIcon}
                     alt="Deletar"
                     className="beneficiarios-delete-icon"
-                    onClick={() => setSelectedBeneficiario(item)} // abre modal de exclusão
+                    onClick={() => setDeleteBeneficiario(item)} // abre modal de exclusão
                   />
                 </div>
               );
@@ -466,10 +466,10 @@ export default function Beneficiarios() {
       )}
 
       {/* === MODAL DE EXCLUSÃO === */}
-      {selectedBeneficiario && (
+      {deleteBeneficiario && (
         <div className="modal-overlay">
           <div className="modal-card">
-            <button className="modal-close" onClick={() => setSelectedBeneficiario(null)}>
+            <button className="modal-close" onClick={() => setDeleteBeneficiario(null)}>
               ✕
             </button>
 
@@ -477,20 +477,20 @@ export default function Beneficiarios() {
             <p>
               Deseja realmente excluir{" "}
               <strong>
-                {selectedBeneficiario.nomeRegistro || selectedBeneficiario.nome}
+                {deleteBeneficiario.nomeRegistro || deleteBeneficiario.nome}
               </strong>?
             </p>
 
             <div className="modal-actions-delete">
               <button
                 className="btn-verde"
-                onClick={() => handleDelete(selectedBeneficiario)}
+                onClick={() => handleDelete(deleteBeneficiario)}
               >
                 Sim
               </button>
               <button
                 className="btn-vermelho"
-                onClick={() => setSelectedBeneficiario(null)}
+                onClick={() => setDeleteBeneficiario(null)}
               >
                 Não
               </button>
@@ -566,10 +566,9 @@ export default function Beneficiarios() {
                             <button
                               type="button"
                               onClick={() => {
-                                // Fecha o modal atual e vai para a tela de status
                                 setPresencaBeneficiario(null); // fecha o modal atual
-                                navigate(`/status`, { state: { beneficiarioSelecionado: presencaBeneficiario } }); // manda o beneficiário
-
+                                setSelectedBeneficiario(presencaBeneficiario); // define quem vai ser editado
+                                setModalEditarStatusOpen(true); // abre o modal de editar status
                               }}
                               style={{
                                 background: "transparent",
@@ -589,6 +588,10 @@ export default function Beneficiarios() {
                     })()
                   )}
                 </div>
+
+
+
+
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
                   <div className="modal-paginacao" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '8px' }}>
@@ -911,6 +914,21 @@ export default function Beneficiarios() {
           </div>
         </div>
       )}
+
+      {modalEditarStatusOpen && selectedBeneficiario && (
+        <ModalEditarStatus
+          beneficiario={selectedBeneficiario}
+          newStatus={selectedBeneficiario.status}
+          setNewStatus={() => { }} // se o modal já controla internamente, pode deixar assim
+          onClose={() => setModalEditarStatusOpen(false)}
+          onSave={() => {
+            setModalEditarStatusOpen(false);
+            // opcional: recarregar lista se precisar
+          }}
+        />
+      )}
+
+      
     </section>
   );
 }
