@@ -532,6 +532,7 @@
   margin-left: 10px;
   font-size: 16px;
 }
+
 /* Estilos da Paginação */
 .pagination-container {
   display: flex;
@@ -632,8 +633,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* === CARD DE CONFIRMAÇÃO DE EXCLUSÃO === */
@@ -654,6 +660,7 @@
     transform: translateX(400px);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -665,6 +672,7 @@
     transform: translateX(0);
     opacity: 1;
   }
+
   to {
     transform: translateX(400px);
     opacity: 0;
@@ -708,6 +716,12 @@
   color: #721c24;
 }
 
-  
-
-  
+.edit_status {
+  background: "transparent";
+  border: "none";
+  color: "#9B1B1B";
+  font-weight: "600";
+  cursor: "pointer";
+  padding: 0;
+  font-size: "0.95rem";
+}

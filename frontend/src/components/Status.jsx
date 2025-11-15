@@ -7,7 +7,6 @@ import IconLupa from "../assets/lupa.png";
 import ModalEditarStatus from "../components/ModalEditarStatus";
 
 
-// Cores para cada status
 const statusColors = {
   ATIVO: "#4bb543",    // verde
   BANIDO: "#03045e",   // azul escuro
@@ -51,7 +50,7 @@ export default function Status() {
   // Estado para modal de status
   const [selectedBeneficiario, setSelectedBeneficiario] = useState(null);
   const [newStatus, setNewStatus] = useState("");
-  const [confirmacao, setConfirmacao] = useState(null); // {status: 'sucesso' | 'erro', mensagem: string}
+  const [confirmacao, setConfirmacao] = useState(null); 
 
   // Função para buscar beneficiários com paginação
   const fetchBeneficiarios = useCallback(async (page = currentPage, searchValue = searchTerm, statusValue = filter, isSearch = false) => {
@@ -200,8 +199,6 @@ export default function Status() {
   };
 
 
-
-
   const handleAbrirModalEditar = (beneficiario) => {
     setModalVisualizacao(null);
     setSelectedBeneficiario(beneficiario);
@@ -215,7 +212,6 @@ export default function Status() {
   const handleFecharModalStatus = () => {
     setSelectedBeneficiario(null);
     setNewStatus("");
-    // Voltar para o modal anterior
     if (beneficiarios.length > 0) {
       const beneficiarioAtual = beneficiarios.find(b => b.id === selectedBeneficiario?.id);
       if (beneficiarioAtual) {

@@ -11,6 +11,75 @@ import ModalEditarStatus from "../components/ModalEditarStatus";
 
 
 export default function Beneficiarios() {
+
+  const fetchBeneficiarioStatus = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await api.get(`/beneficiarios/status/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const beneficiario = response.data;
+
+      if (beneficiario) {
+        setSelectedBeneficiario(beneficiario);
+        setNewStatus(beneficiario.status);
+        setModalEditarStatusOpen(true);
+      } else {
+        alert("Beneficiário não encontrado.");
+      }
+    } catch (err) {
+      console.error("Erro ao buscar status do beneficiário:", err);
+      alert("Não foi possível carregar os dados do beneficiário.");
+    }
+  };
+
+  const [newStatus, setNewStatus] = useState("");
+
+  const [filtroStatus, setFiltroStatus] = useState("ALL");
+
+  const handleFecharModalStatus = () => {
+    setSelectedBeneficiario(null);
+    setNewStatus("");
+  };
+
+  const handleSalvarStatus = async () => {
+    console.log("selectedBeneficiario antes do PUT:", selectedBeneficiario);
+    console.log("selectedBeneficiario.id antes do PUT:", selectedBeneficiario?.idBeneficiario);
+    try {
+      const token = localStorage.getItem("token");
+
+      await api.put(
+        `/beneficiarios/${selectedBeneficiario.idBeneficiario}/status`,
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const filteredList = beneficiariosList.filter((b) =>
+        filtroStatus === "ALL" ? true : (b.status || "").toUpperCase() === filtroStatus
+      );
+
+
+      // Atualiza contador de ativos
+      setAtivosCount((prev) =>
+        newStatus.toUpperCase() === "ATIVO" ? prev : prev - 1
+      );
+
+
+      setSelectedBeneficiario(null);
+      setNewStatus("");
+
+      setConfirmacao({ status: "sucesso", mensagem: "Status atualizado!" });
+      setTimeout(() => setConfirmacao(null), 3000);
+
+    } catch (err) {
+      console.error("Erro ao alterar status:", err);
+      setConfirmacao({ status: "erro", mensagem: "Erro ao atualizar status." });
+      setTimeout(() => setConfirmacao(null), 4000);
+    }
+  };
+
+
   const [search, setSearch] = useState("");
   const [beneficiariosList, setBeneficiariosList] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -20,9 +89,11 @@ export default function Beneficiarios() {
   const [selectedBeneficiario, setSelectedBeneficiario] = useState(null);
   const [deleteBeneficiario, setDeleteBeneficiario] = useState(null);
   const [presencaBeneficiario, setPresencaBeneficiario] = useState(null);
-  const [confirmacaoDelete, setConfirmacaoDelete] = useState(null); 
-  const [selectedAtividade, setSelectedAtividade] = useState(null); 
+  const [confirmacaoDelete, setConfirmacaoDelete] = useState(null);
+  const [selectedAtividade, setSelectedAtividade] = useState(null);
   const [modalEditarStatusOpen, setModalEditarStatusOpen] = useState(false);
+  const [confirmacao, setConfirmacao] = useState(null);
+
 
 
   // Estados para paginação
@@ -66,6 +137,36 @@ export default function Beneficiarios() {
     nome: "",
     observacao: "",
   });
+
+  // const handleSalvarStatus = async (novoStatus) => {
+  //   if (!novoStatus) {
+  //     alert("Selecione um status!");
+  //     return;
+  //   }
+
+  //   try {
+  //     const token = localStorage.getItem("token");
+
+  //     await api.put(`/beneficiarios/${selectedBeneficiario.id}/status`, {
+  //       status: novoStatus,
+  //     }, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+
+  //     // Atualiza o estado local para refletir o novo status
+  //     setBeneficiariosList((prev) =>
+  //       prev.map((b) =>
+  //         b.id === selectedBeneficiario.id ? { ...b, status: novoStatus } : b
+  //       )
+  //     );
+
+  //     alert("Status atualizado com sucesso!");
+  //     setModalEditarStatusOpen(false);
+  //   } catch (err) {
+  //     console.error("Erro ao atualizar status:", err);
+  //     alert("Não foi possível atualizar o status. Tente novamente.");
+  //   }
+  // };
 
   const navigate = useNavigate();
 
@@ -147,6 +248,33 @@ export default function Beneficiarios() {
   const [atividadesModalPage, setAtividadesModalPage] = useState(0);
   const [presencaAtividadesPage, setPresencaAtividadesPage] = useState(0);
 
+  const fetchBeneficiariosStatus = useCallback(async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await api.get("/beneficiarios/status/page", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // response.data.items deve ser um array de BeneficiarioStatusDto
+      setBeneficiariosList(response.data.items);
+      setTotalItems(response.data.total || response.data.items.length);
+      setTotalPages(Math.ceil((response.data.total || response.data.items.length) / pageSize));
+      setCurrentPage(response.data.page || 1);
+
+      // Contagem de ativos
+      setAtivosCount(response.data.items.filter(b => b.status.toUpperCase() === "ATIVO").length);
+      setTotalCount(response.data.items.length);
+
+    } catch (err) {
+      console.error("Erro ao buscar beneficiários status:", err);
+      setError("Não foi possível carregar os beneficiários.");
+    } finally {
+      setLoading(false);
+    }
+  }, [pageSize]);
+
   // Busca atividades do banco
   useEffect(() => {
     const fetchAtividades = async () => {
@@ -225,9 +353,10 @@ export default function Beneficiarios() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setBeneficiariosList((prev) =>
-        prev.filter((b) => b.id !== beneficiario.id)
+      setBeneficiariosList(prev =>
+        prev.map(b => b.id === selectedBeneficiario.id ? { ...b, status: newStatus } : b)
       );
+
       setDeleteBeneficiario(null);
 
       // Mostrar card de sucesso
@@ -332,7 +461,10 @@ export default function Beneficiarios() {
     return <div className="beneficiarios-error">{error}</div>;
   }
 
+
+
   return (
+
     <section className="beneficiarios-container">
       {/* Título + contador + ajuda */}
       <div className="beneficiarios-title-container">
@@ -539,6 +671,7 @@ export default function Beneficiarios() {
                       const pageItems = atividadesCadastradas.slice(start, start + ITEMS_PER_PAGE);
 
                       return (
+
                         <>
                           {pageItems.map((atividade) => (
                             <div
@@ -561,15 +694,15 @@ export default function Beneficiarios() {
                               </label>
                             </div>
                           ))}
-                          {/* === Botão "Editar status" abaixo da lista === */}
                           <div style={{ marginTop: "16px", textAlign: "center" }}>
                             <button
                               type="button"
                               onClick={() => {
-                                setPresencaBeneficiario(null); // fecha o modal atual
-                                setSelectedBeneficiario(presencaBeneficiario); // define quem vai ser editado
-                                setModalEditarStatusOpen(true); // abre o modal de editar status
-                              }}
+                                fetchBeneficiarioStatus(presencaBeneficiario.id)
+                                setPresencaBeneficiario(null);
+                                setSelectedBeneficiario(presencaBeneficiario);
+                              } // fecha o modal atual
+                              }
                               style={{
                                 background: "transparent",
                                 border: "none",
@@ -582,6 +715,8 @@ export default function Beneficiarios() {
                             >
                               Editar status
                             </button>
+
+
                           </div>
                         </>
                       );
@@ -915,6 +1050,28 @@ export default function Beneficiarios() {
         </div>
       )}
 
+
+
+      {/* === CARD DE CONFIRMAÇÃO DE STATUS === */}
+      {confirmacao && (
+        <div className={`confirmacao-card confirmacao-${confirmacao.status}`}>
+          <div className="confirmacao-content">
+            {confirmacao.status === 'sucesso' ? (
+              <>
+                <span className="confirmacao-icon">✓</span>
+                <span className="confirmacao-mensagem">{confirmacao.mensagem}</span>
+              </>
+            ) : (
+              <>
+                <span className="confirmacao-icon confirmacao-erro-icon">✕</span>
+                <span className="confirmacao-mensagem">{confirmacao.mensagem}</span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 
       {modalEditarStatusOpen && selectedBeneficiario && (
         <ModalEditarStatus
           beneficiario={selectedBeneficiario}
@@ -926,9 +1083,25 @@ export default function Beneficiarios() {
             // opcional: recarregar lista se precisar
           }}
         />
-      )}
+      )} */}
+      {/* === MODAL EDITAR STATUS === */}
+      {
+        modalEditarStatusOpen && selectedBeneficiario && (
+          <ModalEditarStatus
+            beneficiario={selectedBeneficiario}
+            newStatus={newStatus}
+            setNewStatus={setNewStatus}
+            onClose={() => {
+              setModalEditarStatusOpen(false);
+              setNewStatus("");
+              setSelectedBeneficiario(null);
+            }}
+            onSave={handleSalvarStatus}
+          />
+        )
+      }
 
-      
+
     </section>
   );
 }
