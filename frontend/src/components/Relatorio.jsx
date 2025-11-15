@@ -18,7 +18,7 @@ export default function Relatorio() {
       const apiModule = await import("../provider/api");
       const api = apiModule.default;
 
-      await api.get(`/registros-atendimentos/relatorios/presencas-por-dia`, {
+      await api.get(`/registros-atendimentos/relatorios/geral`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
