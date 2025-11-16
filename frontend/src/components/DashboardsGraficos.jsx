@@ -478,9 +478,6 @@ import {
   Legend,
 } from "chart.js";
 
-
-import { color } from "chart.js/helpers";
-
 Chart.register(
   LineController,
   LineElement,
@@ -493,18 +490,15 @@ Chart.register(
   Legend
 );
 
-
-
-Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
-
 export default function DashboardGraficos() {
 
   const lineChartRef = useRef(null);
-  const barChartRef = useRef(null);
   const lineChartInstance = useRef(null);
-  const barChartInstance = useRef(null);
 
   const [viewMode, setViewMode] = useState("dia");
+
+  // NOVO ESTADO PARA O CALENDÁRIO
+  const [selectedDate, setSelectedDate] = useState("");
 
   const destroyChart = () => {
     if (lineChartInstance.current) {
@@ -512,7 +506,6 @@ export default function DashboardGraficos() {
       lineChartInstance.current = null;
     }
   };
-
 
   const createChart = async (mode) => {
     const ctx = lineChartRef.current;
@@ -532,20 +525,18 @@ export default function DashboardGraficos() {
         response = await api.get("/registros-atendimentos/dia");
       }
 
-      // LOG do que o backend retornou
-      console.log(`Dados recebidos para o modo "${mode}":`, response.data);
-
       const registros = response.data;
 
       if (mode === "mes") {
-
         labels = registros.map(item => item.diaMes);
         data = registros.map(item => item.quantidadeAtendimentos);
 
-
       } else if (mode === "semana") {
         const ordemDias = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-        registros.sort((a, b) => ordemDias.indexOf(a.dia_semana ?? a.diaSemana) - ordemDias.indexOf(b.dia_semana ?? b.diaSemana));
+        registros.sort((a, b) =>
+          ordemDias.indexOf(a.dia_semana ?? a.diaSemana) -
+          ordemDias.indexOf(b.dia_semana ?? b.diaSemana)
+        );
 
         labels = registros.map(item => {
           const dia = item.dia_semana ?? item.diaSemana;
@@ -562,21 +553,20 @@ export default function DashboardGraficos() {
         });
 
         data = registros.map(item => item.quantidade_atendimentos ?? item.quantidadeAtendimentos);
+
       } else if (mode === "dia") {
         labels = registros.map(item => item.hora);
         data = registros.map(item => item.quantidade_atendimentos ?? item.quantidadeAtendimento);
       }
 
     } catch (error) {
-      console.error(`Erro ao buscar dados de atendimentos (${mode}):`, error);
+      console.error(`Erro ao buscar dados (${mode}):`, error);
     }
 
-    // Destroi o gráfico anterior se existir
     if (lineChartInstance.current) {
       lineChartInstance.current.destroy();
     }
 
-    // Cria o gráfico atualizado
     lineChartInstance.current = new Chart(ctx, {
       type: "line",
       data: {
@@ -606,84 +596,67 @@ export default function DashboardGraficos() {
     });
   };
 
-  // Atualiza o gráfico quando o modo muda
+  // Atualiza o gráfico quando viewMode muda
   useEffect(() => {
     destroyChart();
     createChart(viewMode);
   }, [viewMode]);
 
-  // Atualiza o gráfico de "dia" a cada 30 segundos
+  // Atualização automática para modo DIA
   useEffect(() => {
-    if (viewMode !== "dia") return undefined;
+    if (viewMode !== "dia") return;
 
     const doUpdate = () => createChart("dia");
 
-    doUpdate(); // primeira atualização imediata
+    doUpdate();
     const intervalId = setInterval(doUpdate, 30 * 1000);
-    console.log("Intervalo iniciado para atualizar gráfico de dia a cada 30s");
 
     return () => clearInterval(intervalId);
   }, [viewMode]);
-
 
   function DashAtendimentos() {
     const [dados, setDados] = useState([]);
 
     useEffect(() => {
-      api
-        .get("/registros-atendimentos/relatorios/atendimentos-semana")
-        .then((res) => {
-          console.log("Dados recebidos para gráfico de barras (semana):", res.data);
-          setDados(res.data);
-        })
-        .catch((err) => console.error("Erro ao buscar dados do backend:", err));
+      api.get("/registros-atendimentos/relatorios/atendimentos-semana")
+        .then((res) => setDados(res.data))
+        .catch((err) => console.error(err));
     }, []);
 
-
     const meses = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const mesesPortugues = {
-      Jan: 'Jan',
-      Feb: 'Fev',
-      Mar: 'Mar',
-      Apr: 'Abr',
-      May: 'Mai',
-      Jun: 'Jun',
-      Jul: 'Jul',
-      Aug: 'Ago',
-      Sep: 'Set',
-      Oct: 'Out',
-      Nov: 'Nov',
-      Dec: 'Dez',
+
+    const mesesPort = {
+      Jan: 'Jan', Feb: 'Fev', Mar: 'Mar', Apr: 'Abr', May: 'Mai',
+      Jun: 'Jun', Jul: 'Jul', Aug: 'Ago', Sep: 'Set', Oct: 'Out',
+      Nov: 'Nov', Dec: 'Dez',
     };
 
     const datasets = [
       {
         label: "Banhos",
         data: meses.map((m) => {
-          const registro = dados.find((item) => item.label === m);
-          return registro ? registro.quantidadeBanhos : 0;
+          const r = dados.find((item) => item.label === m);
+          return r ? r.quantidadeBanhos : 0;
         }),
         backgroundColor: "#141515ff",
       },
       {
         label: "Refeições",
         data: meses.map((m) => {
-          const registro = dados.find((item) => item.label === m);
-          return registro ? registro.quantidadeRefeicoes : 0;
+          const r = dados.find((item) => item.label === m);
+          return r ? r.quantidadeRefeicoes : 0;
         }),
         backgroundColor: "#A52A2A",
       },
       {
         label: "Outros",
         data: meses.map((m) => {
-          const registro = dados.find((item) => item.label === m);
-          return registro ? registro.quantidadeOutros : 0;
+          const r = dados.find((item) => item.label === m);
+          return r ? r.quantidadeOutros : 0;
         }),
         backgroundColor: "#d4dac6ff",
       },
     ];
-
-
 
     return (
       <div style={{ marginTop: "8px", height: "100%" }}>
@@ -691,7 +664,7 @@ export default function DashboardGraficos() {
         <div style={{ width: "100%", height: "calc(100% - 36px)" }}>
           <Bar
             data={{
-              labels: meses.map((m) => mesesPortugues[m]),
+              labels: meses.map((m) => mesesPort[m]),
               datasets,
             }}
             options={{
@@ -699,7 +672,7 @@ export default function DashboardGraficos() {
               maintainAspectRatio: false,
               plugins: { legend: { position: "top" } },
               scales: {
-                y: { beginAtZero: true, title: { display: true, text: "Qtd. de Atendimentos" } },
+                y: { beginAtZero: true },
               },
             }}
           />
@@ -708,14 +681,44 @@ export default function DashboardGraficos() {
     );
   }
 
-
   return (
     <>
       {/* DASHBOARD DE ATENDIMENTOS */}
       <div className="dashboard-grafico" style={{ position: "relative" }}>
         <h2 className="dashboard-grafico-title" style={{ color: 'black' }}>Atendimentos</h2>
 
-        {/* Select no canto superior direito */}
+        {/* NOVO CAMPO — CALENDÁRIO */}
+        {(viewMode === "semana" || viewMode === "mes") && (
+          <div style={{ position: "absolute", top: "10px", right: "230px" }}>
+            {viewMode === "semana" && (
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                style={{
+                  padding: "5px 10px",
+                  borderRadius: "5px",
+                  border: "1px solid #ccc",
+                }}
+              />
+            )}
+
+            {viewMode === "mes" && (
+              <input
+                type="month"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                style={{
+                  padding: "5px 10px",
+                  borderRadius: "5px",
+                  border: "1px solid #ccc",
+                }}
+              />
+            )}
+          </div>
+        )}
+
+        {/* SELECT ORIGINAL */}
         <select
           value={viewMode}
           onChange={(e) => setViewMode(e.target.value)}
@@ -740,21 +743,19 @@ export default function DashboardGraficos() {
       </div>
 
       {/* DASHBOARD DE SERVIÇOS */}
-      <div className="dashboard-grafico dashboard-grafico-bar" style={{
-        margintop: "10px",
-      }}>
+      <div className="dashboard-grafico dashboard-grafico-bar" style={{ margintop: "10px" }}>
         <h2 className="dashboard-grafico-title " style={{ color: 'black' }}>Serviços no Mês (2025)</h2>
 
-        {/* Container com altura fixa para o gráfico ocupar totalmente */}
         <div style={{ width: "90%", height: "360px", margin: "0 auto" }}>
           <div style={{ width: '100%', height: '100%' }}>
-            {/* Render da DashAtendimentos (gráfico de barras por tipo/mês) */}
             <DashAtendimentos />
           </div>
         </div>
       </div>
     </>
   );
+}
+
   //   <>
 
   //     <div className="dashboard-grafico dashboard-grafico-bar" style={{ margintop: "10px" }}>
@@ -767,5 +768,5 @@ export default function DashboardGraficos() {
   //     </div>
   //   </>
   // );
-}
+
 
