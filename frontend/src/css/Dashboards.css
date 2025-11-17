@@ -94,6 +94,20 @@
   position: relative;
 }
 
+.dashboard-grafico-bar{
+    background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 32px 24px;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  width: 77%;
+  left: 150px;
+}
+
 .dashboard-grafico-title {
   font-size: 32px;
   margin-bottom: 24px;
