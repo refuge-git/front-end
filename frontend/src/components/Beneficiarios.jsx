@@ -43,34 +43,78 @@ export default function Beneficiarios() {
     setNewStatus("");
   };
 
+
   const handleSalvarStatus = async () => {
     console.log("selectedBeneficiario antes do PUT:", selectedBeneficiario);
-    console.log("selectedBeneficiario.id antes do PUT:", selectedBeneficiario?.idBeneficiario);
+    if (!selectedBeneficiario) return;
+
+    const editedId = selectedBeneficiario.idBeneficiario ?? selectedBeneficiario.id;
+
     try {
       const token = localStorage.getItem("token");
 
       await api.put(
-        `/beneficiarios/${selectedBeneficiario.idBeneficiario}/status`,
+        `/beneficiarios/${editedId}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      const filteredList = beneficiariosList.filter((b) =>
-        filtroStatus === "ALL" ? true : (b.status || "").toUpperCase() === filtroStatus
-      );
+      setBeneficiariosList((prev) => {
+        // prev pode ser null/undefined -> garantir array
+        const list = Array.isArray(prev) ? prev.slice() : [];
 
+        let found = false;
+        const updated = list.map((b) => {
+          const bid = b.idBeneficiario ?? b.id;
+          if (bid === editedId) {
+            found = true;
+            return { ...b, status: newStatus };
+          }
+          return b;
+        });
 
-      // Atualiza contador de ativos
-      setAtivosCount((prev) =>
-        newStatus.toUpperCase() === "ATIVO" ? prev : prev - 1
-      );
+        if (!found) {
+          const toAdd = { ...(selectedBeneficiario || {}), status: newStatus };
+          // normaliza id field para consistência
+          if (!toAdd.id && toAdd.idBeneficiario) toAdd.id = toAdd.idBeneficiario;
+          updated.unshift(toAdd);
+        }
 
+        if (filtroStatus && filtroStatus !== "ALL") {
+          return updated.filter((b) => {
+            const s = (b.status || "").toUpperCase();
+            return s === filtroStatus;
+          });
+        }
 
+        return updated;
+      });
+
+      setTimeout(() => {
+        setAtivosCount((prev) => {
+          const curr = (beneficiariosList && Array.isArray(beneficiariosList)) ? beneficiariosList : [];
+          return curr.filter((b) => (b.status || "").toUpperCase() === "ATIVO").length;
+        });
+
+        setTotalCount((prev) => {
+          const curr = (beneficiariosList && Array.isArray(beneficiariosList)) ? beneficiariosList : [];
+          return curr.length;
+        });
+      }, 50);
+
+      setModalEditarStatusOpen(false);
       setSelectedBeneficiario(null);
       setNewStatus("");
 
       setConfirmacao({ status: "sucesso", mensagem: "Status atualizado!" });
       setTimeout(() => setConfirmacao(null), 3000);
+
+
+      try {
+        await fetchBeneficiarios(currentPage, searchTerm, false);
+      } catch (err) {
+        console.warn("Re-fetch da lista falhou (opcional):", err);
+      }
 
     } catch (err) {
       console.error("Erro ao alterar status:", err);

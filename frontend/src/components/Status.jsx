@@ -279,6 +279,8 @@ export default function Status() {
     }
   };
 
+
+
   // Retorna a cor baseada no status
   const getStatusColor = (status) => {
     const s = (status || "").trim().toUpperCase();
