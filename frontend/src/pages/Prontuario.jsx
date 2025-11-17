@@ -256,6 +256,23 @@ export default function Prontuario() {
                                     <Input value={form.egresso || ''} disabled />
                                 )}
                             </div>
+
+                            <div className="form-group">
+                                <label>Estrangeiro</label>
+                                {isEditing ? (
+                                    <select
+                                        name="estrangeiro"
+                                        value={form.estrangeiro || ''}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="">Selecione</option>
+                                        <option value="Sim">Sim</option>
+                                        <option value="Não">Não</option>
+                                    </select>
+                                ) : (
+                                    <Input value={form.estrangeiro || ''} disabled />
+                                )}
+                            </div>
                         </div>
 
                         {/* Linha 3 */}
@@ -332,7 +349,7 @@ export default function Prontuario() {
                         <div className="form-group full-width nome-social-section">
                             <label>Nome Social</label>
                             <div className="switch-container">
-                                <label className="switch">
+                                <label className="switch-two">
                                     <input
                                         type="checkbox"
                                         checked={nomeSocialAtivo}

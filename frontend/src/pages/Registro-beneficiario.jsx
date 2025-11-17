@@ -84,7 +84,7 @@ export default function RegistrationForm() {
         nomeSocial: nomeSocialAtivo ? form.nomeSocial : form.registro,
         dtNasc: form.nascimento.split("/").reverse().join("-"),
         cpf: form.cpf,
-        estrangeiro: false,
+        estrangeiro: form.estrangeiro === "sim",
         raca: form.raca,
         sexo: form.sexo.toUpperCase(),
         nomeMae: form.nomeMae,
@@ -352,6 +352,20 @@ export default function RegistrationForm() {
                 <select
                   name="egresso"
                   value={form.egresso}
+                  onChange={handleChange}
+                  className="select-categoria"
+                >
+                  <option value="">Selecione</option>
+                  <option value="sim">Sim</option>
+                  <option value="nao">Não</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Estrangeiro</label>
+                <select
+                  name="estrangeiro"
+                  value={form.estrangeiro}
                   onChange={handleChange}
                   className="select-categoria"
                 >

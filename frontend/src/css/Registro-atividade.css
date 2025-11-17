@@ -81,14 +81,14 @@
 }
 
 /* Switch */
-.switch {
+.switch-nome-social {
   position: relative;
   display: inline-block;
   width: 46px;
   height: 24px;
 }
 
-.switch input {
+.switch-nome-social input {
   opacity: 0;
   width: 0;
   height: 0;
