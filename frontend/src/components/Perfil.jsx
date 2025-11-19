@@ -1,163 +1,313 @@
-// import Avatar from "../assets/Avatar.png";
-// import "../css/App.css";
-// import Input from "../components/Input";
-// import api from "../provider/api";
-// import { useEffect, useState } from "react";
-
-// export default function Perfil({ onClose }) {
-
-//     const [nome, setNome] = useState("");
-//     const [dados, setDados] = useState({ email: "", telefone: "", cpf: "" });
-
-//     useEffect(() => {
-//         const token = localStorage.getItem("token");
-//         api.get("/funcionarios/me", {
-//             headers: { Authorization: `Bearer ${token}` }
-//         })
-//         .then(res => {
-//             const funcionario = res.data;
-//             setNome(funcionario.nome || "");
-//             setDados({
-//                 email: funcionario.email || "",
-//                 telefone: funcionario.telefone || "",
-//                 cpf: funcionario.cpf || ""
-//             });
-//         })
-//         .catch(() => {
-//             setNome("");
-//             setDados({ email: "", telefone: "", cpf: "" });
-//         });
-//     }, []);
-
-//     return (
-//         <div className="perfil-container">
-//             <button className="close-button" onClick={onClose}>✖</button>
-
-//             {/* Avatar e Nome */}
-//             <div className="perfil-header">
-//                 <h2>Seu Perfil</h2>
-
-//                 <div className="avatar-container">
-//                     <img src={Avatar} alt="Foto de Perfil" className="perfil-avatar" />
-//                     <div className="avatar-edit-icon">✎</div>
-//                 </div>
-
-//                 <h3 className="perfil-nome">{nome}</h3>
-//             </div>
-
-//             <div className="perfil-grid-one-columns">
-//                 <div className="form-group">
-//                     <label>Email</label>
-//                     <Input className="input-des" type="email" placeholder="Digite seu email" value={dados.email} disabled/>
-//                 </div>
-//             </div>
-
-//             <div className="perfil-grid">
-//                 <div className="form-group">
-//                     <label>Telefone</label>
-//                     <Input className="input-des" type="text" placeholder="Digite seu telefone" value={dados.telefone} disabled/>
-//                 </div>
-
-//                 <div className="form-group">
-//                     <label>CPF</label>
-//                     <Input className="input-des" type="text" placeholder="Digite seu CPF" value={dados.cpf} disabled />
-//                 </div>
-//             </div>
-
-//             <button className="perfil-edit-btn">Editar</button>
-//         </div>
-//     );
-// }
-
 import Avatar from "../assets/Avatar.png";
 import "../css/App.css";
 import Input from "../components/Input";
 import api from "../provider/api";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Perfil({ onClose }) {
+  const navigate = useNavigate();
 
-    const [nome, setNome] = useState("");
-    const [dados, setDados] = useState({ email: "", telefone: "", cpf: "" });
+  const [nome, setNome] = useState("");
+  const [dados, setDados] = useState({
+    nome: "",
+    email: "",
+    telefone: "",
+    cpf: ""
+  });
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        api.get("/funcionarios/me", {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-        .then(res => {
-            const funcionario = res.data;
-            setNome(funcionario.nome || "");
-            setDados({
-                email: funcionario.email || "",
-                telefone: funcionario.telefone || "",
-                cpf: funcionario.cpf || ""
-            });
-        })
-        .catch(() => {
-            setNome("");
-            setDados({ email: "", telefone: "", cpf: "" });
+  const [emailOriginal, setEmailOriginal] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [confirmacao, setConfirmacao] = useState(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    api
+      .get("/funcionarios/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        const f = res.data || {};
+
+        const nomeObtido =
+          f.nome ||
+          f.nomeRegistro ||
+          f.nomeCompleto ||
+          f.fullName ||
+          "";
+
+        setNome(nomeObtido);
+
+        setDados({
+          nome: nomeObtido,            // ✔ agora correto
+          email: f.email || "",
+          telefone: f.telefone || "",
+          cpf: f.cpf || "",
         });
-    }, []);
 
-    return (
-        <div className="perfil-container">
-            <button className="close-button" onClick={onClose}>✖</button>
+        setEmailOriginal(f.email || "");
+      })
+      .catch((err) => {
+        console.error("Erro ao carregar perfil:", err);
+      });
+  }, []);
 
-            {/* Cabeçalho do Perfil */}
-            <div className="perfil-header">
-                <h2>Seu Perfil</h2>
+  const handleSave = async () => {
+    setSaving(true);
+    const token = localStorage.getItem("token");
 
-                <div className="avatar-container">
-                    <img src={Avatar} alt="Foto de Perfil" className="perfil-avatar" />
-                    <div className="avatar-edit-icon">✎</div>
-                </div>
+    try {
+      await api.put("/funcionarios/me", dados, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-                <h3 className="perfil-nome">{nome}</h3>
+      const emailFoiAlterado = dados.email !== emailOriginal;
 
-            </div>
+      setConfirmacao({
+        status: "sucesso",
+        mensagem: emailFoiAlterado
+          ? "E-mail atualizado com sucesso! Você será desconectado..."
+          : "Perfil atualizado com sucesso!",
+      });
 
-            {/* Input do e-mail */}
-            <div className="perfil-grid-one-columns">
-                <div className="form-group">
-                    <label>Email</label>
-                    <Input 
-                        className="input-des" 
-                        type="email" 
-                        placeholder="Digite seu email" 
-                        value={dados.email} 
-                        disabled
-                    />
-                </div>
-            </div>
+      setTimeout(() => setConfirmacao(null), 2500);
 
-            {/* Inputs de telefone e CPF */}
-            <div className="perfil-grid">
-                <div className="form-group">
-                    <label>Telefone</label>
-                    <Input 
-                        className="input-des" 
-                        type="text" 
-                        placeholder="Digite seu telefone" 
-                        value={dados.telefone} 
-                        disabled
-                    />
-                </div>
+      if (emailFoiAlterado) {
+        setTimeout(() => {
+          localStorage.removeItem("token");
+          navigate("/");
+        }, 1500);
+        return;
+      }
 
-                <div className="form-group">
-                    <label>CPF</label>
-                    <Input 
-                        className="input-des" 
-                        type="text" 
-                        placeholder="Digite seu CPF" 
-                        value={dados.cpf} 
-                        disabled 
-                    />
-                </div>
-            </div>
+      const refresh = await api.get("/funcionarios/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-            <button className="perfil-edit-btn">Editar</button>
+      const f = refresh.data;
+
+      const nomeAtualizado =
+        f.nome ||
+        f.nomeRegistro ||
+        f.nomeCompleto ||
+        f.fullName ||
+        dados.nome;
+
+      setNome(nomeAtualizado);
+
+      setDados({
+        nome: nomeAtualizado,
+        email: f.email || "",
+        telefone: f.telefone || "",
+        cpf: f.cpf || "",
+      });
+
+      setEmailOriginal(f.email || "");
+      setIsEditing(false);
+
+    } catch (err) {
+      console.error("Erro ao atualizar perfil:", err);
+
+      setConfirmacao({
+        status: "erro",
+        mensagem: "Erro ao atualizar perfil.",
+      });
+
+      setTimeout(() => setConfirmacao(null), 3500);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+
+  // const handleSave = async () => {
+  //   setSaving(true);
+  //   const token = localStorage.getItem("token");
+
+  //   try {
+  //     await api.put("/funcionarios/me", dados, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+
+  //     if (email !== dados.email) {
+  //       alert("Seu e-mail foi atualizado. Faça login novamente.");
+
+  //       localStorage.removeItem("token");
+  //       navigate("/login");
+  //       return;
+  //     }
+
+  //     const refresh = await api.get("/funcionarios/me", {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+
+  //     const f = refresh.data;
+
+  //     const nomeAtualizado =
+  //       f.nome ||
+  //       f.nomeRegistro ||
+  //       f.nomeCompleto ||
+  //       f.fullName ||
+  //       dados.nome;  // ✔ fallback caso o backend não retorne
+
+  //     setNome(nomeAtualizado);
+
+  //     setDados({
+  //       nome: nomeAtualizado,
+  //       email: f.email || "",
+  //       telefone: f.telefone || "",
+  //       cpf: f.cpf || "",
+  //     });
+
+  //     const emailFoiAlterado = dados.email !== emailOriginal;
+
+  //     setIsEditing(false);
+  //     setConfirmacao({
+  //       status: "sucesso",
+  //       mensagem: "Perfil atualizado com sucesso!",
+  //     });
+
+  //     setTimeout(() => setConfirmacao(null), 2500);
+
+  //     if (emailFoiAlterado) {
+  //       setTimeout(() => {
+  //         localStorage.removeItem("token");
+  //         navigate("/");
+  //       }, 1200);
+  //     }
+  //   } catch (err) {
+  //     console.error("Erro ao atualizar perfil:", err);
+
+  //     setConfirmacao({
+  //       status: "erro",
+  //       mensagem: "Erro ao atualizar perfil.",
+  //     });
+
+  //     setTimeout(() => setConfirmacao(null), 3500);
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // };
+
+  return (
+    <div className="perfil-container">
+      <button className="close-button" onClick={onClose}>✖</button>
+
+      <div className="perfil-header">
+        <h2>Seu Perfil</h2>
+
+        <div className="avatar-container">
+          <img src={Avatar} alt="Foto de Perfil" className="perfil-avatar" />
+          {/* <div className="avatar-edit-icon">✎</div> */}
         </div>
-    );
-}
 
+        {/* <h3 className="perfil-nome">{nome}</h3> */}
+      </div>
+
+      {/* Nome */}
+      <div className="perfil-grid-one-columns">
+        <div className="form-group">
+          <label>Nome</label>
+          <Input
+            className="input-des"
+            type="text"
+            value={dados.nome}
+            disabled={!isEditing}
+            onChange={(e) =>
+              setDados({ ...dados, nome: e.target.value })
+            }
+          />
+        </div>
+      </div>
+
+      {/* Email */}
+      <div className="perfil-grid-one-columns">
+        <div className="form-group">
+          <label>Email</label>
+          <Input
+            className="input-des"
+            type="email"
+            value={dados.email}
+            disabled={!isEditing}
+            onChange={(e) =>
+              setDados({ ...dados, email: e.target.value })
+            }
+          />
+        </div>
+      </div>
+
+      {/* Telefone e CPF */}
+      <div className="perfil-grid">
+        <div className="form-group">
+          <label>Telefone</label>
+          <Input
+            className="input-des"
+            type="text"
+            value={dados.telefone}
+            disabled={!isEditing}
+            onChange={(e) =>
+              setDados({ ...dados, telefone: e.target.value })
+            }
+          />
+        </div>
+
+        <div className="form-group">
+          <label>CPF</label>
+          <Input
+            className="input-des"
+            type="text"
+            value={dados.cpf}
+            disabled={!isEditing}
+            onChange={(e) =>
+              setDados({ ...dados, cpf: e.target.value })
+            }
+          />
+        </div>
+      </div>
+
+      {!isEditing ? (
+        <button className="perfil-edit-btn" onClick={() => setIsEditing(true)}>
+          Editar
+        </button>
+      ) : (
+        <div className="perfil-actions">
+          <button className="perfil-save-btn" onClick={handleSave} disabled={saving}>
+            {saving ? "Salvando..." : "Salvar"}
+          </button>
+
+          <button
+            className="perfil-cancel-btn"
+            onClick={() => setIsEditing(false)}
+            disabled={saving}
+          >
+            Cancelar
+          </button>
+        </div>
+      )}
+
+      {confirmacao && (
+        <div className={`confirmacao-card confirmacao-${confirmacao.status}`}>
+          <div className="confirmacao-content">
+            {confirmacao.status === "sucesso" ? (
+              <>
+                <span className="confirmacao-icon">✓</span>
+                <span className="confirmacao-mensagem">
+                  {confirmacao.mensagem}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="confirmacao-icon confirmacao-erro-icon">✕</span>
+                <span className="confirmacao-mensagem">
+                  {confirmacao.mensagem}
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -24,6 +24,12 @@ export default function Home() {
   const [nomePerfil, setNomePerfil] = useState("");
   const [emailPerfil, setEmailPerfil] = useState("");
 
+  const atualizarInfoUsuario = (novoNome, novoEmail) => {
+  setNomePerfil(novoNome);
+  setEmailPerfil(novoEmail);
+};
+
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -190,6 +196,7 @@ export default function Home() {
                 setShowProfile(false);
                 setShowMenu(false);
               }}
+              onUpdateUser={atualizarInfoUsuario}
             />
           </div>
         </div>
