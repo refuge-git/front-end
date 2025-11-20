@@ -182,35 +182,6 @@ export default function Beneficiarios() {
     observacao: "",
   });
 
-  // const handleSalvarStatus = async (novoStatus) => {
-  //   if (!novoStatus) {
-  //     alert("Selecione um status!");
-  //     return;
-  //   }
-
-  //   try {
-  //     const token = localStorage.getItem("token");
-
-  //     await api.put(`/beneficiarios/${selectedBeneficiario.id}/status`, {
-  //       status: novoStatus,
-  //     }, {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
-
-  //     // Atualiza o estado local para refletir o novo status
-  //     setBeneficiariosList((prev) =>
-  //       prev.map((b) =>
-  //         b.id === selectedBeneficiario.id ? { ...b, status: novoStatus } : b
-  //       )
-  //     );
-
-  //     alert("Status atualizado com sucesso!");
-  //     setModalEditarStatusOpen(false);
-  //   } catch (err) {
-  //     console.error("Erro ao atualizar status:", err);
-  //     alert("Não foi possível atualizar o status. Tente novamente.");
-  //   }
-  // };
 
   const navigate = useNavigate();
 
@@ -318,6 +289,40 @@ export default function Beneficiarios() {
       setLoading(false);
     }
   }, [pageSize]);
+
+  const salvarAtividadesRealizadas = async () => {
+    try {
+      const atividadesSelecionadas = Object.keys(atividades)
+        .filter((id) => atividades[id] === true);
+
+      if (atividadesSelecionadas.length === 0) {
+        alert("Selecione ao menos uma atividade.");
+        return;
+      }
+
+      const payload = atividadesSelecionadas.map((idAtividade) => ({
+        idBeneficiario: presencaBeneficiario.id,
+        idTipoAtendimento: parseInt(idAtividade),
+      }));
+
+      console.log("📤 Enviando para API:", payload);
+
+      await api.post("/registros-atendimentos/lote", payload);
+
+      alert("Registro salvo com sucesso!");
+
+      // limpa e fecha modal
+      setAtividades({});
+      setPresencaBeneficiario(null);
+
+    } catch (error) {
+      console.error("❌ Erro ao salvar:", error);
+      alert("Erro ao registrar atividades.");
+    }
+  };
+  
+
+  
 
   // Busca atividades do banco
   useEffect(() => {
@@ -726,13 +731,21 @@ export default function Beneficiarios() {
                                 {atividade.nome}
                                 <input
                                   type="checkbox"
-                                  checked={atividades[atividade.nome] || false}
+                                  // checked={atividades[atividade.id] || false}
+                                  // onChange={() =>
+                                  //   setAtividades((prev) => ({
+                                  //     ...prev,
+                                  //     [atividade.id]: !prev[atividade.id],
+                                  //   }))
+                                  // }
+                                  checked={atividades[atividade.id] || false}
                                   onChange={() =>
                                     setAtividades((prev) => ({
                                       ...prev,
-                                      [atividade.nome]: !prev[atividade.nome],
+                                      [atividade.id]: !prev[atividade.id],
                                     }))
                                   }
+
                                 />
                                 <span className="slider"></span>
                               </label>
@@ -805,7 +818,7 @@ export default function Beneficiarios() {
                     >
                       Visualizar prontuário
                     </button>
-                    <button className="btn-vermelho" onClick={handleConfirmarPresenca}>
+                    <button className="btn-vermelho" onClick={salvarAtividadesRealizadas}>
                       Salvar
                     </button>
                   </div>
