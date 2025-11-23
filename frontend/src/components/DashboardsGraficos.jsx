@@ -465,6 +465,7 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { Bar } from "react-chartjs-2";
 import api from '../provider/api';
+import { Calendar } from "lucide-react";
 import {
   Chart,
   LineController,
@@ -496,9 +497,7 @@ export default function DashboardGraficos() {
   const lineChartInstance = useRef(null);
 
   const [viewMode, setViewMode] = useState("dia");
-
-  // NOVO ESTADO PARA O CALENDÁRIO
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState(""); // NOVO ESTADO
 
   const destroyChart = () => {
     if (lineChartInstance.current) {
@@ -596,13 +595,11 @@ export default function DashboardGraficos() {
     });
   };
 
-  // Atualiza o gráfico quando viewMode muda
   useEffect(() => {
     destroyChart();
     createChart(viewMode);
   }, [viewMode]);
 
-  // Atualização automática para modo DIA
   useEffect(() => {
     if (viewMode !== "dia") return;
 
@@ -687,56 +684,70 @@ export default function DashboardGraficos() {
       <div className="dashboard-grafico" style={{ position: "relative" }}>
         <h2 className="dashboard-grafico-title" style={{ color: 'black' }}>Atendimentos</h2>
 
-        {/* NOVO CAMPO — CALENDÁRIO */}
-        {(viewMode === "semana" || viewMode === "mes") && (
-          <div style={{ position: "absolute", top: "10px", right: "230px" }}>
-            {viewMode === "semana" && (
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                style={{
-                  padding: "5px 10px",
-                  borderRadius: "5px",
-                  border: "1px solid #ccc",
-                }}
-              />
-            )}
+        {/* NOVA ÁREA DE CONTROLES */}
+        <div style={{
+          position: "absolute",
+          top: "10px",
+          right: "20px",
+          display: "flex",
+          gap: "10px"
+        }}>
 
-            {viewMode === "mes" && (
-              <input
-                type="month"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                style={{
-                  padding: "5px 10px",
-                  borderRadius: "5px",
-                  border: "1px solid #ccc",
-                }}
-              />
-            )}
+          {/* SELECT */}
+          <select
+            value={viewMode}
+            onChange={(e) => {
+              setViewMode(e.target.value);
+              setSelectedDate("");
+            }}
+            style={{
+              padding: "5px 10px",
+              borderRadius: "5px",
+              border: "1px solid #ccc",
+              width: "130px"
+            }}
+          >
+            <option value="dia">Dia</option>
+            <option value="semana">Semana</option>
+            <option value="mes">Mês</option>
+          </select>
+
+          {/* BOTÃO + CALENDÁRIO OCULTO */}
+          <div style={{ position: "relative" }}>
+            <button
+              onClick={() => document.getElementById("date-picker").showPicker()}
+              style={{
+                padding: "6px 10px",
+                borderRadius: "6px",
+                border: "1px solid #ccc",
+                background: "#fff",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                minWidth: "150px",
+                color: "#000",
+              }}
+            >
+              <Calendar size={18} />
+              {selectedDate ? selectedDate : "Selecionar data"}
+            </button>
+
+            <input
+              id="date-picker"
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              style={{
+                opacity: 0,
+                position: "absolute",
+                pointerEvents: "none"
+              }}
+            />
           </div>
-        )}
+        </div>
 
-        {/* SELECT ORIGINAL */}
-        <select
-          value={viewMode}
-          onChange={(e) => setViewMode(e.target.value)}
-          style={{
-            position: "absolute",
-            width: "200px",
-            top: "10px",
-            right: "20px",
-            padding: "5px 10px",
-            borderRadius: "5px",
-            border: "1px solid #ccc",
-          }}
-        >
-          <option value="dia">Dia</option>
-          <option value="semana">Semana</option>
-          <option value="mes">Mês</option>
-        </select>
-
+        {/* GRÁFICO DE LINHA */}
         <div style={{ width: "90%", height: "320px", margin: "0 auto" }}>
           <canvas ref={lineChartRef}></canvas>
         </div>
@@ -755,6 +766,7 @@ export default function DashboardGraficos() {
     </>
   );
 }
+
 
   //   <>
 
