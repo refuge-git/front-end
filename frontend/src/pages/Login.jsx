@@ -24,14 +24,19 @@ export default function Login() {
     e.preventDefault();
     try {
       const response = await api.post('/funcionarios/login', {
+        
         email: form.email,
         senha: form.senha
       });
+
+      console.log("LOGIN RESPONSE:", response.data);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('email', response.data.email);
-      if (response.data.userId) {
-        localStorage.setItem('funcionarioId', response.data.userId);
-      }
+      localStorage.setItem("user", JSON.stringify(response.data));
+
+      // if (response.data.userId) {
+      //   localStorage.setItem('funcionarioId', response.data.userId);
+      // }
       setShowConfirm(true);
       setTimeout(() => {
         navigate('/home');

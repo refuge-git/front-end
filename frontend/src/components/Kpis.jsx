@@ -4,7 +4,7 @@ import "../css/Dashboards.css";
 import IconGreen from "../assets/Avatars-verde.png";
 import IconPcGreen from "../assets/icon-pc.png";
 import IconRedCad from "../assets/Icon-red-cad.png";
-import DashboardGraficos from "./DashboardsGraficos";
+import DashboardGraficos from "./DashboardAtendimentos";
 import api from "../provider/api";
 
 export default function Dashboards() {

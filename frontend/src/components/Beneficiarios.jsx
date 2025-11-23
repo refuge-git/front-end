@@ -43,34 +43,78 @@ export default function Beneficiarios() {
     setNewStatus("");
   };
 
+
   const handleSalvarStatus = async () => {
     console.log("selectedBeneficiario antes do PUT:", selectedBeneficiario);
-    console.log("selectedBeneficiario.id antes do PUT:", selectedBeneficiario?.idBeneficiario);
+    if (!selectedBeneficiario) return;
+
+    const editedId = selectedBeneficiario.idBeneficiario ?? selectedBeneficiario.id;
+
     try {
       const token = localStorage.getItem("token");
 
       await api.put(
-        `/beneficiarios/${selectedBeneficiario.idBeneficiario}/status`,
+        `/beneficiarios/${editedId}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      const filteredList = beneficiariosList.filter((b) =>
-        filtroStatus === "ALL" ? true : (b.status || "").toUpperCase() === filtroStatus
-      );
+      setBeneficiariosList((prev) => {
+        // prev pode ser null/undefined -> garantir array
+        const list = Array.isArray(prev) ? prev.slice() : [];
 
+        let found = false;
+        const updated = list.map((b) => {
+          const bid = b.idBeneficiario ?? b.id;
+          if (bid === editedId) {
+            found = true;
+            return { ...b, status: newStatus };
+          }
+          return b;
+        });
 
-      // Atualiza contador de ativos
-      setAtivosCount((prev) =>
-        newStatus.toUpperCase() === "ATIVO" ? prev : prev - 1
-      );
+        if (!found) {
+          const toAdd = { ...(selectedBeneficiario || {}), status: newStatus };
+          // normaliza id field para consistência
+          if (!toAdd.id && toAdd.idBeneficiario) toAdd.id = toAdd.idBeneficiario;
+          updated.unshift(toAdd);
+        }
 
+        if (filtroStatus && filtroStatus !== "ALL") {
+          return updated.filter((b) => {
+            const s = (b.status || "").toUpperCase();
+            return s === filtroStatus;
+          });
+        }
 
+        return updated;
+      });
+
+      setTimeout(() => {
+        setAtivosCount((prev) => {
+          const curr = (beneficiariosList && Array.isArray(beneficiariosList)) ? beneficiariosList : [];
+          return curr.filter((b) => (b.status || "").toUpperCase() === "ATIVO").length;
+        });
+
+        setTotalCount((prev) => {
+          const curr = (beneficiariosList && Array.isArray(beneficiariosList)) ? beneficiariosList : [];
+          return curr.length;
+        });
+      }, 50);
+
+      setModalEditarStatusOpen(false);
       setSelectedBeneficiario(null);
       setNewStatus("");
 
       setConfirmacao({ status: "sucesso", mensagem: "Status atualizado!" });
       setTimeout(() => setConfirmacao(null), 3000);
+
+
+      try {
+        await fetchBeneficiarios(currentPage, searchTerm, false);
+      } catch (err) {
+        console.warn("Re-fetch da lista falhou (opcional):", err);
+      }
 
     } catch (err) {
       console.error("Erro ao alterar status:", err);
@@ -138,35 +182,6 @@ export default function Beneficiarios() {
     observacao: "",
   });
 
-  // const handleSalvarStatus = async (novoStatus) => {
-  //   if (!novoStatus) {
-  //     alert("Selecione um status!");
-  //     return;
-  //   }
-
-  //   try {
-  //     const token = localStorage.getItem("token");
-
-  //     await api.put(`/beneficiarios/${selectedBeneficiario.id}/status`, {
-  //       status: novoStatus,
-  //     }, {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
-
-  //     // Atualiza o estado local para refletir o novo status
-  //     setBeneficiariosList((prev) =>
-  //       prev.map((b) =>
-  //         b.id === selectedBeneficiario.id ? { ...b, status: novoStatus } : b
-  //       )
-  //     );
-
-  //     alert("Status atualizado com sucesso!");
-  //     setModalEditarStatusOpen(false);
-  //   } catch (err) {
-  //     console.error("Erro ao atualizar status:", err);
-  //     alert("Não foi possível atualizar o status. Tente novamente.");
-  //   }
-  // };
 
   const navigate = useNavigate();
 
@@ -274,6 +289,40 @@ export default function Beneficiarios() {
       setLoading(false);
     }
   }, [pageSize]);
+
+  const salvarAtividadesRealizadas = async () => {
+    try {
+      const atividadesSelecionadas = Object.keys(atividades)
+        .filter((id) => atividades[id] === true);
+
+      if (atividadesSelecionadas.length === 0) {
+        alert("Selecione ao menos uma atividade.");
+        return;
+      }
+
+      const payload = atividadesSelecionadas.map((idAtividade) => ({
+        idBeneficiario: presencaBeneficiario.id,
+        idTipoAtendimento: parseInt(idAtividade),
+      }));
+
+      console.log("📤 Enviando para API:", payload);
+
+      await api.post("/registros-atendimentos/lote", payload);
+
+      alert("Registro salvo com sucesso!");
+
+      // limpa e fecha modal
+      setAtividades({});
+      setPresencaBeneficiario(null);
+
+    } catch (error) {
+      console.error("❌ Erro ao salvar:", error);
+      alert("Erro ao registrar atividades.");
+    }
+  };
+  
+
+  
 
   // Busca atividades do banco
   useEffect(() => {
@@ -682,13 +731,21 @@ export default function Beneficiarios() {
                                 {atividade.nome}
                                 <input
                                   type="checkbox"
-                                  checked={atividades[atividade.nome] || false}
+                                  // checked={atividades[atividade.id] || false}
+                                  // onChange={() =>
+                                  //   setAtividades((prev) => ({
+                                  //     ...prev,
+                                  //     [atividade.id]: !prev[atividade.id],
+                                  //   }))
+                                  // }
+                                  checked={atividades[atividade.id] || false}
                                   onChange={() =>
                                     setAtividades((prev) => ({
                                       ...prev,
-                                      [atividade.nome]: !prev[atividade.nome],
+                                      [atividade.id]: !prev[atividade.id],
                                     }))
                                   }
+
                                 />
                                 <span className="slider"></span>
                               </label>
@@ -761,7 +818,7 @@ export default function Beneficiarios() {
                     >
                       Visualizar prontuário
                     </button>
-                    <button className="btn-vermelho" onClick={handleConfirmarPresenca}>
+                    <button className="btn-vermelho" onClick={salvarAtividadesRealizadas}>
                       Salvar
                     </button>
                   </div>

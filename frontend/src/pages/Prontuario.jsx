@@ -7,8 +7,13 @@ import SidebarCondicoes from '../components/SideBarCondicoes';
 import api from '../provider/api'; // sua instância axios
 
 export default function Prontuario() {
+    const user = JSON.parse(localStorage.getItem("user"));
+
     const navigate = useNavigate();
     const location = useLocation();
+    const [showEditConfirm, setShowEditConfirm] = useState(false);
+    const [editError, setEditError] = useState("");
+
 
     // Pegar idBeneficiario da query string
     const queryParams = new URLSearchParams(location.search);
@@ -34,46 +39,51 @@ export default function Prontuario() {
         return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     };
 
-
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await api.get(`/beneficiarios/${idBeneficiario}`);
                 const data = response.data;
 
-                console.log('Dados do beneficiário recebidos do backend:', data);
-
                 setForm({
-                    registro: data.nomeRegistro || '',
+                    nomeRegistro: data.nomeRegistro || '',
                     sisa: data.sisa || '',
                     nomeMae: data.nomeMae || '',
-                    nascimento: formatDateBR(data.dtNasc),
+                    dtNasc: formatDateBR(data.dtNasc),
                     cpf: data.cpf || '',
                     genero: data.tipoGenero?.nome || '',
-                    raca: capitalize(data.raca),
+                    generoId: data.tipoGenero?.id || null,
+                    sexualidade: data.tipoSexualidade?.nome || '',
+                    sexualidadeId: data.tipoSexualidade?.id || null,
+                    raca: data.raca?.toUpperCase() || '',
                     egresso: data.egressoPrisional ? 'Sim' : 'Não',
                     estrangeiro: data.estrangeiro ? 'Sim' : 'Não',
                     sexo: capitalize(data.sexo) || '',
-                    sexualidade: data.tipoSexualidade?.nome || '',
                     nomeSocial: data.nomeSocial || '',
                     localDormir: capitalize(data.localDorme) || '',
                     status: data.status || '',
                     observacao: data.observacao || '',
                 });
 
-                // Ativa o toggle do nome social se houver valor
                 setNomeSocialAtivo(Boolean(data.nomeSocial));
 
-                setLoading(false); // ✅ MUITO IMPORTANTE
             } catch (error) {
-                console.error('Erro ao carregar beneficiário:', error);
-                setError('Erro ao carregar dados do beneficiário.');
-                setLoading(false); // ✅ também desativa loading em caso de erro
+                console.error("Erro ao atualizar:", error);
+
+                const msg =
+                    error?.response?.data?.error ||
+                    "Não foi possível atualizar os dados. Tente novamente.";
+
+                setEditError(msg);
+                setTimeout(() => setEditError(""), 2500);
             }
+
+            setLoading(false);
         };
 
         fetchData();
     }, [idBeneficiario]);
+
 
 
 
@@ -97,18 +107,105 @@ export default function Prontuario() {
         setIsEditing(false);
     };
 
+    const racaLabel = {
+        BRANCO: "Branco(a)",
+        PRETO: "Preto(a)",
+        PARDO: "Pardo(a)",
+        AMARELA: "Amarelo(a)",
+        INDIGENA: "Indígena",
+        NAO_DECLARADO: "Não declarado"
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const payload = {
+            idFuncionario: user.userId,
+            nomeRegistro: form.nomeRegistro,
+            sisa: form.sisa,
+            nomeMae: form.nomeMae,
+            dtNasc: convertToISO(form.dtNasc),
+            cpf: form.cpf,
+            raca: form.raca?.toUpperCase(),
+
+            egressoPrisional: form.egresso === "Sim",
+            estrangeiro: form.estrangeiro === "Sim",
+
+            sexo: form.sexo?.toUpperCase(),
+            localDorme: form.localDormir,
+            status: form.status,
+            observacao: form.observacao,
+
+            // tipoGenero: { id: mapGenero(form.genero) },
+            // tipoSexualidade: { id: mapSexualidade(form.sexualidade) },
+            // tipoGenero: { id: form.generoId },
+            // tipoSexualidade: { id: form.sexualidadeId }
+            idTipoGenero: form.generoId,
+            idTipoSexualidade: form.sexualidadeId,
+
+
+
+        };
+
+        console.log("📌 PAYLOAD ENVIADO:", payload);
+
+        console.log("Enviando para PUT:", payload);
+
         try {
-            await api.put(`/beneficiarios/${idBeneficiario}`, form);
-            setBackupBeforeEdit(form);
+            await api.put(`/beneficiarios/${idBeneficiario}`, payload);
+            setShowEditConfirm(true);
+            setTimeout(() => setShowEditConfirm(false), 2000);
+
             setIsEditing(false);
-            alert('Dados salvos com sucesso!');
         } catch (err) {
-            console.error(err);
-            alert('Erro ao salvar dados!');
+            console.error("Erro no PUT:", err);
+
+            setEditError("Erro ao salvar");
+            setTimeout(() => setEditError(""), 2500);
         }
+
+        function convertToISO(dateBR) {
+            if (!dateBR) return null;
+            const [day, month, year] = dateBR.split("/");
+            return `${year}-${month}-${day}`;
+        }
+
     };
+
+    function mapGenero(genero) {
+        const map = {
+            "Masculino": 1,
+            "Feminino": 2,
+            "Outro": 3,
+        };
+        return map[genero] || null;
+    }
+
+    function mapSexualidade(sexualidade) {
+        const map = {
+            "Heterossexual": 1,
+            "Homossexual": 2,
+            "Bissexual": 3,
+            "Assexual": 4,
+            "Outro": 5
+        };
+        return map[sexualidade] || null;
+    }
+
+
+
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     try {
+    //         await api.put(`/beneficiarios/${idBeneficiario}`, form);
+    //         setBackupBeforeEdit(form);
+    //         setIsEditing(false);
+    //         alert('Dados salvos com sucesso!');
+    //     } catch (err) {
+    //         console.error(err);
+    //         alert('Erro ao salvar dados!');
+    //     }
+    // };
 
     const handleClose = () => {
         localStorage.removeItem("idBeneficiario");
@@ -132,6 +229,33 @@ export default function Prontuario() {
                     }}
                 />
 
+                {/* Card de confirmação de edição */}
+                {showEditConfirm && (
+                    <div className="confirm-overlay">
+                        <div className="confirm-card">
+                            <div className="confirm-icon"></div>
+                            <div>
+                                <h3>Alterações Salvas!</h3>
+                                <p>Os dados do beneficiário foram atualizados com sucesso.</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Card de erro de edição */}
+                {editError && (
+                    <div className="confirm-overlay">
+                        <div className="error-card">
+                            <div className="error-icon"></div>
+                            <div>
+                                <h3>Erro ao atualizar</h3>
+                                <p>{editError}</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+
                 <div className="condicoes-content">
                     <h2>Dados do Beneficiário</h2>
 
@@ -146,7 +270,7 @@ export default function Prontuario() {
                                         <Input
                                             className="input-des"
                                             name="nomeRegistro"
-                                            value={form.registro || ''}
+                                            value={form.nomeRegistro || ''}
                                             onChange={handleChange}
                                             disabled={!isEditing}
                                         />
@@ -179,10 +303,11 @@ export default function Prontuario() {
                                         <Input
                                             className="input-des"
                                             name="dtNasc"
-                                            value={form.nascimento || ''}
+                                            value={form.dtNasc}
                                             onChange={handleChange}
                                             disabled={!isEditing}
                                         />
+
                                     </div>
                                 </div>
                             </div>
@@ -205,14 +330,27 @@ export default function Prontuario() {
                                 <label>Gênero</label>
                                 {isEditing ? (
                                     <select
-                                        name="genero"
-                                        value={form.genero || ''}
-                                        onChange={handleChange}
+                                        name="generoId"
+                                        value={form.generoId || ""}
+                                        onChange={(e) => {
+                                            const id = Number(e.target.value)
+                                            const nome = id === 1 ? "Masculino" :
+                                                id === 2 ? "Feminino" :
+                                                    "Outro";
+
+                                            setForm(prev => ({
+                                                ...prev,
+                                                generoId: id,
+                                                genero: nome,
+                                            }));
+                                        }}
                                     >
+
                                         <option value="">Selecione</option>
-                                        <option value="Masculino">Masculino</option>
-                                        <option value="Feminino">Feminino</option>
-                                        <option value="Outro">Outro</option>
+                                        <option value={1}>Masculino</option>
+                                        <option value={2}>Feminino</option>
+                                        <option value={3}>Outro</option>
+
                                     </select>
                                 ) : (
                                     <Input value={form.genero || ''} disabled />
@@ -229,14 +367,16 @@ export default function Prontuario() {
                                         onChange={handleChange}
                                     >
                                         <option value="">Selecione</option>
-                                        <option value="Branca">Branca</option>
-                                        <option value="Preta">Preta</option>
-                                        <option value="Parda">Parda</option>
-                                        <option value="Amarela">Amarela</option>
-                                        <option value="Indígena">Indígena</option>
+                                        <option value="BRANCO">Branco(a)</option>
+                                        <option value="PRETO">Preto(a)</option>
+                                        <option value="PARDO">Pardo(a)</option>
+                                        <option value="AMARELA">Amarelo(a)</option>
+                                        <option value="INDIGENA">Indigena</option>
+                                        <option value="NAO_DECLARADO">Não declarado</option>
                                     </select>
                                 ) : (
-                                    <Input value={form.raca || ''} disabled />
+                                    <Input value={racaLabel[form.raca] || ''} disabled />
+
                                 )}
                             </div>
 
@@ -254,6 +394,23 @@ export default function Prontuario() {
                                     </select>
                                 ) : (
                                     <Input value={form.egresso || ''} disabled />
+                                )}
+                            </div>
+
+                            <div className="form-group">
+                                <label>Estrangeiro</label>
+                                {isEditing ? (
+                                    <select
+                                        name="estrangeiro"
+                                        value={form.estrangeiro || ''}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="">Selecione</option>
+                                        <option value="Sim">Sim</option>
+                                        <option value="Não">Não</option>
+                                    </select>
+                                ) : (
+                                    <Input value={form.estrangeiro || ''} disabled />
                                 )}
                             </div>
                         </div>
@@ -283,16 +440,33 @@ export default function Prontuario() {
                                 <label>Sexualidade</label>
                                 {isEditing ? (
                                     <select
-                                        name="sexualidade"
-                                        value={form.sexualidade || ''}
-                                        onChange={handleChange}
+                                        name="sexualidadeId"
+                                        value={form.sexualidadeId || ""}
+                                        onChange={(e) => {
+                                            const id = Number(e.target.value)
+
+                                            const map = {
+                                                1: "Heterossexual",
+                                                2: "Homossexual",
+                                                3: "Bissexual",
+                                                4: "Assexual",
+                                                5: "Outro"
+                                            };
+
+                                            setForm(prev => ({
+                                                ...prev,
+                                                sexualidadeId: id,
+                                                sexualidade: map[id]
+                                            }));
+                                        }}
                                     >
                                         <option value="">Selecione</option>
-                                        <option value="Heterossexual">Heterossexual</option>
-                                        <option value="Homossexual">Homossexual</option>
-                                        <option value="Bissexual">Bissexual</option>
-                                        <option value="Assexual">Assexual</option>
-                                        <option value="Outro">Outro</option>
+                                        <option value={1}>Heterossexual</option>
+                                        <option value={2}>Homossexual</option>
+                                        <option value={3}>Bissexual</option>
+                                        <option value={4}>Assexual</option>
+                                        <option value={5}>Outro</option>
+
                                     </select>
                                 ) : (
                                     <Input value={form.sexualidade || ''} disabled />
@@ -332,7 +506,7 @@ export default function Prontuario() {
                         <div className="form-group full-width nome-social-section">
                             <label>Nome Social</label>
                             <div className="switch-container">
-                                <label className="switch">
+                                <label className="switch-two">
                                     <input
                                         type="checkbox"
                                         checked={nomeSocialAtivo}

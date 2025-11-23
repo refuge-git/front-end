@@ -1,6 +1,6 @@
 /* CSS- BOTÕES, INPUTS E CAMPOS DE SELECT */
 
-.botao-cadastro{
+.botao-cadastro {
   background-color: #7e0300;
   color: white;
   padding: 0.9rem;
@@ -129,7 +129,7 @@
   border-color: #adb5bd;
 }
 
-input, select {
+input {
   padding: 10px;
   border-radius: 5px;
   font-size: 16px;
@@ -137,5 +137,25 @@ input, select {
   box-sizing: border-box;
   background: #ffffff;
   color: rgba(0, 0, 0, 0.519);
-  border: 2px solid  #969696;
+  border: 2px solid #969696;
+}
+
+select {
+  height: 35px;
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 13px;
+  width: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+  color: rgba(0, 0, 0, 0.81);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+
+}
+
+select:hover {
+  border-color: #7E0300;
 }

@@ -1,145 +1,11 @@
-// import { useState, useEffect, useRef } from "react";
-// import Beneficiarios from "../components/Beneficiarios";
-// import Status from "../components/Status";
-// import Dashboards from "../components/Dashboards";
-// import Perfil from "../components/Perfil";
-// import Indicadores from "../components/Indicadores";
-// import Avatar from "../assets/Avatar.png";
-// import Logo from "../assets/icon-logo-branca.png";
-// import "../css/Home.css";
 
-// export default function Home() {
-//   const [showMenu, setShowMenu] = useState(false);
-//   const [showProfile, setShowProfile] = useState(false);
-//   const [nomePerfil, setNomePerfil] = useState("");
-
-//   const dashboardRef = useRef(null);
-
-//   useEffect(() => {
-//     if (showMenu) {
-//       const token = localStorage.getItem("token");
-//       import("../provider/api").then(({ default: api }) => {
-//         api.get("/funcionarios/me", {
-//           headers: { Authorization: `Bearer ${token}` }
-//         })
-//           .then(res => {
-//             setNomePerfil(res.data.nome || "");
-//           })
-//           .catch(() => setNomePerfil(""));
-//       });
-//     }
-//   }, [showMenu]);
-
-//   const handleGoToDashboard = () => {
-//     dashboardRef.current?.scrollIntoView({ behavior: "smooth" });
-//   };
-
-//   return (
-//     <div className="home-root">
-//       {/* Header estilo navbar */}
-//       <header className="navbar">
-//         <div className="navbar-left">
-//           <img src={Logo} alt="Logo" className="navbar-logo" />
-//         </div>
-//         <nav className="navbar-center">
-//           <span onClick={handleGoToDashboard}>Atendimentos ao mês</span>
-//           <span>Serviços ao mês</span>
-//           <span>Relatório</span>
-//         </nav>
-//         {/* <div className="navbar-right">
-//           <img
-//             src={Avatar}
-//             alt="Usuário"
-//             className="navbar-avatar"
-//             onClick={() => {
-//               setShowMenu(true);
-//               setShowProfile(false);
-//             }}
-//           />
-//         </div> */}
-//         <div className="navbar-right">
-//           <span className="navbar-username">{nomePerfil}</span>
-//           <img
-//             src={Avatar}
-//             alt="Usuário"
-//             className="navbar-avatar"
-//             onClick={() => {
-//               setShowMenu(true);
-//               setShowProfile(false);
-//             }}
-//           />
-//         </div>
-//       </header>
-
-//       {/* Indicadores incluídos no topo */}
-//       <section className="top-indicators">
-//         <Indicadores />  {/* <-- componente adicionado */}
-//       </section>
-
-//       {/* Conteúdo principal */}
-//       <main className="home-main">
-//         <Beneficiarios />
-//         <Status />
-//       </main>
-
-//       {/* Seção Dashboard */}
-//       <section ref={dashboardRef}>
-//         <Dashboards />
-//       </section>
-
-//       {/* Overlay Menu */}
-//       {showMenu && !showProfile && (
-//         <div className="overlay">
-//           <div className="menu-card">
-//             <button className="close-button" onClick={() => setShowMenu(false)}>✖</button>
-//             <img src={Avatar} alt="Perfil" className="menu-avatar" />
-//             <h3 className="perfil-nome">{nomePerfil}</h3>
-//             <button
-//               className="menu-btn"
-//               onClick={() => setShowProfile(true)}
-//             >
-//               Seu Perfil
-//             </button>
-//             <button
-//               className="menu-btn"
-//               onClick={() => setShowMenu(false)}
-//             >
-//               Sair
-//             </button>
-//           </div>
-//         </div>
-//       )}
-
-//       {/* Overlay Perfil */}
-//       {showMenu && showProfile && (
-//         <div className="overlay">
-//           <div className="perfil-wrapper">
-//             <button
-//               className="close-btn"
-//               onClick={() => {
-//                 setShowProfile(false);
-//                 setShowMenu(false);
-//               }}
-//             >
-//               ✖
-//             </button>
-//             <Perfil
-//               onClose={() => {
-//                 setShowProfile(false);
-//                 setShowMenu(false);
-//               }}
-//             />
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
 
 import { useState, useEffect, useRef } from "react";
 import Beneficiarios from "../components/Beneficiarios";
 import Status from "../components/Status";
-import Dashboards from "../components/Dashboards";
+import Dashboards from "../components/Kpis";
+// import DashboardsGraficos from "../components/DashboardsGraficos";
+import DashboardServicos from "../components/DashboardServicos";
 import Perfil from "../components/Perfil";
 import Indicadores from "../components/Indicadores";
 import Avatar from "../assets/Avatar.png";
@@ -157,6 +23,12 @@ export default function Home() {
   const [showProfile, setShowProfile] = useState(false);
   const [nomePerfil, setNomePerfil] = useState("");
   const [emailPerfil, setEmailPerfil] = useState("");
+
+  const atualizarInfoUsuario = (novoNome, novoEmail) => {
+  setNomePerfil(novoNome);
+  setEmailPerfil(novoEmail);
+};
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -179,6 +51,7 @@ export default function Home() {
   }, []);
 
   const dashboardRef = useRef(null);
+  const dashMes = useRef(null);
   const relatorioRef = useRef(null);
 
   // 👉 Busca nome do usuário ao carregar a página
@@ -197,9 +70,14 @@ export default function Home() {
     });
   }, []);
 
+  
   const handleGoToDashboard = () => {
     dashboardRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+    const handleGoToSevice = () => {
+    dashMes.current?.scrollIntoView({ behavior: "smooth" });
+  }
 
   const handleGoToRelatorio = () => {
     relatorioRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -214,7 +92,7 @@ export default function Home() {
         </div>
         <nav className="navbar-center">
           <span onClick={handleGoToDashboard}>Atendimentos ao mês</span>
-          <span>Serviços ao mês</span>
+          <span onClick={handleGoToSevice}>Serviços ao mês</span>
           <span onClick={handleGoToRelatorio}>Relatório</span>
         </nav>
         {/* <div className="navbar-right">
@@ -265,6 +143,11 @@ export default function Home() {
         <Dashboards />
       </section>
 
+      {/* Seção Mes*/}
+      <section ref={dashMes}>
+        <DashboardServicos/>
+      </section>
+
       {/* Seção Relatório */}
       <section ref={relatorioRef}>
         <Relatorio />
@@ -277,7 +160,7 @@ export default function Home() {
             <button className="close-button" onClick={() => setShowMenu(false)}>✖</button>
             <img src={Avatar} alt="Perfil" className="menu-avatar" />
             <h3 className="perfil-nome">{nomePerfil}</h3>
-                  <p className="perfil-email">{emailPerfil}</p>
+            <p className="perfil-email">{emailPerfil}</p>
 
             <button
               className="menu-btn"
@@ -313,6 +196,7 @@ export default function Home() {
                 setShowProfile(false);
                 setShowMenu(false);
               }}
+              onUpdateUser={atualizarInfoUsuario}
             />
           </div>
         </div>
