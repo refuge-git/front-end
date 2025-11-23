@@ -5,7 +5,7 @@ import axios from "axios";
 
  const ROOT_HOST = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_ROOT_HOST
    ? import.meta.env.VITE_ROOT_HOST
-   : 'http://alb-principal-557165657.us-east-1.elb.amazonaws.com';
+   : 'http://alb-principal-1282942231.us-east-1.elb.amazonaws.com';
 
 // const ROOT_HOST = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_ROOT_HOST
 // ? import.meta.env.VITE_ROOT_HOST
