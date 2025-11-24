@@ -253,6 +253,37 @@ export default function Beneficiarios() {
     fetchBeneficiarios(1);
   }, []);
 
+
+
+
+  useEffect(() => {
+    if (!presencaBeneficiario) return;
+
+    // Limpa antes de carregar
+    setAtividades({});
+
+    const token = localStorage.getItem("token");
+    api.get(`/atendimentos/beneficiarios/${presencaBeneficiario.id}/realizados-hoje`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => {
+        const ids = Array.isArray(res.data) ? res.data : [];
+        const inicial = {};
+        ids.forEach(id => inicial[id] = true);
+        setAtividades(inicial);
+      })
+      .catch(err => {
+        if (err.response?.status === 204) {
+          setAtividades({});
+        } else {
+          console.error("Erro ao buscar realizados hoje:", err);
+        }
+      });
+  }, [presencaBeneficiario]);
+
+
+
+
   // Estado para atividades cadastradas
   const [atividadesCadastradas, setAtividadesCadastradas] = useState([]);
   const [loadingAtividades, setLoadingAtividades] = useState(true);
@@ -311,7 +342,6 @@ export default function Beneficiarios() {
 
       alert("Registro salvo com sucesso!");
 
-      // limpa e fecha modal
       setAtividades({});
       setPresencaBeneficiario(null);
 
@@ -320,9 +350,9 @@ export default function Beneficiarios() {
       alert("Erro ao registrar atividades.");
     }
   };
-  
 
-  
+
+
 
   // Busca atividades do banco
   useEffect(() => {
@@ -689,6 +719,7 @@ export default function Beneficiarios() {
               onClick={() => {
                 setPresencaBeneficiario(null);
                 setNovaAtividadeMode(false);
+                setAtividades({});
               }}
             >
               ✕
