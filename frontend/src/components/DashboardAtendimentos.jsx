@@ -413,8 +413,21 @@ export default function DashboardAtendimentos() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            title: {
+              display: true,
+              text: "Quantidade de Atendimentos",
+              color: "black",     // opcional
+              font: { size: 16 }, // opcional
+            },
+          }
+        }
       },
+
     });
   };
 

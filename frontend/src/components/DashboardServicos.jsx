@@ -68,8 +68,19 @@ export default function DashboardServicos() {
           options={{
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { position: "top" } },
-            scales: { y: { beginAtZero: true } },
+            plugins: { 
+              legend: { position: "top" } },
+            scales: { 
+              y: { 
+              title: {
+                display: true,
+                text: 'Quantidade de Serviços',
+                color: 'black',
+                font: { size: 16
+            },
+          } 
+        } 
+      },
           }}
         />
       </div>
