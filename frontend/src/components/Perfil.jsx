@@ -121,76 +121,6 @@ export default function Perfil({ onClose }) {
     }
   };
 
-
-  // const handleSave = async () => {
-  //   setSaving(true);
-  //   const token = localStorage.getItem("token");
-
-  //   try {
-  //     await api.put("/funcionarios/me", dados, {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
-
-  //     if (email !== dados.email) {
-  //       alert("Seu e-mail foi atualizado. Faça login novamente.");
-
-  //       localStorage.removeItem("token");
-  //       navigate("/login");
-  //       return;
-  //     }
-
-  //     const refresh = await api.get("/funcionarios/me", {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
-
-  //     const f = refresh.data;
-
-  //     const nomeAtualizado =
-  //       f.nome ||
-  //       f.nomeRegistro ||
-  //       f.nomeCompleto ||
-  //       f.fullName ||
-  //       dados.nome;  // ✔ fallback caso o backend não retorne
-
-  //     setNome(nomeAtualizado);
-
-  //     setDados({
-  //       nome: nomeAtualizado,
-  //       email: f.email || "",
-  //       telefone: f.telefone || "",
-  //       cpf: f.cpf || "",
-  //     });
-
-  //     const emailFoiAlterado = dados.email !== emailOriginal;
-
-  //     setIsEditing(false);
-  //     setConfirmacao({
-  //       status: "sucesso",
-  //       mensagem: "Perfil atualizado com sucesso!",
-  //     });
-
-  //     setTimeout(() => setConfirmacao(null), 2500);
-
-  //     if (emailFoiAlterado) {
-  //       setTimeout(() => {
-  //         localStorage.removeItem("token");
-  //         navigate("/");
-  //       }, 1200);
-  //     }
-  //   } catch (err) {
-  //     console.error("Erro ao atualizar perfil:", err);
-
-  //     setConfirmacao({
-  //       status: "erro",
-  //       mensagem: "Erro ao atualizar perfil.",
-  //     });
-
-  //     setTimeout(() => setConfirmacao(null), 3500);
-  //   } finally {
-  //     setSaving(false);
-  //   }
-  // };
-
   return (
     <div className="perfil-container">
       <button className="close-button" onClick={onClose}>✖</button>
@@ -200,13 +130,9 @@ export default function Perfil({ onClose }) {
 
         <div className="avatar-container">
           <img src={Avatar} alt="Foto de Perfil" className="perfil-avatar" />
-          {/* <div className="avatar-edit-icon">✎</div> */}
         </div>
-
-        {/* <h3 className="perfil-nome">{nome}</h3> */}
       </div>
 
-      {/* Nome */}
       <div className="perfil-grid-one-columns">
         <div className="form-group">
           <label>Nome</label>
@@ -238,7 +164,6 @@ export default function Perfil({ onClose }) {
         </div>
       </div>
 
-      {/* Telefone e CPF */}
       <div className="perfil-grid">
         <div className="form-group">
           <label>Telefone</label>

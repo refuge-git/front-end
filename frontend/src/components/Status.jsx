@@ -17,6 +17,22 @@ const statusColors = {
 export default function Status() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [beneficiarios, setBeneficiarios] = useState([]);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("ALL");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [pageSize] = useState(5);
+  const [totalItems, setTotalItems] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [listLoading, setListLoading] = useState(false);
+  const [modalVisualizacao, setModalVisualizacao] = useState(null);
+  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null);
+  const [newStatus, setNewStatus] = useState("");
+  const [confirmacao, setConfirmacao] = useState(null);
+
 
   useEffect(() => {
     if (location.state?.beneficiarioSelecionado) {
@@ -26,35 +42,7 @@ export default function Status() {
     }
   }, [location.state]);
 
-  const [beneficiarios, setBeneficiarios] = useState([]);
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("ALL"); // padrão "ALL" para todos
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Estados para paginação
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [pageSize] = useState(5);
-  const [totalItems, setTotalItems] = useState(0);
-
-  // Estado para debounce da busca
-  const [searchTerm, setSearchTerm] = useState("");
-
-  // Estado para controlar loading apenas da lista
-  const [listLoading, setListLoading] = useState(false);
-
-  // Estado para modal de visualização
-  const [modalVisualizacao, setModalVisualizacao] = useState(null);
-
-  // Estado para modal de status
-  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null);
-  const [newStatus, setNewStatus] = useState("");
-  const [confirmacao, setConfirmacao] = useState(null); 
-
-  // Função para buscar beneficiários com paginação
   const fetchBeneficiarios = useCallback(async (page = currentPage, searchValue = searchTerm, statusValue = filter, isSearch = false) => {
-    // Se for busca, usar listLoading; se for carregamento inicial, usar loading
     if (isSearch) {
       setListLoading(true);
     } else {
@@ -64,14 +52,12 @@ export default function Status() {
     try {
       const token = localStorage.getItem("token");
 
-      // Preparar parâmetros
       const params = {
         page,
         size: pageSize,
         search: searchValue ? searchValue.trim() : ""
       };
 
-      // Mapear "ALL" para a string "ALL", outros valores normalmente
       if (statusValue === "ALL" || statusValue === "") {
         params.status = "ALL";
       } else {
@@ -89,7 +75,6 @@ export default function Status() {
       console.log("Items recebidos:", response.data?.items);
       console.log("Total de items:", response.data?.total);
 
-      // Verifica se a resposta tem a estrutura de paginação
       if (response.data && Array.isArray(response.data.items)) {
         const processedData = response.data.items.map((b) => ({
           ...b,
@@ -153,26 +138,22 @@ export default function Status() {
     }
   };
 
-  // Função para ir para a página anterior
   const goToPreviousPage = () => {
     if (currentPage > 1) {
       goToPage(currentPage - 1);
     }
   };
 
-  // Função para ir para a próxima página
   const goToNextPage = () => {
     if (currentPage < totalPages) {
       goToPage(currentPage + 1);
     }
   };
 
-  // Função para lidar com mudanças no campo de busca
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
   };
 
-  // Função para lidar com mudanças no filtro de status
   const handleFilterChange = (e) => {
     const newFilter = e.target.value;
     setFilter(newFilter);
@@ -182,12 +163,10 @@ export default function Status() {
     fetchBeneficiarios(1, "", newFilter, true);
   };
 
-  // Função para abrir modal de visualização
   const handleAbrirModalVisualizacao = (beneficiario) => {
     setModalVisualizacao(beneficiario);
   };
 
-  // Função para fechar modal de visualização
   const handleFecharModalVisualizacao = () => {
     setModalVisualizacao(null);
   };
@@ -220,7 +199,6 @@ export default function Status() {
     }
   };
 
-  // Função para salvar novo status
   const handleSalvarStatus = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -255,13 +233,11 @@ export default function Status() {
       setSelectedBeneficiario(null);
       setNewStatus("");
 
-      // Mostrar card de sucesso
       setConfirmacao({
         status: 'sucesso',
         mensagem: `Status de ${selectedBeneficiario.nomeRegistro} alterado para ${newStatus}!`
       });
 
-      // Fechar o card de confirmação após 3 segundos
       setTimeout(() => {
         setConfirmacao(null);
       }, 3000);
@@ -272,16 +248,12 @@ export default function Status() {
         mensagem: "Erro ao alterar status. Tente novamente."
       });
 
-      // Fechar o card de erro após 4 segundos
       setTimeout(() => {
         setConfirmacao(null);
       }, 4000);
     }
   };
 
-
-
-  // Retorna a cor baseada no status
   const getStatusColor = (status) => {
     const s = (status || "").trim().toUpperCase();
     return statusColors[s] || "#cccccc";
@@ -361,7 +333,6 @@ export default function Status() {
         )}
       </div>
 
-      {/* Componente de Paginação */}
       {totalPages > 1 && (
         <div className="pagination-container">
           <button
@@ -372,7 +343,6 @@ export default function Status() {
             &#8249;
           </button>
 
-          {/* Números das páginas */}
           <div className="pagination-numbers">
             {(() => {
               const pages = [];
@@ -484,55 +454,6 @@ export default function Status() {
           </div>
         </div>
       )}
-
-      {/* === MODAL DE ALTERAÇÃO DE STATUS === */}
-      {/* {selectedBeneficiario && (
-        <div className="modal-overlay">
-          <div className="modal-card">
-            <button className="modal-close" onClick={handleFecharModalStatus}>
-              ✕
-            </button>
-
-            <h3>Alterar Status</h3>
-            <p>
-              Beneficiário:{" "}
-              <strong>
-                {selectedBeneficiario.nomeRegistro}
-              </strong>
-            </p>
-
-            <div className="modal-form">
-              <label htmlFor="status-select">Novo Status</label>
-              <select
-                id="status-select"
-                value={newStatus}
-                onChange={(e) => setNewStatus(e.target.value)}
-                className="select-categoria"
-              >
-                <option value="INATIVO">Inativo</option>
-                <option value="ATIVO">Ativo</option>
-                <option value="BANIDO">Banido</option>
-                <option value="SUSPENSO">Suspenso</option>
-              </select>
-            </div>
-
-            <div className="modal-actions-delete">
-              <button
-                className="btn-verde"
-                onClick={handleSalvarStatus}
-              >
-                Salvar
-              </button>
-              <button
-                className="btn-vermelho"
-                onClick={handleFecharModalStatus}
-              >
-                Voltar
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
 
       <ModalEditarStatus
         beneficiario={selectedBeneficiario}

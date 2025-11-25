@@ -12,6 +12,97 @@ import ModalEditarStatus from "../components/ModalEditarStatus";
 
 export default function Beneficiarios() {
 
+  const [newStatus, setNewStatus] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState("ALL");
+  const [confirmacaoRegistro, setConfirmacaoRegistro] = useState(null);
+  const [search, setSearch] = useState("");
+  const [beneficiariosList, setBeneficiariosList] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [ativosCount, setAtivosCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null);
+  const [deleteBeneficiario, setDeleteBeneficiario] = useState(null);
+  const [presencaBeneficiario, setPresencaBeneficiario] = useState(null);
+  const [confirmacaoDelete, setConfirmacaoDelete] = useState(null);
+  const [selectedAtividade, setSelectedAtividade] = useState(null);
+  const [modalEditarStatusOpen, setModalEditarStatusOpen] = useState(false);
+  const [confirmacao, setConfirmacao] = useState(null);
+  const [atividadesCadastradas, setAtividadesCadastradas] = useState([]);
+  const [loadingAtividades, setLoadingAtividades] = useState(true);
+  const [errorAtividades, setErrorAtividades] = useState(null);
+  const ITEMS_PER_PAGE = 4;
+  const [atividadesModalPage, setAtividadesModalPage] = useState(0);
+  const [presencaAtividadesPage, setPresencaAtividadesPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [pageSize] = useState(5);
+  const [totalItems, setTotalItems] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [listLoading, setListLoading] = useState(false);
+  const [modalAtividadesOpen, setModalAtividadesOpen] = useState(false);
+  const filteredList = beneficiariosList || [];
+  const [novaAtividadeMode, setNovaAtividadeMode] = useState(false);
+
+  const handleAbrirModalAtividades = () => {
+    setAtividadesModalPage(0);
+    setModalAtividadesOpen(true);
+  };
+
+  const handleFecharModalStatus = () => {
+    setSelectedBeneficiario(null);
+    setNewStatus("");
+  };
+
+  const handleFecharModalAtividades = () => {
+    setModalAtividadesOpen(false);
+  };
+
+  const handleAdicionarAtividade = (atividade) => {
+    setAtividadesCadastradas((prev) => [...prev, { nome: atividade.nome }]);
+  };
+
+  const [atividades, setAtividades] = useState({
+    PRESENCA: false,
+    BANHO: false,
+    REFEICAO: false,
+  });
+
+  const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      fetchBeneficiarios(page, searchTerm, true);
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      goToPage(currentPage - 1);
+    }
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      goToPage(currentPage + 1);
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+  };
+
+  const handleCadastro = () => {
+    navigate("/registro-cadastro");
+  };
+
+  const [novaAtividade, setNovaAtividade] = useState({
+    nome: "",
+    observacao: "",
+  });
+
+
+  const navigate = useNavigate();
+
   const fetchBeneficiarioStatus = async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -34,16 +125,6 @@ export default function Beneficiarios() {
     }
   };
 
-  const [newStatus, setNewStatus] = useState("");
-
-  const [filtroStatus, setFiltroStatus] = useState("ALL");
-
-  const handleFecharModalStatus = () => {
-    setSelectedBeneficiario(null);
-    setNewStatus("");
-  };
-
-
   const handleSalvarStatus = async () => {
     console.log("selectedBeneficiario antes do PUT:", selectedBeneficiario);
     if (!selectedBeneficiario) return;
@@ -60,7 +141,6 @@ export default function Beneficiarios() {
       );
 
       setBeneficiariosList((prev) => {
-        // prev pode ser null/undefined -> garantir array
         const list = Array.isArray(prev) ? prev.slice() : [];
 
         let found = false;
@@ -109,7 +189,6 @@ export default function Beneficiarios() {
       setConfirmacao({ status: "sucesso", mensagem: "Status atualizado!" });
       setTimeout(() => setConfirmacao(null), 3000);
 
-
       try {
         await fetchBeneficiarios(currentPage, searchTerm, false);
       } catch (err) {
@@ -123,71 +202,7 @@ export default function Beneficiarios() {
     }
   };
 
-
-  const [search, setSearch] = useState("");
-  const [beneficiariosList, setBeneficiariosList] = useState([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [ativosCount, setAtivosCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null);
-  const [deleteBeneficiario, setDeleteBeneficiario] = useState(null);
-  const [presencaBeneficiario, setPresencaBeneficiario] = useState(null);
-  const [confirmacaoDelete, setConfirmacaoDelete] = useState(null);
-  const [selectedAtividade, setSelectedAtividade] = useState(null);
-  const [modalEditarStatusOpen, setModalEditarStatusOpen] = useState(false);
-  const [confirmacao, setConfirmacao] = useState(null);
-
-
-
-  // Estados para paginação
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [pageSize] = useState(5);
-  const [totalItems, setTotalItems] = useState(0);
-
-  // Estado para debounce da busca
-  const [searchTerm, setSearchTerm] = useState("");
-
-  // Estado para controlar loading apenas da lista
-  const [listLoading, setListLoading] = useState(false);
-  const [modalAtividadesOpen, setModalAtividadesOpen] = useState(false);
-
-  // Função para abrir modal (reseta paginação)
-  const handleAbrirModalAtividades = () => {
-    setAtividadesModalPage(0);
-    setModalAtividadesOpen(true);
-  };
-
-  // Função para fechar modal
-  const handleFecharModalAtividades = () => {
-    setModalAtividadesOpen(false);
-  };
-
-  // Função para adicionar nova atividade ao estado
-  const handleAdicionarAtividade = (atividade) => {
-    setAtividadesCadastradas((prev) => [...prev, { nome: atividade.nome }]);
-  };
-
-  const [atividades, setAtividades] = useState({
-    PRESENCA: false,
-    BANHO: false,
-    REFEICAO: false,
-  });
-
-  // controle do modo "nova atividade"
-  const [novaAtividadeMode, setNovaAtividadeMode] = useState(false);
-  const [novaAtividade, setNovaAtividade] = useState({
-    nome: "",
-    observacao: "",
-  });
-
-
-  const navigate = useNavigate();
-
-  // Função para buscar beneficiários com paginação
   const fetchBeneficiarios = useCallback(async (page = currentPage, searchValue = searchTerm, isSearch = false) => {
-    // Se for busca, usar listLoading; se for carregamento inicial, usar loading
     if (isSearch) {
       setListLoading(true);
     } else {
@@ -254,8 +269,6 @@ export default function Beneficiarios() {
   }, []);
 
 
-
-
   useEffect(() => {
     if (!presencaBeneficiario) return;
 
@@ -281,18 +294,6 @@ export default function Beneficiarios() {
       });
   }, [presencaBeneficiario]);
 
-
-
-
-  // Estado para atividades cadastradas
-  const [atividadesCadastradas, setAtividadesCadastradas] = useState([]);
-  const [loadingAtividades, setLoadingAtividades] = useState(true);
-  const [errorAtividades, setErrorAtividades] = useState(null);
-
-  // Paginação para modais: 4 atividades por página
-  const ITEMS_PER_PAGE = 4;
-  const [atividadesModalPage, setAtividadesModalPage] = useState(0);
-  const [presencaAtividadesPage, setPresencaAtividadesPage] = useState(0);
 
   const fetchBeneficiariosStatus = useCallback(async () => {
     setLoading(true);
@@ -340,19 +341,22 @@ export default function Beneficiarios() {
 
       await api.post("/registros-atendimentos/lote", payload);
 
-      alert("Registro salvo com sucesso!");
+      setConfirmacaoRegistro({ status: 'sucesso', mensagem: 'Atividades registradas com sucesso!' });
+      setTimeout(() => setConfirmacaoRegistro(null), 3000);
+
 
       setAtividades({});
       setPresencaBeneficiario(null);
 
     } catch (error) {
       console.error("❌ Erro ao salvar:", error);
-      alert("Erro ao registrar atividades.");
+      // alert("Erro ao registrar atividades.");
+
+      setConfirmacaoRegistro({ status: 'erro', mensagem: 'Erro ao registrar atividades.' });
+      setTimeout(() => setConfirmacaoRegistro(null), 4000);
+
     }
   };
-
-
-
 
   // Busca atividades do banco
   useEffect(() => {
@@ -391,39 +395,6 @@ export default function Beneficiarios() {
 
     return () => clearTimeout(timeoutId);
   }, [search, fetchBeneficiarios]);
-
-  // Função para navegar para uma página específica
-  const goToPage = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-      fetchBeneficiarios(page, searchTerm, true); // true indica que é navegação
-    }
-  };
-
-  // Função para ir para a página anterior
-  const goToPreviousPage = () => {
-    if (currentPage > 1) {
-      goToPage(currentPage - 1);
-    }
-  };
-
-  // Função para ir para a próxima página
-  const goToNextPage = () => {
-    if (currentPage < totalPages) {
-      goToPage(currentPage + 1);
-    }
-  };
-
-  // Função para lidar com mudanças no campo de busca
-  const handleSearchChange = (e) => {
-    setSearch(e.target.value);
-  };
-
-  const filteredList = beneficiariosList || [];
-
-  const handleCadastro = () => {
-    navigate("/registro-cadastro");
-  };
 
   const handleDelete = async (beneficiario) => {
     try {
@@ -540,10 +511,7 @@ export default function Beneficiarios() {
     return <div className="beneficiarios-error">{error}</div>;
   }
 
-
-
   return (
-
     <section className="beneficiarios-container">
       {/* Título + contador + ajuda */}
       <div className="beneficiarios-title-container">
@@ -586,7 +554,6 @@ export default function Beneficiarios() {
           <>
             {filteredList.map((item, i) => {
               const nome = item.nomeRegistro || item.nome || item.nomeSocial || "";
-              console.log("🧩 item recebido:", item);
               return (
                 <div key={item.id || i} className="beneficiarios-card">
                   <div
@@ -603,12 +570,11 @@ export default function Beneficiarios() {
                     <span className="beneficiarios-card-name">{nome}</span>
                   </div>
 
-                  {/* Ícone de deletar */}
                   <img
                     src={DeleteIcon}
                     alt="Deletar"
                     className="beneficiarios-delete-icon"
-                    onClick={() => setDeleteBeneficiario(item)} // abre modal de exclusão
+                    onClick={() => setDeleteBeneficiario(item)}
                   />
                 </div>
               );
@@ -621,7 +587,6 @@ export default function Beneficiarios() {
         )}
       </div>
 
-      {/* Componente de Paginação */}
       {totalPages > 1 && (
         <div className="pagination-container">
           <button
@@ -762,13 +727,6 @@ export default function Beneficiarios() {
                                 {atividade.nome}
                                 <input
                                   type="checkbox"
-                                  // checked={atividades[atividade.id] || false}
-                                  // onChange={() =>
-                                  //   setAtividades((prev) => ({
-                                  //     ...prev,
-                                  //     [atividade.id]: !prev[atividade.id],
-                                  //   }))
-                                  // }
                                   checked={atividades[atividade.id] || false}
                                   onChange={() =>
                                     setAtividades((prev) => ({
@@ -789,7 +747,7 @@ export default function Beneficiarios() {
                                 fetchBeneficiarioStatus(presencaBeneficiario.id)
                                 setPresencaBeneficiario(null);
                                 setSelectedBeneficiario(presencaBeneficiario);
-                              } // fecha o modal atual
+                              } 
                               }
                               style={{
                                 background: "transparent",
@@ -811,11 +769,6 @@ export default function Beneficiarios() {
                     })()
                   )}
                 </div>
-
-
-
-
-
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
                   <div className="modal-paginacao" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '8px' }}>
                     <button
@@ -901,7 +854,6 @@ export default function Beneficiarios() {
           </div>
         </div>
       )}
-
 
       {/* === MODAL DE ATIVIDADES === */}
 
@@ -1159,19 +1111,24 @@ export default function Beneficiarios() {
         </div>
       )}
 
-      {/* 
-      {modalEditarStatusOpen && selectedBeneficiario && (
-        <ModalEditarStatus
-          beneficiario={selectedBeneficiario}
-          newStatus={selectedBeneficiario.status}
-          setNewStatus={() => { }} // se o modal já controla internamente, pode deixar assim
-          onClose={() => setModalEditarStatusOpen(false)}
-          onSave={() => {
-            setModalEditarStatusOpen(false);
-            // opcional: recarregar lista se precisar
-          }}
-        />
-      )} */}
+
+      {confirmacaoRegistro && (
+        <div className={`confirmacao-card confirmacao-${confirmacaoRegistro.status}`}>
+          <div className="confirmacao-content">
+            {confirmacaoRegistro.status === 'sucesso' ? (
+              <>
+                <span className="confirmacao-icon">✓</span>
+                <span className="confirmacao-mensagem">{confirmacaoRegistro.mensagem}</span>
+              </>
+            ) : (
+              <>
+                <span className="confirmacao-icon confirmacao-erro-icon">✕</span>
+                <span className="confirmacao-mensagem">{confirmacaoRegistro.mensagem}</span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
       {/* === MODAL EDITAR STATUS === */}
       {
         modalEditarStatusOpen && selectedBeneficiario && (

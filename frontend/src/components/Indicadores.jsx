@@ -13,14 +13,14 @@ export default function Dashboards() {
 
   useEffect(() => {
     const fetchIndicadores = () => {
-      console.log("🔄 Buscando indicadores do backend...");
+      console.log("Buscando indicadores do backend...");
 
       const token = localStorage.getItem("token");
       api.get("/indicadores", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        console.log("✅ Dados recebidos:", response.data);
+        console.log("Dados recebidos:", response.data);
         setIndicadores(response.data);
         })
         .catch((error) => {
@@ -29,7 +29,7 @@ export default function Dashboards() {
     };
 
     fetchIndicadores();
-    const interval = setInterval(fetchIndicadores, 180000); // atualiza a cada 3 minutos
+    const interval = setInterval(fetchIndicadores, 180000); 
     return () => clearInterval(interval);
   }, []);
 
@@ -37,7 +37,6 @@ export default function Dashboards() {
     return <p style={{ textAlign: "center" }}>Carregando indicadores...</p>;
   }
 
-  // ✅ Função para exibir seta e cor dependendo do crescimento
   const renderCrescimento = (valor) => {
     const percentual = Math.abs(valor).toFixed(1) + "% este mês";
     if (valor > 0) {

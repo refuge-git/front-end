@@ -9,7 +9,6 @@ export default function Relatorio() {
   const [mesSelecionado, setMesSelecionado] = useState("");
   const [relatorios, setRelatorios] = useState([]);
 
-  // Buscar meses disponíveis ao montar a página
   useEffect(() => {
     const fetchMeses = async () => {
       try {
@@ -23,7 +22,6 @@ export default function Relatorio() {
 
         setMeses(response.data);
 
-        // Seleciona automaticamente o primeiro mês
         if (response.data.length > 0) {
           setMesSelecionado(response.data[0].mesReferencia);
         }
@@ -36,7 +34,6 @@ export default function Relatorio() {
     fetchMeses();
   }, []);
 
-  // Atualizar a lista de relatórios conforme mês selecionado
   useEffect(() => {
     if (!mesSelecionado) return;
 
