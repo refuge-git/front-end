@@ -142,7 +142,8 @@ export default function DashboardAtendimentos() {
         onChange={(e) => setViewMode(e.target.value)}
         style={{
           position: "absolute",
-          width: "210x",
+          width: "130px",
+          height: "37px",
           top: "10px",
           right: "20px",
           padding: "5px 10px",
@@ -160,7 +161,7 @@ export default function DashboardAtendimentos() {
           style={{
             position: "absolute",
             top: "10px",
-            right: "230px",
+            right: "160px",
           }}
         >
           <button
@@ -191,7 +192,7 @@ export default function DashboardAtendimentos() {
               style={{
                 position: "absolute",
                 top: 45,
-                right: 0,
+                right: "200px",
                 zIndex: 999,
                 background: "#0a0a0aff",
                 borderRadius: "8px",
