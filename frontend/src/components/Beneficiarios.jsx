@@ -1,1158 +1,3 @@
-// import React, { useState, useEffect, useCallback } from "react";
-// import { useNavigate } from "react-router-dom";
-// import "../css/Beneficiarios.css";
-// import Icon from "../assets/perfil-s-fundo.png";
-// import IconLupa from "../assets/lupa.png";
-// import HelpIcon from "../assets/help.png";
-// import DeleteIcon from "../assets/delete.png";
-// import Botao from "./Botao";
-// import api from "../provider/api";
-// import ModalEditarStatus from "../components/ModalEditarStatus";
-
-
-// export default function Beneficiarios() {
-
-//   const [newStatus, setNewStatus] = useState("");
-//   const [filtroStatus, setFiltroStatus] = useState("ALL");
-//   const [confirmacaoRegistro, setConfirmacaoRegistro] = useState(null);
-//   const [search, setSearch] = useState("");
-//   const [beneficiariosList, setBeneficiariosList] = useState([]);
-//   const [totalCount, setTotalCount] = useState(0);
-//   const [ativosCount, setAtivosCount] = useState(0);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-//   const [selectedBeneficiario, setSelectedBeneficiario] = useState(null);
-//   const [deleteBeneficiario, setDeleteBeneficiario] = useState(null);
-//   const [presencaBeneficiario, setPresencaBeneficiario] = useState(null);
-//   const [confirmacaoDelete, setConfirmacaoDelete] = useState(null);
-//   const [selectedAtividade, setSelectedAtividade] = useState(null);
-//   const [modalEditarStatusOpen, setModalEditarStatusOpen] = useState(false);
-//   const [confirmacao, setConfirmacao] = useState(null);
-//   const [atividadesCadastradas, setAtividadesCadastradas] = useState([]);
-//   const [loadingAtividades, setLoadingAtividades] = useState(true);
-//   const [errorAtividades, setErrorAtividades] = useState(null);
-//   const ITEMS_PER_PAGE = 4;
-//   const [atividadesModalPage, setAtividadesModalPage] = useState(0);
-//   const [presencaAtividadesPage, setPresencaAtividadesPage] = useState(0);
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const [totalPages, setTotalPages] = useState(0);
-//   const [pageSize] = useState(5);
-//   const [totalItems, setTotalItems] = useState(0);
-//   const [searchTerm, setSearchTerm] = useState("");
-//   const [listLoading, setListLoading] = useState(false);
-//   const [modalAtividadesOpen, setModalAtividadesOpen] = useState(false);
-//   const filteredList = beneficiariosList || [];
-//   const [novaAtividadeMode, setNovaAtividadeMode] = useState(false);
-
-//   const handleAbrirModalAtividades = () => {
-//     setAtividadesModalPage(0);
-//     setModalAtividadesOpen(true);
-//   };
-
-//   const handleFecharModalStatus = () => {
-//     setSelectedBeneficiario(null);
-//     setNewStatus("");
-//   };
-
-//   const handleFecharModalAtividades = () => {
-//     setModalAtividadesOpen(false);
-//   };
-
-//   const handleAdicionarAtividade = (atividade) => {
-//     setAtividadesCadastradas((prev) => [...prev, { nome: atividade.nome }]);
-//   };
-
-//   const [atividades, setAtividades] = useState({
-//     PRESENCA: false,
-//     BANHO: false,
-//     REFEICAO: false,
-//   });
-
-//   const goToPage = (page) => {
-//     if (page >= 1 && page <= totalPages) {
-//       setCurrentPage(page);
-//       fetchBeneficiarios(page, searchTerm, true);
-//     }
-//   };
-
-//   const goToPreviousPage = () => {
-//     if (currentPage > 1) {
-//       goToPage(currentPage - 1);
-//     }
-//   };
-
-//   const goToNextPage = () => {
-//     if (currentPage < totalPages) {
-//       goToPage(currentPage + 1);
-//     }
-//   };
-
-//   const handleSearchChange = (e) => {
-//     setSearch(e.target.value);
-//   };
-
-//   const handleCadastro = () => {
-//     navigate("/registro-cadastro");
-//   };
-
-//   const [novaAtividade, setNovaAtividade] = useState({
-//     nome: "",
-//     observacao: "",
-//   });
-
-
-//   const navigate = useNavigate();
-
-//   const fetchBeneficiarioStatus = async (id) => {
-//     try {
-//       const token = localStorage.getItem("token");
-//       const response = await api.get(`/beneficiarios/status/${id}`, {
-//         headers: { Authorization: `Bearer ${token}` }
-//       });
-
-//       const beneficiario = response.data;
-
-//       if (beneficiario) {
-//         setSelectedBeneficiario(beneficiario);
-//         setNewStatus(beneficiario.status);
-//         setModalEditarStatusOpen(true);
-//       } else {
-//         alert("Beneficiário não encontrado.");
-//       }
-//     } catch (err) {
-//       console.error("Erro ao buscar status do beneficiário:", err);
-//       alert("Não foi possível carregar os dados do beneficiário.");
-//     }
-//   };
-
-//   const handleSalvarStatus = async () => {
-//     console.log("selectedBeneficiario antes do PUT:", selectedBeneficiario);
-//     if (!selectedBeneficiario) return;
-
-//     const editedId = selectedBeneficiario.idBeneficiario ?? selectedBeneficiario.id;
-
-//     try {
-//       const token = localStorage.getItem("token");
-
-//       await api.put(
-//         `/beneficiarios/${editedId}/status`,
-//         { status: newStatus },
-//         { headers: { Authorization: `Bearer ${token}` } }
-//       );
-
-//       setBeneficiariosList((prev) => {
-//         const list = Array.isArray(prev) ? prev.slice() : [];
-
-//         let found = false;
-//         const updated = list.map((b) => {
-//           const bid = b.idBeneficiario ?? b.id;
-//           if (bid === editedId) {
-//             found = true;
-//             return { ...b, status: newStatus };
-//           }
-//           return b;
-//         });
-
-//         if (!found) {
-//           const toAdd = { ...(selectedBeneficiario || {}), status: newStatus };
-//           // normaliza id field para consistência
-//           if (!toAdd.id && toAdd.idBeneficiario) toAdd.id = toAdd.idBeneficiario;
-//           updated.unshift(toAdd);
-//         }
-
-//         if (filtroStatus && filtroStatus !== "ALL") {
-//           return updated.filter((b) => {
-//             const s = (b.status || "").toUpperCase();
-//             return s === filtroStatus;
-//           });
-//         }
-
-//         return updated;
-//       });
-
-//       setTimeout(() => {
-//         setAtivosCount((prev) => {
-//           const curr = (beneficiariosList && Array.isArray(beneficiariosList)) ? beneficiariosList : [];
-//           return curr.filter((b) => (b.status || "").toUpperCase() === "ATIVO").length;
-//         });
-
-//         setTotalCount((prev) => {
-//           const curr = (beneficiariosList && Array.isArray(beneficiariosList)) ? beneficiariosList : [];
-//           return curr.length;
-//         });
-//       }, 50);
-
-//       setModalEditarStatusOpen(false);
-//       setSelectedBeneficiario(null);
-//       setNewStatus("");
-
-//       setConfirmacao({ status: "sucesso", mensagem: "Status atualizado!" });
-//       setTimeout(() => setConfirmacao(null), 3000);
-
-//       try {
-//         await fetchBeneficiarios(currentPage, searchTerm, false);
-//       } catch (err) {
-//         console.warn("Re-fetch da lista falhou (opcional):", err);
-//       }
-
-//     } catch (err) {
-//       console.error("Erro ao alterar status:", err);
-//       setConfirmacao({ status: "erro", mensagem: "Erro ao atualizar status." });
-//       setTimeout(() => setConfirmacao(null), 4000);
-//     }
-//   };
-
-//   const fetchBeneficiarios = useCallback(async (page = currentPage, searchValue = searchTerm, isSearch = false) => {
-//     if (isSearch) {
-//       setListLoading(true);
-//     } else {
-//       setLoading(true);
-//     }
-
-//     try {
-//       const token = localStorage.getItem("token");
-
-//       const hoje = new Date();
-//       const diaSemana = hoje.getDay() === 0 ? 1 : hoje.getDay() + 1;
-
-//       const [frequenciaRes, allRes] = await Promise.all([
-//         api.get("/beneficiarios/listar-page-frequencia", {
-//           params: {
-//             diaSemana,
-//             page,
-//             size: pageSize,
-//             search: searchValue || null
-//           },
-//           headers: { Authorization: `Bearer ${token}` },
-//         }),
-//         api.get("/beneficiarios", {
-//           headers: { Authorization: `Bearer ${token}` },
-//         }),
-//       ]);
-
-//       console.log("Frequência:", frequenciaRes.data);
-//       console.log("Todos os beneficiários:", allRes.data);
-
-//       // Lista paginada
-//       if (frequenciaRes.data && Array.isArray(frequenciaRes.data.items)) {
-//         setBeneficiariosList(frequenciaRes.data.items);
-//         setTotalItems(frequenciaRes.data.total);
-//         setTotalPages(Math.ceil(frequenciaRes.data.total / pageSize));
-//         setCurrentPage(frequenciaRes.data.page);
-//       } else {
-//         setBeneficiariosList([]);
-//         setTotalItems(0);
-//         setTotalPages(0);
-//         console.warn("Formato inesperado (frequência):", frequenciaRes.data);
-//       }
-
-//       // Lista completa
-//       if (Array.isArray(allRes.data)) {
-//         setTotalCount(allRes.data.length);
-//         setAtivosCount(allRes.data.filter((b) => b && b.status === "ATIVO").length);
-//       } else {
-//         setTotalCount(0);
-//         setAtivosCount(0);
-//         console.warn("Formato inesperado (todos):", allRes.data);
-//       }
-//     } catch (err) {
-//       console.error("Erro ao buscar beneficiários:", err);
-//       setError("Não foi possível carregar os beneficiários.");
-//     } finally {
-//       setLoading(false);
-//       setListLoading(false);
-//     }
-//   }, [currentPage, pageSize, searchTerm]);
-
-//   useEffect(() => {
-//     fetchBeneficiarios(1);
-//   }, []);
-
-
-//   useEffect(() => {
-//     if (!presencaBeneficiario) return;
-
-//     // Limpa antes de carregar
-//     setAtividades({});
-
-//     const token = localStorage.getItem("token");
-//     api.get(`/atendimentos/beneficiarios/${presencaBeneficiario.id}/realizados-hoje`, {
-//       headers: { Authorization: `Bearer ${token}` }
-//     })
-//       .then(res => {
-//         const ids = Array.isArray(res.data) ? res.data : [];
-//         const inicial = {};
-//         ids.forEach(id => inicial[id] = true);
-//         setAtividades(inicial);
-//       })
-//       .catch(err => {
-//         if (err.response?.status === 204) {
-//           setAtividades({});
-//         } else {
-//           console.error("Erro ao buscar realizados hoje:", err);
-//         }
-//       });
-//   }, [presencaBeneficiario]);
-
-
-//   const fetchBeneficiariosStatus = useCallback(async () => {
-//     setLoading(true);
-//     try {
-//       const token = localStorage.getItem("token");
-
-//       const response = await api.get("/beneficiarios/status/page", {
-//         headers: { Authorization: `Bearer ${token}` },
-//       });
-
-//       // response.data.items deve ser um array de BeneficiarioStatusDto
-//       setBeneficiariosList(response.data.items);
-//       setTotalItems(response.data.total || response.data.items.length);
-//       setTotalPages(Math.ceil((response.data.total || response.data.items.length) / pageSize));
-//       setCurrentPage(response.data.page || 1);
-
-//       // Contagem de ativos
-//       setAtivosCount(response.data.items.filter(b => b.status.toUpperCase() === "ATIVO").length);
-//       setTotalCount(response.data.items.length);
-
-//     } catch (err) {
-//       console.error("Erro ao buscar beneficiários status:", err);
-//       setError("Não foi possível carregar os beneficiários.");
-//     } finally {
-//       setLoading(false);
-//     }
-//   }, [pageSize]);
-
-//   const salvarAtividadesRealizadas = async () => {
-//     try {
-//       const atividadesSelecionadas = Object.keys(atividades)
-//         .filter((id) => atividades[id] === true);
-
-//       if (atividadesSelecionadas.length === 0) {
-//         alert("Selecione ao menos uma atividade.");
-//         return;
-//       }
-
-//       const payload = atividadesSelecionadas.map((idAtividade) => ({
-//         idBeneficiario: presencaBeneficiario.id,
-//         idTipoAtendimento: parseInt(idAtividade),
-//       }));
-
-//       console.log("📤 Enviando para API:", payload);
-
-//       await api.post("/registros-atendimentos/lote", payload);
-
-//       setConfirmacaoRegistro({ status: 'sucesso', mensagem: 'Atividades registradas com sucesso!' });
-//       setTimeout(() => setConfirmacaoRegistro(null), 3000);
-
-
-//       setAtividades({});
-//       setPresencaBeneficiario(null);
-
-//     } catch (error) {
-//       console.error("❌ Erro ao salvar:", error);
-//       // alert("Erro ao registrar atividades.");
-
-//       setConfirmacaoRegistro({ status: 'erro', mensagem: 'Erro ao registrar atividades.' });
-//       setTimeout(() => setConfirmacaoRegistro(null), 4000);
-
-//     }
-//   };
-
-//   // Busca atividades do banco
-//   useEffect(() => {
-//     const fetchAtividades = async () => {
-//       try {
-//         const token = localStorage.getItem("token");
-//         const res = await api.get("/atendimentos", {
-//           headers: { Authorization: `Bearer ${token}` },
-//         });
-
-//         if (Array.isArray(res.data)) {
-//           setAtividadesCadastradas(res.data);
-//         } else {
-//           setAtividadesCadastradas([]);
-//         }
-//       } catch (err) {
-//         console.error("Erro ao carregar atividades:", err);
-//         setErrorAtividades("Não foi possível carregar as atividades");
-//       } finally {
-//         setLoadingAtividades(false);
-//       }
-//     };
-
-//     fetchAtividades();
-//   }, []);
-
-//   // Debounce para a busca
-//   useEffect(() => {
-//     const timeoutId = setTimeout(() => {
-//       if (searchTerm !== search) {
-//         setSearchTerm(search);
-//         setCurrentPage(1);
-//         fetchBeneficiarios(1, search, true); // true indica que é uma busca
-//       }
-//     }, 500); // 500ms de delay
-
-//     return () => clearTimeout(timeoutId);
-//   }, [search, fetchBeneficiarios]);
-
-//   const handleDelete = async (beneficiario) => {
-//     try {
-//       const token = localStorage.getItem("token");
-//       await api.delete(`/beneficiarios/${beneficiario.id}`, {
-//         headers: { Authorization: `Bearer ${token}` },
-//       });
-
-//       setBeneficiariosList(prev =>
-//         prev.map(b => b.id === selectedBeneficiario.id ? { ...b, status: newStatus } : b)
-//       );
-
-//       setDeleteBeneficiario(null);
-
-//       // Mostrar card de sucesso
-//       const nomeBeneficiario = beneficiario.nomeRegistro || beneficiario.nome || "Beneficiário";
-//       setConfirmacaoDelete({
-//         status: 'sucesso',
-//         mensagem: `${nomeBeneficiario} foi excluído com sucesso!`
-//       });
-
-//       // Fechar o card de confirmação após 3 segundos
-//       setTimeout(() => {
-//         setConfirmacaoDelete(null);
-//       }, 3000);
-//     } catch (err) {
-//       console.error("Erro ao apagar beneficiário:", err);
-//       setConfirmacaoDelete({
-//         status: 'erro',
-//         mensagem: "Erro ao excluir beneficiário. Tente novamente."
-//       });
-
-//       // Fechar o card de erro após 4 segundos
-//       setTimeout(() => {
-//         setConfirmacaoDelete(null);
-//       }, 4000);
-//     }
-//   };
-
-//   const handleDeleteAtividade = async (atividade) => {
-//     try {
-//       const token = localStorage.getItem("token");
-//       await api.delete(`/atendimentos/${atividade.id}`, {
-//         headers: { Authorization: `Bearer ${token}` },
-//       });
-
-//       // remove locally and adjust pagination pages if needed
-//       setAtividadesCadastradas((prev) => {
-//         const updated = prev.filter((a) => a.id !== atividade.id);
-//         const totalPages = Math.max(1, Math.ceil(updated.length / ITEMS_PER_PAGE));
-//         setAtividadesModalPage((p) => Math.min(p, totalPages - 1));
-//         setPresencaAtividadesPage((p) => Math.min(p, totalPages - 1));
-//         return updated;
-//       });
-
-//       setSelectedAtividade(null);
-
-//       // Mostrar card de sucesso
-//       setConfirmacaoDelete({
-//         status: 'sucesso',
-//         mensagem: `${atividade.nome} foi excluído com sucesso!`
-//       });
-
-//       // Fechar o card de confirmação após 3 segundos
-//       setTimeout(() => {
-//         setConfirmacaoDelete(null);
-//       }, 3000);
-//     } catch (err) {
-//       console.error("Erro ao deletar atividade:", err);
-//       // Mostrar card de erro
-//       setConfirmacaoDelete({
-//         status: 'erro',
-//         mensagem: "Erro ao excluir atividade. Tente novamente."
-//       });
-
-//       // Fechar o card de erro após 4 segundos
-//       setTimeout(() => {
-//         setConfirmacaoDelete(null);
-//       }, 4000);
-//     }
-//   };
-
-//   const handleConfirmarPresenca = () => {
-//     const selecionadas = Object.keys(atividades).filter((k) => atividades[k]);
-//     const nomeBeneficiario = presencaBeneficiario?.nomeRegistro || presencaBeneficiario?.nome || presencaBeneficiario?.nomeSocial || "Beneficiário";
-//     console.log(
-//       `Atividades confirmadas para ${nomeBeneficiario}:`,
-//       selecionadas
-//     );
-
-
-//     setAtividades({ BANHO: false, REFEICAO: false });
-//     setPresencaBeneficiario(null);
-//   };
-
-//   const handleSalvarNovaAtividade = () => {
-//     if (!novaAtividade.nome.trim()) {
-//       alert("Informe o nome da atividade!");
-//       return;
-//     }
-
-//     console.log("Nova atividade cadastrada:", novaAtividade);
-
-
-//     setNovaAtividade({ nome: "", observacao: "" });
-//     setNovaAtividadeMode(false);
-//   };
-
-//   if (loading) {
-//     return <div className="beneficiarios-loading">Carregando beneficiários...</div>;
-//   }
-
-//   if (error) {
-//     return <div className="beneficiarios-error">{error}</div>;
-//   }
-
-//   return (
-//     <section className="beneficiarios-container">
-//       {/* Título + contador + ajuda */}
-//       <div className="beneficiarios-title-container">
-//         <div className="beneficiarios-title-wrapper">
-//           <h2 className="beneficiarios-title">Seus beneficiários</h2>
-//           <div className="beneficiarios-help">
-//             <img src={HelpIcon} alt="Ajuda" className="beneficiarios-help-icon" />
-//             <span className="beneficiarios-help-tooltip">
-//               Aqui você encontra todos os beneficiários cadastrados.
-//               Clique em um nome para visualizar o prontuário.
-//             </span>
-//           </div>
-//         </div>
-
-//         <span className="beneficiarios-count">
-//           {ativosCount} ativo(s) de {totalCount} total
-//         </span>
-//       </div>
-
-//       {/* Campo de busca */}
-//       <div className="beneficiarios-search">
-//         <img src={IconLupa} alt="Buscar" className="beneficiarios-search-img" />
-//         <input
-//           type="text"
-//           placeholder="Busque pelo nome..."
-//           value={search}
-//           onChange={handleSearchChange}
-//           className="beneficiarios-input"
-//         />
-//       </div>
-
-//       {/* Lista de beneficiários */}
-//       <div className="beneficiarios-list">
-//         {listLoading ? (
-//           <div className="beneficiarios-list-loading">
-//             <div className="loading-spinner"></div>
-//             <span>Carregando...</span>
-//           </div>
-//         ) : (
-//           <>
-//             {filteredList.map((item, i) => {
-//               const nome = item.nomeRegistro || item.nome || item.nomeSocial || "";
-//               return (
-//                 <div key={item.id || i} className="beneficiarios-card">
-//                   <div
-//                     className="beneficiarios-card-info"
-//                     onClick={() => setPresencaBeneficiario(item)}
-//                     style={{ cursor: "pointer" }}
-//                   >
-//                     {/* Caso não exista e imagem sera utilizado ícone padrão */}
-//                     <img
-//                       src={item.imagemUrl || Icon}
-//                       alt={nome}
-//                       className="beneficiarios-card-img"
-//                     />
-//                     <span className="beneficiarios-card-name">{nome}</span>
-//                   </div>
-
-//                   <img
-//                     src={DeleteIcon}
-//                     alt="Deletar"
-//                     className="beneficiarios-delete-icon"
-//                     onClick={() => setDeleteBeneficiario(item)}
-//                   />
-//                 </div>
-//               );
-//             })}
-
-//             {filteredList.length === 0 && !listLoading && (
-//               <div className="beneficiarios-empty">Nenhum beneficiário encontrado.</div>
-//             )}
-//           </>
-//         )}
-//       </div>
-
-//       {totalPages > 1 && (
-//         <div className="pagination-container">
-//           <button
-//             className="pagination-btn"
-//             onClick={goToPreviousPage}
-//             disabled={currentPage === 1}
-//           >
-//             &#8249;
-//           </button>
-
-//           {/* Números das páginas */}
-//           <div className="pagination-numbers">
-//             {(() => {
-//               const pages = [];
-//               const maxVisiblePages = 5;
-
-//               let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-//               let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-//               if (endPage - startPage + 1 < maxVisiblePages) {
-//                 startPage = Math.max(1, endPage - maxVisiblePages + 1);
-//               }
-
-//               for (let i = startPage; i <= endPage; i++) {
-//                 pages.push(
-//                   <button
-//                     key={i}
-//                     className={`pagination-number ${currentPage === i ? 'active' : ''}`}
-//                     onClick={() => goToPage(i)}
-//                   >
-//                     {i}
-//                   </button>
-//                 );
-//               }
-
-//               return pages;
-//             })()}
-//           </div>
-
-//           <button
-//             className="pagination-btn"
-//             onClick={goToNextPage}
-//             disabled={currentPage === totalPages}
-
-//           >
-//             &#8250;
-//           </button>
-
-//           <div className="pagination-info">
-//             {currentPage} / {totalPages} ({totalItems} itens)
-//           </div>
-//         </div>
-//       )}
-
-//       {/* === MODAL DE EXCLUSÃO === */}
-//       {deleteBeneficiario && (
-//         <div className="modal-overlay">
-//           <div className="modal-card">
-//             <button className="modal-close" onClick={() => setDeleteBeneficiario(null)}>
-//               ✕
-//             </button>
-
-//             <h3>Excluir beneficiário</h3>
-//             <p>
-//               Deseja realmente excluir{" "}
-//               <strong>
-//                 {deleteBeneficiario.nomeRegistro || deleteBeneficiario.nome}
-//               </strong>?
-//             </p>
-
-//             <div className="modal-actions-delete">
-//               <button
-//                 className="btn-verde"
-//                 onClick={() => handleDelete(deleteBeneficiario)}
-//               >
-//                 Sim
-//               </button>
-//               <button
-//                 className="btn-vermelho"
-//                 onClick={() => setDeleteBeneficiario(null)}
-//               >
-//                 Não
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-
-//       {/* === MODAL DE PRESENÇA === */}
-//       {presencaBeneficiario && (
-//         <div className="modal-overlay">
-//           <div className="modal-card">
-//             <button
-//               className="modal-close"
-//               onClick={() => {
-//                 setPresencaBeneficiario(null);
-//                 setNovaAtividadeMode(false);
-//                 setAtividades({});
-//               }}
-//             >
-//               ✕
-//             </button>
-
-//             {!novaAtividadeMode ? (
-//               <>
-//                 {console.log("🔍 Modal - presencaBeneficiario:", presencaBeneficiario)}
-//                 {console.log("🔍 Modal - Propriedades:", Object.keys(presencaBeneficiario || {}))}
-//                 <h3>Selecione a Atividade Realizada</h3>
-//                 <p>
-//                   Beneficiário:{" "}
-//                   <strong>
-//                     {presencaBeneficiario.nomeRegistro || presencaBeneficiario.nome || presencaBeneficiario.nomeSocial || "Nome não encontrado"}
-//                   </strong>
-//                 </p>
-
-//                 <div className="modal-switches">
-//                   {loadingAtividades ? (
-//                     <p>Carregando atividades...</p>
-//                   ) : errorAtividades ? (
-//                     <p>{errorAtividades}</p>
-//                   ) : atividadesCadastradas.length === 0 ? (
-//                     <p>Nenhuma atividade cadastrada.</p>
-//                   ) : (
-//                     (() => {
-//                       const totalPages = Math.max(1, Math.ceil(atividadesCadastradas.length / ITEMS_PER_PAGE));
-//                       const start = presencaAtividadesPage * ITEMS_PER_PAGE;
-//                       const pageItems = atividadesCadastradas.slice(start, start + ITEMS_PER_PAGE);
-
-//                       return (
-
-//                         <>
-//                           {pageItems.map((atividade) => (
-//                             <div
-//                               key={atividade.id}
-//                               className="atividade-card"
-//                             >
-//                               <label className="switch" style={{ margin: 0, flex: 1 }}>
-//                                 {atividade.nome}
-//                                 <input
-//                                   type="checkbox"
-//                                   checked={atividades[atividade.id] || false}
-//                                   onChange={() =>
-//                                     setAtividades((prev) => ({
-//                                       ...prev,
-//                                       [atividade.id]: !prev[atividade.id],
-//                                     }))
-//                                   }
-
-//                                 />
-//                                 <span className="slider"></span>
-//                               </label>
-//                             </div>
-//                           ))}
-//                           <div style={{ marginTop: "16px", textAlign: "center" }}>
-//                             <button
-//                               type="button"
-//                               onClick={() => {
-//                                 fetchBeneficiarioStatus(presencaBeneficiario.id)
-//                                 setPresencaBeneficiario(null);
-//                                 setSelectedBeneficiario(presencaBeneficiario);
-//                               } 
-//                               }
-//                               style={{
-//                                 background: "transparent",
-//                                 border: "none",
-//                                 color: "#9B1B1B",
-//                                 fontWeight: "600",
-//                                 cursor: "pointer",
-//                                 padding: 0,
-//                                 fontSize: "0.95rem",
-//                               }}
-//                             >
-//                               Editar status
-//                             </button>
-
-
-//                           </div>
-//                         </>
-//                       );
-//                     })()
-//                   )}
-//                 </div>
-//                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
-//                   <div className="modal-paginacao" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '8px' }}>
-//                     <button
-//                       type="button"
-//                       onClick={() => setPresencaAtividadesPage((p) => Math.max(0, p - 1))}
-//                       disabled={presencaAtividadesPage <= 0}
-//                       style={presencaAtividadesPage <= 0 ? { background: 'transparent', border: 'none', padding: 0, margin: 0, fontSize: '1.2rem', color: '#ccc', cursor: 'default' } : { background: 'transparent', border: 'none', padding: 0, margin: 0, fontSize: '1.2rem', color: '#000', cursor: 'pointer' }}
-//                       aria-label="Página anterior"
-//                     >
-//                       ‹
-//                     </button>
-//                     <span style={{ fontSize: '0.9rem' }}>{presencaAtividadesPage + 1} / {Math.max(1, Math.ceil(atividadesCadastradas.length / ITEMS_PER_PAGE))}</span>
-//                     <button
-//                       type="button"
-//                       onClick={() => setPresencaAtividadesPage((p) => Math.min(Math.max(1, Math.ceil(atividadesCadastradas.length / ITEMS_PER_PAGE)) - 1, p + 1))}
-//                       disabled={presencaAtividadesPage >= Math.max(1, Math.ceil(atividadesCadastradas.length / ITEMS_PER_PAGE)) - 1}
-//                       style={presencaAtividadesPage >= Math.max(1, Math.ceil(atividadesCadastradas.length / ITEMS_PER_PAGE)) - 1 ? { background: 'transparent', border: 'none', padding: 0, margin: 0, fontSize: '1.2rem', color: '#ccc', cursor: 'default' } : { background: 'transparent', border: 'none', padding: 0, margin: 0, fontSize: '1.2rem', color: '#000', cursor: 'pointer' }}
-//                       aria-label="Próxima página"
-//                     >
-//                       ›
-//                     </button>
-//                   </div>
-
-//                   <div className="modal-actions-init">
-//                     <button
-//                       className="btn-verde"
-//                       onClick={() => {
-//                         setPresencaBeneficiario(null);
-//                         navigate(`/prontuario?idBeneficiario=${presencaBeneficiario.id}`);
-//                       }}
-//                     >
-//                       Visualizar prontuário
-//                     </button>
-//                     <button className="btn-vermelho" onClick={salvarAtividadesRealizadas}>
-//                       Salvar
-//                     </button>
-//                   </div>
-//                 </div>
-//               </>
-//             ) : (
-//               <>
-//                 <h3>Cadastrar nova atividade</h3>
-//                 <div className="modal-form">
-//                   <label>Nome de Atividade</label>
-//                   <input
-//                     type="text"
-//                     placeholder="Nome da atividade"
-//                     value={novaAtividade.nome}
-//                     onChange={(e) =>
-//                       setNovaAtividade((prev) => ({
-//                         ...prev,
-//                         nome: e.target.value,
-//                       }))
-//                     }
-//                   />
-//                   <label>Observação</label>
-//                   <textarea
-//                     placeholder="Observação"
-//                     value={novaAtividade.observacao}
-//                     onChange={(e) =>
-//                       setNovaAtividade((prev) => ({
-//                         ...prev,
-//                         observacao: e.target.value,
-//                       }))
-//                     }
-//                   />
-//                 </div>
-//                 <div className="beneficiarios-actions">
-//                   <div className="modal-actions">
-//                     <button
-//                       className="btn-verde"
-//                       onClick={() => setNovaAtividadeMode(false)}
-//                     >
-//                       Voltar
-//                     </button>
-//                     <button className="btn-vermelho" onClick={handleSalvarNovaAtividade}>
-//                       Salvar
-//                     </button>
-//                   </div>
-//                 </div>
-//               </>
-//             )}
-//           </div>
-//         </div>
-//       )}
-
-//       {/* === MODAL DE ATIVIDADES === */}
-
-//       {modalAtividadesOpen && (
-//         <div className="modal-overlay">
-//           <div className="modal-card">
-//             <button className="modal-close" onClick={handleFecharModalAtividades}>
-//               ✕
-//             </button>
-
-//             {!novaAtividadeMode ? (
-//               <>
-//                 <h3>Atividades Cadastradas</h3>
-
-//                 <div className="modal-atividades-list">
-//                   {loadingAtividades ? (
-//                     <p>Carregando atividades...</p>
-//                   ) : errorAtividades ? (
-//                     <p>{errorAtividades}</p>
-//                   ) : atividadesCadastradas.length === 0 ? (
-//                     <p>Nenhuma atividade cadastrada.</p>
-//                   ) : (
-//                     (() => {
-//                       const totalPages = Math.max(1, Math.ceil(atividadesCadastradas.length / ITEMS_PER_PAGE));
-//                       const start = atividadesModalPage * ITEMS_PER_PAGE;
-//                       const pageItems = atividadesCadastradas.slice(start, start + ITEMS_PER_PAGE);
-
-//                       return (
-//                         <>
-//                           {pageItems.map((atividade) => (
-//                             <div key={atividade.id} className="atividade-card">
-//                               <span className="atividade-nome">{atividade.nome}</span>
-//                               <img
-//                                 src={DeleteIcon}
-//                                 alt="Deletar"
-//                                 className="beneficiarios-delete-icon"
-//                                 onClick={() => setSelectedAtividade(atividade)}
-//                               />
-//                             </div>
-//                           ))}
-//                         </>
-//                       );
-//                     })()
-//                   )}
-//                 </div>
-
-//                 {/* Paginação (lado esquerdo) e botão (lado direito) em uma linha */}
-//                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
-//                   <div className="modal-paginacao" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '8px' }}>
-//                     <button
-//                       type="button"
-//                       onClick={() => setAtividadesModalPage((p) => Math.max(0, p - 1))}
-//                       disabled={atividadesModalPage <= 0}
-//                       style={atividadesModalPage <= 0 ? { background: 'transparent', border: 'none', padding: 0, margin: 0, fontSize: '1.2rem', color: '#ccc', cursor: 'default' } : { background: 'transparent', border: 'none', padding: 0, margin: 0, fontSize: '1.2rem', color: '#000', cursor: 'pointer' }}
-//                       aria-label="Página anterior"
-//                     >
-//                       ‹
-//                     </button>
-//                     <span style={{ fontSize: '0.9rem' }}>{atividadesModalPage + 1} / {Math.max(1, Math.ceil(atividadesCadastradas.length / ITEMS_PER_PAGE))}</span>
-//                     <button
-//                       type="button"
-//                       onClick={() => setAtividadesModalPage((p) => Math.min(Math.max(1, Math.ceil(atividadesCadastradas.length / ITEMS_PER_PAGE)) - 1, p + 1))}
-//                       disabled={atividadesModalPage >= Math.max(1, Math.ceil(atividadesCadastradas.length / ITEMS_PER_PAGE)) - 1}
-//                       style={atividadesModalPage >= Math.max(1, Math.ceil(atividadesCadastradas.length / ITEMS_PER_PAGE)) - 1 ? { background: 'transparent', border: 'none', padding: 0, margin: 0, fontSize: '1.2rem', color: '#ccc', cursor: 'default' } : { background: 'transparent', border: 'none', padding: 0, margin: 0, fontSize: '1.2rem', color: '#000', cursor: 'pointer' }}
-//                       aria-label="Próxima página"
-//                     >
-//                       ›
-//                     </button>
-//                   </div>
-
-//                   <div>
-//                     <Botao
-//                       type="button"
-//                       className="botao botao-primario btn-salvar"
-//                       onClick={() => setNovaAtividadeMode(true)}
-//                     >
-//                       Adicionar nova atividade
-//                     </Botao>
-//                   </div>
-//                 </div>
-//               </>
-//             ) : (
-//               <>
-//                 <h3>Cadastrar nova atividade</h3>
-//                 <div className="modal-form">
-//                   <label>Nome de Atividade</label>
-//                   <input
-//                     type="text"
-//                     placeholder="Nome da atividade"
-//                     value={novaAtividade.nome}
-//                     onChange={(e) =>
-//                       setNovaAtividade((prev) => ({ ...prev, nome: e.target.value }))
-//                     }
-//                   />
-//                   <label>Observação</label>
-//                   <textarea
-//                     placeholder="Observação"
-//                     value={novaAtividade.observacao}
-//                     onChange={(e) =>
-//                       setNovaAtividade((prev) => ({ ...prev, observacao: e.target.value }))
-//                     }
-//                   />
-//                 </div>
-
-//                 <div className="modal-actions">
-//                   <button
-//                     className="btn-verde"
-//                     onClick={() => setNovaAtividadeMode(false)}
-//                   >
-//                     Voltar
-//                   </button>
-//                   <button
-//                     className="btn-vermelho"
-//                     onClick={async () => {
-//                       if (!novaAtividade.nome.trim()) {
-//                         alert("Informe o nome da atividade!");
-//                         return;
-//                       }
-
-//                       try {
-//                         const token = localStorage.getItem("token");
-//                         const idFuncionario = localStorage.getItem("idFuncionario"); // se você já salva o ID do funcionário logado
-//                         const payload = {
-//                           nome: novaAtividade.nome,
-//                           descricao: novaAtividade.observacao,
-//                           dtCriacao: new Date().toISOString(), // gera automaticamente a data/hora atual
-//                           idFuncionario: idFuncionario ? Number(idFuncionario) : 1 // fallback pra 1 se não tiver
-//                         };
-
-//                         const res = await api.post("/atendimentos", payload, {
-//                           headers: { Authorization: `Bearer ${token}` },
-//                         });
-
-//                         setAtividadesCadastradas(prev => [...prev, res.data]);
-//                         setNovaAtividade({ nome: "", observacao: "" });
-//                         setNovaAtividadeMode(false);
-
-//                         // Mostrar card de sucesso
-//                         setConfirmacaoDelete({
-//                           status: 'sucesso',
-//                           mensagem: `${payload.nome} foi cadastrado com sucesso!`
-//                         });
-
-//                         // Fechar o card de confirmação após 3 segundos
-//                         setTimeout(() => {
-//                           setConfirmacaoDelete(null);
-//                         }, 3000);
-//                       } catch (err) {
-//                         console.error("Erro ao cadastrar nova atividade:", err);
-//                         // Mostrar card de erro
-//                         setConfirmacaoDelete({
-//                           status: 'erro',
-//                           mensagem: "Erro ao cadastrar atividade. Tente novamente."
-//                         });
-
-//                         // Fechar o card de erro após 4 segundos
-//                         setTimeout(() => {
-//                           setConfirmacaoDelete(null);
-//                         }, 4000);
-//                       }
-//                     }}
-
-//                   >
-//                     Salvar
-//                   </button>
-//                 </div>
-//               </>
-//             )}
-//           </div>
-//         </div>
-//       )}
-
-//       {/* Botões do rodapé */}
-//       <div className="beneficiarios-actions">
-
-//         <Botao type="button" className="btn-pular" onClick={handleAbrirModalAtividades}>
-//           Atividades
-//         </Botao>
-//         <Botao className="btn-salvar" type="button" onClick={handleCadastro}>
-//           Cadastrar novo beneficiário
-//         </Botao>
-//       </div>
-
-//       {/* === MODAL DE EXCLUSÃO DE ATIVIDADE === */}
-//       {selectedAtividade && (
-//         <div className="modal-overlay">
-//           <div className="modal-card">
-//             <button className="modal-close" onClick={() => setSelectedAtividade(null)}>
-//               ✕
-//             </button>
-
-//             <h3>Excluir atividade</h3>
-//             <p>
-//               Deseja realmente excluir{" "}
-//               <strong>
-//                 {selectedAtividade.nome}
-//               </strong>?
-//             </p>
-
-//             <div className="modal-actions-delete">
-//               <button
-//                 className="btn-verde"
-//                 onClick={() => handleDeleteAtividade(selectedAtividade)}
-//               >
-//                 Sim
-//               </button>
-//               <button
-//                 className="btn-vermelho"
-//                 onClick={() => setSelectedAtividade(null)}
-//               >
-//                 Não
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-
-//       {/* === CARD DE CONFIRMAÇÃO DE EXCLUSÃO === */}
-//       {confirmacaoDelete && (
-//         <div className={`confirmacao-card confirmacao-${confirmacaoDelete.status}`}>
-//           <div className="confirmacao-content">
-//             {confirmacaoDelete.status === 'sucesso' ? (
-//               <>
-//                 <span className="confirmacao-icon">✓</span>
-//                 <span className="confirmacao-mensagem">{confirmacaoDelete.mensagem}</span>
-//               </>
-//             ) : (
-//               <>
-//                 <span className="confirmacao-icon confirmacao-erro-icon">✕</span>
-//                 <span className="confirmacao-mensagem">{confirmacaoDelete.mensagem}</span>
-//               </>
-//             )}
-//           </div>
-//         </div>
-//       )}
-
-
-
-//       {/* === CARD DE CONFIRMAÇÃO DE STATUS === */}
-//       {confirmacao && (
-//         <div className={`confirmacao-card confirmacao-${confirmacao.status}`}>
-//           <div className="confirmacao-content">
-//             {confirmacao.status === 'sucesso' ? (
-//               <>
-//                 <span className="confirmacao-icon">✓</span>
-//                 <span className="confirmacao-mensagem">{confirmacao.mensagem}</span>
-//               </>
-//             ) : (
-//               <>
-//                 <span className="confirmacao-icon confirmacao-erro-icon">✕</span>
-//                 <span className="confirmacao-mensagem">{confirmacao.mensagem}</span>
-//               </>
-//             )}
-//           </div>
-//         </div>
-//       )}
-
-
-//       {confirmacaoRegistro && (
-//         <div className={`confirmacao-card confirmacao-${confirmacaoRegistro.status}`}>
-//           <div className="confirmacao-content">
-//             {confirmacaoRegistro.status === 'sucesso' ? (
-//               <>
-//                 <span className="confirmacao-icon">✓</span>
-//                 <span className="confirmacao-mensagem">{confirmacaoRegistro.mensagem}</span>
-//               </>
-//             ) : (
-//               <>
-//                 <span className="confirmacao-icon confirmacao-erro-icon">✕</span>
-//                 <span className="confirmacao-mensagem">{confirmacaoRegistro.mensagem}</span>
-//               </>
-//             )}
-//           </div>
-//         </div>
-//       )}
-//       {/* === MODAL EDITAR STATUS === */}
-//       {
-//         modalEditarStatusOpen && selectedBeneficiario && (
-//           <ModalEditarStatus
-//             beneficiario={selectedBeneficiario}
-//             newStatus={newStatus}
-//             setNewStatus={setNewStatus}
-//             onClose={() => {
-//               setModalEditarStatusOpen(false);
-//               setNewStatus("");
-//               setSelectedBeneficiario(null);
-//             }}
-//             onSave={handleSalvarStatus}
-//           />
-//         )
-//       }
-
-
-//     </section>
-//   );
-// }
-
-
-// Beneficiarios.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/Beneficiarios.css";
@@ -1167,60 +12,71 @@ import ModalEditarStatus from "../components/ModalEditarStatus";
 export default function Beneficiarios() {
   const [newStatus, setNewStatus] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("ALL");
+
+  // Confirmações (status, exclusão, registro de atividades)
   const [confirmacaoRegistro, setConfirmacaoRegistro] = useState(null);
+  const [confirmacaoDelete, setConfirmacaoDelete] = useState(null);
+  const [confirmacao, setConfirmacao] = useState(null);
+
+  // Busca/lista
   const [search, setSearch] = useState("");
   const [beneficiariosList, setBeneficiariosList] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [ativosCount, setAtivosCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [listLoading, setListLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null);
-  const [deleteBeneficiario, setDeleteBeneficiario] = useState(null);
-  const [presencaBeneficiario, setPresencaBeneficiario] = useState(null);
-  const [confirmacaoDelete, setConfirmacaoDelete] = useState(null);
-  const [selectedAtividade, setSelectedAtividade] = useState(null);
-  const [modalEditarStatusOpen, setModalEditarStatusOpen] = useState(false);
-  const [confirmacao, setConfirmacao] = useState(null);
-
-  const [atividadesCadastradas, setAtividadesCadastradas] = useState([]);
-  const [loadingAtividades, setLoadingAtividades] = useState(true);
-  const [errorAtividades, setErrorAtividades] = useState(null);
-
-  const ITEMS_PER_PAGE = 4;
-  const [atividadesModalPage, setAtividadesModalPage] = useState(0);
-  const [presencaAtividadesPage, setPresencaAtividadesPage] = useState(0);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [pageSize] = useState(5);
   const [totalItems, setTotalItems] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-  const [listLoading, setListLoading] = useState(false);
+
+  // Beneficiário selecionado / modais
+  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null);
+  const [deleteBeneficiario, setDeleteBeneficiario] = useState(null);
+  const [modalEditarStatusOpen, setModalEditarStatusOpen] = useState(false);
+
+  const [presencaBeneficiario, setPresencaBeneficiario] = useState(null);
+
+  // Atividades
+  const [atividadesCadastradas, setAtividadesCadastradas] = useState([]);
+  const [loadingAtividades, setLoadingAtividades] = useState(true);
+  const [errorAtividades, setErrorAtividades] = useState(null);
+  const ITEMS_PER_PAGE = 3;
+  const [atividadesModalPage, setAtividadesModalPage] = useState(0);
+  const [presencaAtividadesPage, setPresencaAtividadesPage] = useState(0);
+  const [selectedAtividade, setSelectedAtividade] = useState(null);
   const [modalAtividadesOpen, setModalAtividadesOpen] = useState(false);
-
-  const filteredList = beneficiariosList || [];
-
   const [novaAtividadeMode, setNovaAtividadeMode] = useState(false);
+
+  // Estado dos switches das atividades (mapeia id -> boolean)
+  // Inicia vazio para NÃO pré-marcar nada
+  const [atividades, setAtividades] = useState({}); // { [idAtividade]: true | false }
+
+  // Últimos registros por atividade (id -> Date | null)
+  const [ultimosRegistros, setUltimosRegistros] = useState({}); // { [idAtividade]: Date | null }
+
+  const navigate = useNavigate();
+
+  const filteredList = beneficiariosList ?? [];
+
   const handleAbrirModalAtividades = () => {
     setAtividadesModalPage(0);
     setModalAtividadesOpen(true);
+  };
+  const handleFecharModalAtividades = () => {
+    setModalAtividadesOpen(false);
   };
   const handleFecharModalStatus = () => {
     setSelectedBeneficiario(null);
     setNewStatus("");
   };
-  const handleFecharModalAtividades = () => {
-    setModalAtividadesOpen(false);
-  };
+
   const handleAdicionarAtividade = (atividade) => {
     setAtividadesCadastradas((prev) => [...prev, { nome: atividade.nome }]);
   };
-
-  const [atividades, setAtividades] = useState({
-    PRESENCA: false,
-    BANHO: false,
-    REFEICAO: false,
-  });
 
   const goToPage = (page) => {
     if (page >= 1 && page <= totalPages) {
@@ -1229,14 +85,10 @@ export default function Beneficiarios() {
     }
   };
   const goToPreviousPage = () => {
-    if (currentPage > 1) {
-      goToPage(currentPage - 1);
-    }
+    if (currentPage > 1) goToPage(currentPage - 1);
   };
   const goToNextPage = () => {
-    if (currentPage < totalPages) {
-      goToPage(currentPage + 1);
-    }
+    if (currentPage < totalPages) goToPage(currentPage + 1);
   };
 
   const handleSearchChange = (e) => {
@@ -1252,8 +104,7 @@ export default function Beneficiarios() {
     observacao: "",
   });
 
-  const navigate = useNavigate();
-
+  // === Beneficiário: buscar status para edição ===
   const fetchBeneficiarioStatus = async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -1275,10 +126,10 @@ export default function Beneficiarios() {
   };
 
   const handleSalvarStatus = async () => {
-    console.log("selectedBeneficiario antes do PUT:", selectedBeneficiario);
     if (!selectedBeneficiario) return;
     const editedId =
       selectedBeneficiario.idBeneficiario ?? selectedBeneficiario.id;
+
     try {
       const token = localStorage.getItem("token");
       await api.put(
@@ -1313,16 +164,15 @@ export default function Beneficiarios() {
       });
 
       setTimeout(() => {
-        setAtivosCount((prev) => {
+        setAtivosCount(() => {
           const curr =
             beneficiariosList && Array.isArray(beneficiariosList)
               ? beneficiariosList
               : [];
-          return curr.filter(
-            (b) => (b.status ?? "").toUpperCase() === "ATIVO"
-          ).length;
+        return curr.filter((b) => (b.status ?? "").toUpperCase() === "ATIVO")
+            .length;
         });
-        setTotalCount((prev) => {
+        setTotalCount(() => {
           const curr =
             beneficiariosList && Array.isArray(beneficiariosList)
               ? beneficiariosList
@@ -1349,13 +199,12 @@ export default function Beneficiarios() {
     }
   };
 
+  // === Lista (paginada + total) ===
   const fetchBeneficiarios = useCallback(
     async (page = currentPage, searchValue = searchTerm, isSearch = false) => {
-      if (isSearch) {
-        setListLoading(true);
-      } else {
-        setLoading(true);
-      }
+      if (isSearch) setListLoading(true);
+      else setLoading(true);
+
       try {
         const token = localStorage.getItem("token");
         const hoje = new Date();
@@ -1376,7 +225,6 @@ export default function Beneficiarios() {
           }),
         ]);
 
-        // Lista paginada
         if (frequenciaRes.data && Array.isArray(frequenciaRes.data.items)) {
           setBeneficiariosList(frequenciaRes.data.items);
           setTotalItems(frequenciaRes.data.total);
@@ -1389,7 +237,6 @@ export default function Beneficiarios() {
           console.warn("Formato inesperado (frequência):", frequenciaRes.data);
         }
 
-        // Lista completa
         if (Array.isArray(allRes.data)) {
           setTotalCount(allRes.data.length);
           setAtivosCount(
@@ -1413,34 +260,30 @@ export default function Beneficiarios() {
 
   useEffect(() => {
     fetchBeneficiarios(1);
-  }, []);
+  }, []); // mount
 
-  // === Realizados hoje (mantido como estava)
+  // === Realizados hoje (sem pré-marcação) ===
   useEffect(() => {
     if (!presencaBeneficiario) return;
-    // Limpa antes de carregar
+
+    // Não pré-marcar nada:
     setAtividades({});
+
+    // Ainda podemos consultar /realizados-hoje só para logging/diagnóstico (opcional)
     const token = localStorage.getItem("token");
     api
       .get(
         `/atendimentos/beneficiarios/${presencaBeneficiario.id}/realizados-hoje`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
-      .then((res) => {
-        const ids = Array.isArray(res.data) ? res.data : [];
-        const inicial = {};
-        ids.forEach((id) => (inicial[id] = true));
-        setAtividades(inicial);
-      })
       .catch((err) => {
-        if (err.response?.status === 204) {
-          setAtividades({});
-        } else {
+        if (err.response?.status !== 204) {
           console.error("Erro ao buscar realizados hoje:", err);
         }
       });
   }, [presencaBeneficiario]);
 
+  // === Página de status (não usado diretamente aqui, mantido p/ reuso) ===
   const fetchBeneficiariosStatus = useCallback(
     async () => {
       setLoading(true);
@@ -1473,6 +316,7 @@ export default function Beneficiarios() {
     [pageSize]
   );
 
+  // === Salvar atividades selecionadas ===
   const salvarAtividadesRealizadas = async () => {
     try {
       const atividadesSelecionadas = Object.keys(atividades).filter(
@@ -1487,7 +331,11 @@ export default function Beneficiarios() {
         idTipoAtendimento: parseInt(idAtividade),
       }));
       console.log("📤 Enviando para API:", payload);
-      await api.post("/registros-atendimentos/lote", payload);
+      const token = localStorage.getItem("token");
+      await api.post("/registros-atendimentos/lote", payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
       setConfirmacaoRegistro({
         status: "sucesso",
         mensagem: "Atividades registradas com sucesso!",
@@ -1505,7 +353,7 @@ export default function Beneficiarios() {
     }
   };
 
-  // Busca atividades do banco
+  // === Carregar atividades do banco ===
   useEffect(() => {
     const fetchAtividades = async () => {
       try {
@@ -1528,18 +376,19 @@ export default function Beneficiarios() {
     fetchAtividades();
   }, []);
 
-  // Debounce para a busca
+  // === Debounce da busca ===
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (searchTerm !== search) {
         setSearchTerm(search);
         setCurrentPage(1);
-        fetchBeneficiarios(1, search, true); // true indica que é uma busca
+        fetchBeneficiarios(1, search, true);
       }
-    }, 500); // 500ms de delay
+    }, 500);
     return () => clearTimeout(timeoutId);
-  }, [search, fetchBeneficiarios]);
+  }, [search, fetchBeneficiarios, searchTerm]);
 
+  // === Exclusão de beneficiário ===
   const handleDelete = async (beneficiario) => {
     try {
       const token = localStorage.getItem("token");
@@ -1548,10 +397,11 @@ export default function Beneficiarios() {
       });
       setBeneficiariosList((prev) =>
         prev.map((b) =>
-          b.id === selectedBeneficiario.id ? { ...b, status: newStatus } : b
+          b.id === selectedBeneficiario?.id ? { ...b, status: newStatus } : b
         )
       );
       setDeleteBeneficiario(null);
+
       const nomeBeneficiario =
         beneficiario.nomeRegistro ?? beneficiario.nome ?? "Beneficiário";
       setConfirmacaoDelete({
@@ -1573,6 +423,7 @@ export default function Beneficiarios() {
     }
   };
 
+  // === Exclusão de atividade ===
   const handleDeleteAtividade = async (atividade) => {
     try {
       const token = localStorage.getItem("token");
@@ -1613,11 +464,8 @@ export default function Beneficiarios() {
       presencaBeneficiario?.nome ??
       presencaBeneficiario?.nomeSocial ??
       "Beneficiário";
-    console.log(
-      `Atividades confirmadas para ${nomeBeneficiario}:`,
-      selecionadas
-    );
-    setAtividades({ BANHO: false, REFEICAO: false });
+    console.log(`Atividades confirmadas para ${nomeBeneficiario}:`, selecionadas);
+    setAtividades({});
     setPresencaBeneficiario(null);
   };
 
@@ -1631,70 +479,70 @@ export default function Beneficiarios() {
     setNovaAtividadeMode(false);
   };
 
-  // =====================================================================================
-  // >>> NOVO: mostrar "Último registro" para a atividade Refeição
-  // =====================================================================================
-
-  // Estado para guardar a data/hora do último registro de Refeição
-  const [ultimoRegistroRefeicao, setUltimoRegistroRefeicao] = useState(null);
-
-  const REFEICAO_ID = null;
-
-  const normalize = (s) =>
-    String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-
-
-  const fetchUltimoRegistroAtividade = async (idBeneficiario, idTipoAtendimento) => {
+  // ==============================
+  // ÚLTIMO REGISTRO PARA TODAS AS ATIVIDADES
+  // ==============================
+  const fetchUltimosRegistros = async (idBeneficiario) => {
+    if (!Array.isArray(atividadesCadastradas) || atividadesCadastradas.length === 0) {
+      setUltimosRegistros({});
+      return;
+    }
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("/registros-atendimentos/ultimo", {
-        params: { idBeneficiario, idTipoAtendimento }, // ✅ nomes corretos
-        headers: { Authorization: `Bearer ${token}` },
-      });
 
-      if (res.data?.dataHora) {
-        setUltimoRegistroRefeicao(new Date(res.data.dataHora));
-      } else {
-        setUltimoRegistroRefeicao(null); // 204 => nunca registrado
-      }
+      const resultados = await Promise.all(
+        atividadesCadastradas.map(async (atividade) => {
+          try {
+            const res = await api.get("/registros-atendimentos/ultimo", {
+              params: {
+                idBeneficiario,
+                idTipoAtendimento: atividade.id,
+              },
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            const dataHora = res.data?.dataHora ? new Date(res.data.dataHora) : null;
+            return { id: atividade.id, dataHora };
+          } catch (err) {
+            if (err.response?.status !== 204) {
+              console.error(
+                "Erro ao buscar último registro da atividade",
+                atividade.id,
+                err
+              );
+            }
+            return { id: atividade.id, dataHora: null };
+          }
+        })
+      );
+
+      const mapa = {};
+      resultados.forEach(({ id, dataHora }) => {
+        mapa[id] = dataHora;
+      });
+      setUltimosRegistros(mapa);
     } catch (err) {
-      console.error("Erro ao buscar último registro de atividade:", err);
-      setUltimoRegistroRefeicao(null);
+      console.error("Erro geral ao buscar últimos registros:", err);
+      setUltimosRegistros({});
     }
   };
 
-
-  // Quando abrir o modal de presença, se soubermos o ID de "Refeição", buscar direto
+  // Disparar busca dos últimos registros quando abrir o modal de presença e já tiver atividades carregadas
   useEffect(() => {
     if (!presencaBeneficiario) {
-      setUltimoRegistroRefeicao(null);
+      setUltimosRegistros({});
       return;
     }
-    if (REFEICAO_ID) {
-      fetchUltimoRegistroAtividade(presencaBeneficiario.id, REFEICAO_ID);
+    if (Array.isArray(atividadesCadastradas) && atividadesCadastradas.length > 0) {
+      fetchUltimosRegistros(presencaBeneficiario.id);
     }
-  }, [presencaBeneficiario]);
+  }, [presencaBeneficiario, atividadesCadastradas]);
 
-  // Se não souber o ID, descobrir por nome a partir das atividades carregadas
-  useEffect(() => {
-    if (!presencaBeneficiario) return;
-    if (!REFEICAO_ID && Array.isArray(atividadesCadastradas)) {
-      const refeicao = atividadesCadastradas.find(
-        (a) => normalize(a.nome) === "refeicao"
-      );
-      if (refeicao?.id) {
-        fetchUltimoRegistroAtividade(presencaBeneficiario.id, refeicao.id);
-      }
-    }
-  }, [atividadesCadastradas, presencaBeneficiario]);
-  // =====================================================================================
+  // ==============================
 
+  // === Render ===
   if (loading) {
-    return (
-      <div className="beneficiarios-loading">Carregando beneficiários...</div>
-    );
+    return <div className="beneficiarios-loading">Carregando beneficiários...</div>;
   }
-
   if (error) {
     return <div className="beneficiarios-error">{error}</div>;
   }
@@ -1740,8 +588,7 @@ export default function Beneficiarios() {
         ) : (
           <>
             {filteredList.map((item, i) => {
-              const nome =
-                item.nomeRegistro ?? item.nome ?? item.nomeSocial ?? "";
+              const nome = item.nomeRegistro ?? item.nome ?? item.nomeSocial ?? "";
               return (
                 <div key={item.id ?? i} className="beneficiarios-card">
                   <div
@@ -1757,6 +604,7 @@ export default function Beneficiarios() {
                     />
                     <span className="beneficiarios-card-name">{nome}</span>
                   </div>
+
                   <img
                     src={DeleteIcon}
                     alt="Deletar"
@@ -1766,10 +614,9 @@ export default function Beneficiarios() {
                 </div>
               );
             })}
+
             {filteredList.length === 0 && !listLoading && (
-              <div className="beneficiarios-empty">
-                Nenhum beneficiário encontrado.
-              </div>
+              <div className="beneficiarios-empty">Nenhum beneficiário encontrado.</div>
             )}
           </>
         )}
@@ -1777,22 +624,16 @@ export default function Beneficiarios() {
 
       {totalPages > 1 && (
         <div className="pagination-container">
-          <button
-            className="pagination-btn"
-            onClick={goToPreviousPage}
-            disabled={currentPage === 1}
-          >
+          <button className="pagination-btn" onClick={goToPreviousPage} disabled={currentPage === 1}>
             &#8249;
           </button>
+
           {/* Números das páginas */}
           <div className="pagination-numbers">
             {(() => {
               const pages = [];
               const maxVisiblePages = 5;
-              let startPage = Math.max(
-                1,
-                currentPage - Math.floor(maxVisiblePages / 2)
-              );
+              let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
               let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
               if (endPage - startPage + 1 < maxVisiblePages) {
                 startPage = Math.max(1, endPage - maxVisiblePages + 1);
@@ -1801,8 +642,7 @@ export default function Beneficiarios() {
                 pages.push(
                   <button
                     key={i}
-                    className={`pagination-number ${currentPage === i ? "active" : ""
-                      }`}
+                    className={`pagination-number ${currentPage === i ? "active" : ""}`}
                     onClick={() => goToPage(i)}
                   >
                     {i}
@@ -1812,6 +652,7 @@ export default function Beneficiarios() {
               return pages;
             })()}
           </div>
+
           <button
             className="pagination-btn"
             onClick={goToNextPage}
@@ -1819,6 +660,7 @@ export default function Beneficiarios() {
           >
             &#8250;
           </button>
+
           <div className="pagination-info">
             {currentPage} / {totalPages} ({totalItems} itens)
           </div>
@@ -1829,31 +671,19 @@ export default function Beneficiarios() {
       {deleteBeneficiario && (
         <div className="modal-overlay">
           <div className="modal-card">
-            <button
-              className="modal-close"
-              onClick={() => setDeleteBeneficiario(null)}
-            >
+            <button className="modal-close" onClick={() => setDeleteBeneficiario(null)}>
               ✕
             </button>
             <h3>Excluir beneficiário</h3>
             <p>
               Deseja realmente excluir{" "}
-              <strong>
-                {deleteBeneficiario.nomeRegistro ?? deleteBeneficiario.nome}
-              </strong>
-              ?
+              <strong>{deleteBeneficiario.nomeRegistro ?? deleteBeneficiario.nome}</strong>?
             </p>
             <div className="modal-actions-delete">
-              <button
-                className="btn-verde"
-                onClick={() => handleDelete(deleteBeneficiario)}
-              >
+              <button className="btn-verde" onClick={() => handleDelete(deleteBeneficiario)}>
                 Sim
               </button>
-              <button
-                className="btn-vermelho"
-                onClick={() => setDeleteBeneficiario(null)}
-              >
+              <button className="btn-vermelho" onClick={() => setDeleteBeneficiario(null)}>
                 Não
               </button>
             </div>
@@ -1879,10 +709,7 @@ export default function Beneficiarios() {
             {!novaAtividadeMode ? (
               <>
                 {console.log("🔍 Modal - presencaBeneficiario:", presencaBeneficiario)}
-                {console.log(
-                  "🔍 Modal - Propriedades:",
-                  Object.keys(presencaBeneficiario ?? {})
-                )}
+                {console.log("🔍 Modal - Propriedades:", Object.keys(presencaBeneficiario ?? {}))}
                 <h3>Selecione a Atividade Realizada</h3>
                 <p>
                   Beneficiário:{" "}
@@ -1917,14 +744,13 @@ export default function Beneficiarios() {
                         <>
                           {pageItems.map((atividade) => (
                             <div key={atividade.id} style={{ marginBottom: "12px" }}>
-
                               {/* CARD */}
                               <div className="atividade-card">
                                 <label className="switch" style={{ margin: 0, flex: 1 }}>
                                   {atividade.nome}
                                   <input
                                     type="checkbox"
-                                    checked={atividades[atividade.id] ?? false}
+                                    checked={!!atividades[atividade.id]} // começa como false (não pré-marcado)
                                     onChange={() =>
                                       setAtividades((prev) => ({
                                         ...prev,
@@ -1936,37 +762,28 @@ export default function Beneficiarios() {
                                 </label>
                               </div>
 
-                              {/* TEXTO ABAIXO DO CARD */}
-                              {normalize(atividade.nome) === "refeicao" && (
-                                <div
-                                  className="atividade-ultimo-registro"
-                                  style={{
-                                    fontSize: "0.85rem",
-                                    color: "#555",
-                                    marginTop: "6px",
-                                    marginLeft: "4px",
-                                  }}
-                                >
-                                  Último registro:{" "}
-                                  {ultimoRegistroRefeicao
-                                    ? new Intl.DateTimeFormat("pt-BR", {
+                              {/* TEXTO ABAIXO DO CARD — genérico para todas as atividades */}
+                              <div
+                                className="atividade-ultimo-registro"
+                                style={{
+                                  fontSize: "0.85rem",
+                                  color: "#555",
+                                  marginTop: "6px",
+                                  marginLeft: "4px",
+                                }}
+                              >
+                                Último registro:{" "}
+                                {ultimosRegistros[atividade.id]
+                                  ? new Intl.DateTimeFormat("pt-BR", {
                                       dateStyle: "short",
                                       timeStyle: "short",
-                                    }).format(ultimoRegistroRefeicao)
-                                    : "Nunca registrado"}
-                                </div>
-                              )}
-
+                                    }).format(ultimosRegistros[atividade.id])
+                                  : "Nunca registrado"}
+                              </div>
                             </div>
                           ))}
 
-
-                          <div
-                            style={{
-                              marginTop: "16px",
-                              textAlign: "center",
-                            }}
-                          >
+                          <div style={{ marginTop: "16px", textAlign: "center" }}>
                             <button
                               type="button"
                               onClick={() => {
@@ -2001,6 +818,7 @@ export default function Beneficiarios() {
                     marginTop: "8px",
                   }}
                 >
+                  {/* Paginação do modal de presença */}
                   <div
                     className="modal-paginacao"
                     style={{
@@ -2019,23 +837,23 @@ export default function Beneficiarios() {
                       style={
                         presencaAtividadesPage <= 0
                           ? {
-                            background: "transparent",
-                            border: "none",
-                            padding: 0,
-                            margin: 0,
-                            fontSize: "1.2rem",
-                            color: "#ccc",
-                            cursor: "default",
-                          }
+                              background: "transparent",
+                              border: "none",
+                              padding: 0,
+                              margin: 0,
+                              fontSize: "1.2rem",
+                              color: "#ccc",
+                              cursor: "default",
+                            }
                           : {
-                            background: "transparent",
-                            border: "none",
-                            padding: 0,
-                            margin: 0,
-                            fontSize: "1.2rem",
-                            color: "#000",
-                            cursor: "pointer",
-                          }
+                              background: "transparent",
+                              border: "none",
+                              padding: 0,
+                              margin: 0,
+                              fontSize: "1.2rem",
+                              color: "#000",
+                              cursor: "pointer",
+                            }
                       }
                       aria-label="Página anterior"
                     >
@@ -2055,9 +873,7 @@ export default function Beneficiarios() {
                           Math.min(
                             Math.max(
                               1,
-                              Math.ceil(
-                                atividadesCadastradas.length / ITEMS_PER_PAGE
-                              )
+                              Math.ceil(atividadesCadastradas.length / ITEMS_PER_PAGE)
                             ) - 1,
                             p + 1
                           )
@@ -2072,28 +888,28 @@ export default function Beneficiarios() {
                       }
                       style={
                         presencaAtividadesPage >=
-                          Math.max(
-                            1,
-                            Math.ceil(atividadesCadastradas.length / ITEMS_PER_PAGE)
-                          ) - 1
+                        Math.max(
+                          1,
+                          Math.ceil(atividadesCadastradas.length / ITEMS_PER_PAGE)
+                        ) - 1
                           ? {
-                            background: "transparent",
-                            border: "none",
-                            padding: 0,
-                            margin: 0,
-                            fontSize: "1.2rem",
-                            color: "#ccc",
-                            cursor: "default",
-                          }
+                              background: "transparent",
+                              border: "none",
+                              padding: 0,
+                              margin: 0,
+                              fontSize: "1.2rem",
+                              color: "#ccc",
+                              cursor: "default",
+                            }
                           : {
-                            background: "transparent",
-                            border: "none",
-                            padding: 0,
-                            margin: 0,
-                            fontSize: "1.2rem",
-                            color: "#000",
-                            cursor: "pointer",
-                          }
+                              background: "transparent",
+                              border: "none",
+                              padding: 0,
+                              margin: 0,
+                              fontSize: "1.2rem",
+                              color: "#000",
+                              cursor: "pointer",
+                            }
                       }
                       aria-label="Próxima página"
                     >
@@ -2113,10 +929,7 @@ export default function Beneficiarios() {
                     >
                       Visualizar prontuário
                     </button>
-                    <button
-                      className="btn-vermelho"
-                      onClick={salvarAtividadesRealizadas}
-                    >
+                    <button className="btn-vermelho" onClick={salvarAtividadesRealizadas}>
                       Salvar
                     </button>
                   </div>
@@ -2132,10 +945,7 @@ export default function Beneficiarios() {
                     placeholder="Nome da atividade"
                     value={novaAtividade.nome}
                     onChange={(e) =>
-                      setNovaAtividade((prev) => ({
-                        ...prev,
-                        nome: e.target.value,
-                      }))
+                      setNovaAtividade((prev) => ({ ...prev, nome: e.target.value }))
                     }
                   />
                   <label>Observação</label>
@@ -2150,19 +960,12 @@ export default function Beneficiarios() {
                     }
                   />
                 </div>
-
                 <div className="beneficiarios-actions">
                   <div className="modal-actions">
-                    <button
-                      className="btn-verde"
-                      onClick={() => setNovaAtividadeMode(false)}
-                    >
+                    <button className="btn-pular" onClick={() => setNovaAtividadeMode(false)}>
                       Voltar
                     </button>
-                    <button
-                      className="btn-vermelho"
-                      onClick={handleSalvarNovaAtividade}
-                    >
+                    <button className="btn-vermelho" onClick={handleSalvarNovaAtividade}>
                       Salvar
                     </button>
                   </div>
@@ -2202,6 +1005,7 @@ export default function Beneficiarios() {
                         start,
                         start + ITEMS_PER_PAGE
                       );
+
                       return (
                         <>
                           {pageItems.map((atividade) => (
@@ -2221,7 +1025,7 @@ export default function Beneficiarios() {
                   )}
                 </div>
 
-                {/* Paginação (lado esquerdo) + botão (lado direito) */}
+                {/* Paginação + botão adicionar */}
                 <div
                   style={{
                     display: "flex",
@@ -2248,23 +1052,23 @@ export default function Beneficiarios() {
                       style={
                         atividadesModalPage <= 0
                           ? {
-                            background: "transparent",
-                            border: "none",
-                            padding: 0,
-                            margin: 0,
-                            fontSize: "1.2rem",
-                            color: "#ccc",
-                            cursor: "default",
-                          }
+                              background: "transparent",
+                              border: "none",
+                              padding: 0,
+                              margin: 0,
+                              fontSize: "1.2rem",
+                              color: "#ccc",
+                              cursor: "default",
+                            }
                           : {
-                            background: "transparent",
-                            border: "none",
-                            padding: 0,
-                            margin: 0,
-                            fontSize: "1.2rem",
-                            color: "#000",
-                            cursor: "pointer",
-                          }
+                              background: "transparent",
+                              border: "none",
+                              padding: 0,
+                              margin: 0,
+                              fontSize: "1.2rem",
+                              color: "#000",
+                              cursor: "pointer",
+                            }
                       }
                       aria-label="Página anterior"
                     >
@@ -2284,9 +1088,7 @@ export default function Beneficiarios() {
                           Math.min(
                             Math.max(
                               1,
-                              Math.ceil(
-                                atividadesCadastradas.length / ITEMS_PER_PAGE
-                              )
+                              Math.ceil(atividadesCadastradas.length / ITEMS_PER_PAGE)
                             ) - 1,
                             p + 1
                           )
@@ -2301,28 +1103,28 @@ export default function Beneficiarios() {
                       }
                       style={
                         atividadesModalPage >=
-                          Math.max(
-                            1,
-                            Math.ceil(atividadesCadastradas.length / ITEMS_PER_PAGE)
-                          ) - 1
+                        Math.max(
+                          1,
+                          Math.ceil(atividadesCadastradas.length / ITEMS_PER_PAGE)
+                        ) - 1
                           ? {
-                            background: "transparent",
-                            border: "none",
-                            padding: 0,
-                            margin: 0,
-                            fontSize: "1.2rem",
-                            color: "#ccc",
-                            cursor: "default",
-                          }
+                              background: "transparent",
+                              border: "none",
+                              padding: 0,
+                              margin: 0,
+                              fontSize: "1.2rem",
+                              color: "#ccc",
+                              cursor: "default",
+                            }
                           : {
-                            background: "transparent",
-                            border: "none",
-                            padding: 0,
-                            margin: 0,
-                            fontSize: "1.2rem",
-                            color: "#000",
-                            cursor: "pointer",
-                          }
+                              background: "transparent",
+                              border: "none",
+                              padding: 0,
+                              margin: 0,
+                              fontSize: "1.2rem",
+                              color: "#000",
+                              cursor: "pointer",
+                            }
                       }
                       aria-label="Próxima página"
                     >
@@ -2351,10 +1153,7 @@ export default function Beneficiarios() {
                     placeholder="Nome da atividade"
                     value={novaAtividade.nome}
                     onChange={(e) =>
-                      setNovaAtividade((prev) => ({
-                        ...prev,
-                        nome: e.target.value,
-                      }))
+                      setNovaAtividade((prev) => ({ ...prev, nome: e.target.value }))
                     }
                   />
                   <label>Observação</label>
@@ -2369,59 +1168,69 @@ export default function Beneficiarios() {
                     }
                   />
                 </div>
-                <div className="modal-actions">
-                  <button
-                    className="btn-verde"
-                    onClick={() => setNovaAtividadeMode(false)}
-                  >
-                    Voltar
-                  </button>
-                  <button
-                    className="btn-vermelho"
-                    onClick={async () => {
-                      if (!novaAtividade.nome.trim()) {
-                        alert("Informe o nome da atividade!");
-                        return;
-                      }
-                      try {
-                        const token = localStorage.getItem("token");
-                        const idFuncionario =
-                          localStorage.getItem("idFuncionario");
-                        const payload = {
-                          nome: novaAtividade.nome,
-                          descricao: novaAtividade.observacao,
-                          dtCriacao: new Date().toISOString(),
-                          idFuncionario: idFuncionario ? Number(idFuncionario) : 1,
-                        };
-                        const res = await api.post("/atendimentos", payload, {
-                          headers: { Authorization: `Bearer ${token}` },
-                        });
-                        setAtividadesCadastradas((prev) => [...prev, res.data]);
-                        setNovaAtividade({ nome: "", observacao: "" });
-                        setNovaAtividadeMode(false);
-                        setConfirmacaoDelete({
-                          status: "sucesso",
-                          mensagem: `${payload.nome} foi cadastrado com sucesso!`,
-                        });
-                        setTimeout(() => {
-                          setConfirmacaoDelete(null);
-                        }, 3000);
-                      } catch (err) {
-                        console.error("Erro ao cadastrar nova atividade:", err);
-                        setConfirmacaoDelete({
-                          status: "erro",
-                          mensagem:
-                            "Erro ao cadastrar atividade. Tente novamente.",
-                        });
-                        setTimeout(() => {
-                          setConfirmacaoDelete(null);
-                        }, 4000);
-                      }
-                    }}
-                  >
-                    Salvar
-                  </button>
-                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginTop: "8px",
+                  }}
+                >
+                  <div className="modal-paginacao" />
+                  <div>
+                    <div className="beneficiarios-actions">
+                    <Botao
+                      type="button"
+                      className="botao botao-primario btn-pular"
+                      // style={{ marginLeft: "108px" }}
+                      onClick={() => setNovaAtividadeMode(false)}
+                    >
+                      Voltar
+                    </Botao>
+                    <Botao
+                      type="button"
+                      className="botao btn-vermelho"
+                      onClick={async () => {
+                        if (!novaAtividade.nome.trim()) {
+                          alert("Informe o nome da atividade!");
+                          return;
+                        }
+                        try {
+                          const token = localStorage.getItem("token");
+                          const idFuncionario = localStorage.getItem("idFuncionario");
+                          const payload = {
+                            nome: novaAtividade.nome,
+                            descricao: novaAtividade.observacao,
+                            dtCriacao: new Date().toISOString(),
+                            idFuncionario: idFuncionario ? Number(idFuncionario) : 1,
+                          };
+                          const res = await api.post("/atendimentos", payload, {
+                            headers: { Authorization: `Bearer ${token}` },
+                          });
+                          setAtividadesCadastradas((prev) => [...prev, res.data]);
+                          setNovaAtividade({ nome: "", observacao: "" });
+                          setNovaAtividadeMode(false);
+
+                          setConfirmacaoDelete({
+                            status: "sucesso",
+                            mensagem: `${payload.nome} foi cadastrado com sucesso!`,
+                          });
+                          setTimeout(() => setConfirmacaoDelete(null), 3000);
+                        } catch (err) {
+                          console.error("Erro ao cadastrar nova atividade:", err);
+                          setConfirmacaoDelete({
+                            status: "erro",
+                            mensagem: "Erro ao cadastrar atividade. Tente novamente.",
+                          });
+                          setTimeout(() => setConfirmacaoDelete(null), 4000);
+                        }
+                      }}
+                    >
+                      Salvar
+                    </Botao>
+                  </div>
+                </div></div>
               </>
             )}
           </div>
@@ -2442,28 +1251,18 @@ export default function Beneficiarios() {
       {selectedAtividade && (
         <div className="modal-overlay">
           <div className="modal-card">
-            <button
-              className="modal-close"
-              onClick={() => setSelectedAtividade(null)}
-            >
+            <button className="modal-close" onClick={() => setSelectedAtividade(null)}>
               ✕
             </button>
             <h3>Excluir atividade</h3>
             <p>
-              Deseja realmente excluir{" "}
-              <strong>{selectedAtividade.nome}</strong>?
+              Deseja realmente excluir <strong>{selectedAtividade.nome}</strong>?
             </p>
             <div className="modal-actions-delete">
-              <button
-                className="btn-verde"
-                onClick={() => handleDeleteAtividade(selectedAtividade)}
-              >
+              <button className="btn-verde" onClick={() => handleDeleteAtividade(selectedAtividade)}>
                 Sim
               </button>
-              <button
-                className="btn-vermelho"
-                onClick={() => setSelectedAtividade(null)}
-              >
+              <button className="btn-vermelho" onClick={() => setSelectedAtividade(null)}>
                 Não
               </button>
             </div>
@@ -2471,23 +1270,19 @@ export default function Beneficiarios() {
         </div>
       )}
 
-      {/* === CARD DE CONFIRMAÇÃO DE EXCLUSÃO === */}
+      {/* === CARD DE CONFIRMAÇÃO DE EXCLUSÃO / ERRO === */}
       {confirmacaoDelete && (
         <div className={`confirmacao-card confirmacao-${confirmacaoDelete.status}`}>
           <div className="confirmacao-content">
             {confirmacaoDelete.status === "sucesso" ? (
               <>
                 <span className="confirmacao-icon">✓</span>
-                <span className="confirmacao-mensagem">
-                  {confirmacaoDelete.mensagem}
-                </span>
+                <span className="confirmacao-mensagem">{confirmacaoDelete.mensagem}</span>
               </>
             ) : (
               <>
                 <span className="confirmacao-icon confirmacao-erro-icon">✕</span>
-                <span className="confirmacao-mensagem">
-                  {confirmacaoDelete.mensagem}
-                </span>
+                <span className="confirmacao-mensagem">{confirmacaoDelete.mensagem}</span>
               </>
             )}
           </div>
@@ -2520,16 +1315,12 @@ export default function Beneficiarios() {
             {confirmacaoRegistro.status === "sucesso" ? (
               <>
                 <span className="confirmacao-icon">✓</span>
-                <span className="confirmacao-mensagem">
-                  {confirmacaoRegistro.mensagem}
-                </span>
+                <span className="confirmacao-mensagem">{confirmacaoRegistro.mensagem}</span>
               </>
             ) : (
               <>
                 <span className="confirmacao-icon confirmacao-erro-icon">✕</span>
-                <span className="confirmacao-mensagem">
-                  {confirmacaoRegistro.mensagem}
-                </span>
+                <span className="confirmacao-mensagem">{confirmacaoRegistro.mensagem}</span>
               </>
             )}
           </div>
