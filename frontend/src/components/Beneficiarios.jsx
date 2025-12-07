@@ -561,21 +561,46 @@ export default function Beneficiarios() {
             </span>
           </div>
         </div>
-        <span className="beneficiarios-count">
-          {ativosCount} ativo(s) de {totalCount} total
-        </span>
+
+        <div className="beneficiarios-top-actions">
+          <span className="beneficiarios-count">
+            {ativosCount} ativo(s) de {totalCount} total
+          </span>
+
+          <span className="atividades-separator">|</span>
+
+          <button
+            type="button"
+            className="atividades-link"
+            onClick={handleAbrirModalAtividades}
+            aria-label="Abrir atividades"
+          >
+            Atividades disponíveis
+          </button>
+        </div>
       </div>
 
       {/* Campo de busca */}
-      <div className="beneficiarios-search">
-        <img src={IconLupa} alt="Buscar" className="beneficiarios-search-img" />
-        <input
-          type="text"
-          placeholder="Busque pelo nome..."
-          value={search}
-          onChange={handleSearchChange}
-          className="beneficiarios-input"
-        />
+      <div className="beneficiarios-search-row">
+        <div className="beneficiarios-search">
+          <img src={IconLupa} alt="Buscar" className="beneficiarios-search-img" />
+          <input
+            type="text"
+            placeholder="Busque pelo nome..."
+            value={search}
+            onChange={handleSearchChange}
+            className="beneficiarios-input"
+          />
+        </div>
+
+        <Botao
+          className="btn-salvar-max search-add-btn"
+          type="button"
+          onClick={handleCadastro}
+          aria-label={"Cadastrar novo beneficiário"}
+        >
+          +
+        </Botao>
       </div>
 
       {/* Lista de beneficiários */}
@@ -1239,12 +1264,7 @@ export default function Beneficiarios() {
 
       {/* Botões do rodapé */}
       <div className="beneficiarios-actions">
-        <Botao type="button" className="btn-pular" onClick={handleAbrirModalAtividades}>
-          Atividades
-        </Botao>
-        <Botao className="btn-salvar" type="button" onClick={handleCadastro}>
-          Cadastrar novo beneficiário
-        </Botao>
+        {/* Rodapé agora só mantém outras ações — 'Atividades' foi movido para o cabeçalho */}
       </div>
 
       {/* === MODAL DE EXCLUSÃO DE ATIVIDADE === */}

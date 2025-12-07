@@ -270,7 +270,7 @@ export default function Status() {
   return (
     <section className="status-container">
       <div className="status-header">
-        <h2 className="status-title">Status</h2>
+        <h2 className="status-title">Outros Status</h2>
         <select
           value={filter}
           onChange={handleFilterChange}
