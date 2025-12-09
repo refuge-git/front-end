@@ -336,6 +336,14 @@ export default function Beneficiarios() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      // Notify KPIs to refresh across the app
+      try {
+        window.dispatchEvent(new CustomEvent("indicadores:refresh"));
+      } catch (e) {
+        // fallback: dispatch plain event
+        window.dispatchEvent(new Event("indicadores:refresh"));
+      }
+
       setConfirmacaoRegistro({
         status: "sucesso",
         mensagem: "Atividades registradas com sucesso!",

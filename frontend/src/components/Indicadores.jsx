@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import "../css/Dashboards.css";
 import IconGreen from "../assets/Avatars-verde.png";
@@ -11,27 +11,34 @@ export default function Dashboards() {
 
     const [indicadores, setIndicadores] = useState(null);
 
-  useEffect(() => {
-    const fetchIndicadores = () => {
-      console.log("Buscando indicadores do backend...");
+  const fetchIndicadores = useCallback(() => {
+    console.log("Buscando indicadores do backend...");
 
-      const token = localStorage.getItem("token");
-      api.get("/indicadores", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((response) => {
-        console.log("Dados recebidos:", response.data);
-        setIndicadores(response.data);
-        })
-        .catch((error) => {
-          console.error("❌ Erro ao buscar indicadores:", error);
-        });
-    };
-
-    fetchIndicadores();
-    const interval = setInterval(fetchIndicadores, 180000); 
-    return () => clearInterval(interval);
+    const token = localStorage.getItem("token");
+    api.get("/indicadores", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    .then((response) => {
+      console.log("Dados recebidos:", response.data);
+      setIndicadores(response.data);
+    })
+    .catch((error) => {
+      console.error("❌ Erro ao buscar indicadores:", error);
+    });
   }, []);
+
+  useEffect(() => {
+    fetchIndicadores();
+    const interval = setInterval(fetchIndicadores, 180000);
+
+    const handler = () => fetchIndicadores();
+    window.addEventListener("indicadores:refresh", handler);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("indicadores:refresh", handler);
+    };
+  }, [fetchIndicadores]);
 
   if (!indicadores) {
     return <p style={{ textAlign: "center" }}>Carregando indicadores...</p>;

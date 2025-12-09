@@ -1,6 +1,7 @@
 .home-root {
   min-height: 100vh;
-  background: #fafafd;
+  background: #f6f6fa;
+  /* background: #eaeaef; */
   font-family: sans-serif;
   overflow-y: auto;
 }
