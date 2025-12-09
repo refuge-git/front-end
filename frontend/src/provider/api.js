@@ -3,13 +3,13 @@ import axios from "axios";
 // Permite configurar hosts via variáveis de ambiente do Vite
 // Use VITE_ROOT_HOST e VITE_API_HOST se quiser sobrescrever em desenvolvimento/produção
 
-//  const ROOT_HOST = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_ROOT_HOST
-//    ? import.meta.env.VITE_ROOT_HOST
-//    : 'http://alb-principal-1470734899.us-east-1.elb.amazonaws.com';
+  const ROOT_HOST = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_ROOT_HOST
+    ? import.meta.env.VITE_ROOT_HOST
+    : 'http://alb-principal-924838949.us-east-1.elb.amazonaws.com';
 
-const ROOT_HOST = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_ROOT_HOST
-? import.meta.env.VITE_ROOT_HOST
-: 'http://localhost:8080';
+// const ROOT_HOST = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_ROOT_HOST
+// ? import.meta.env.VITE_ROOT_HOST
+// : 'http://localhost:8080';
 
 const API_HOST = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_HOST
   ? import.meta.env.VITE_API_HOST
