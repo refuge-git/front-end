@@ -325,8 +325,10 @@ export default function RegistrationForm() {
                   className="select-categoria"
                 >
                   <option value="">Selecione</option>
-                  <option value="masculino">Masculino</option>
-                  <option value="feminino">Feminino</option>
+                  <option value="masculino">Cisgênero</option>
+                  <option value="feminino">Transgênero</option>
+                  <option value="outro">Agênero</option>
+                  <option value="nao_declarado">Não declarado</option>
                 </select>
               </div>
               <div className="form-group">

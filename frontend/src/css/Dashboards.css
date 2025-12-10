@@ -16,8 +16,8 @@
   box-shadow: 0 2px 12px #0001;
   padding: 32px 24px;
   flex-wrap: wrap;
-  width: 1470px;
-  margin-left: -155px;
+  width: 1590px;
+  margin-left: -218px;
 }
 
 .dashboard-indicador {
@@ -94,8 +94,8 @@
   flex-direction: column;
   align-items: center;
   position: relative;
-  width: 1475px;
-  right: 160px;
+  width: 1590px;
+  right: 219px;
 }
 
 .dashboard-grafico-bar{
@@ -108,8 +108,8 @@
   flex-direction: column;
   align-items: center;
   position: relative;
-  width: 77%;
-  left: 200px;
+  width: 1600px;
+  left: 189px;
 }
 
 .dashboard-grafico-title {
@@ -179,8 +179,9 @@
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  margin: 20px -155px;
+  margin: 20px -214px;
   margin-top: 0px;
+  height: 115px;
 }
 
 .dashboard-card {

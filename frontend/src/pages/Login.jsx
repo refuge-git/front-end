@@ -116,7 +116,7 @@ export default function Login() {
 
           <div className="links">
             <p className="senha">
-              Esqueceu a Senha? <a href="#">Clique Aqui</a>
+              {/* Esqueceu a Senha? <a href="#">Clique Aqui</a> */}
             </p>
             <Link to="/cadastro" className="criar-conta">CRIAR CONTA</Link>
           </div>

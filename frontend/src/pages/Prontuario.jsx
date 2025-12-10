@@ -174,9 +174,10 @@ export default function Prontuario() {
 
     function mapGenero(genero) {
         const map = {
-            "Masculino": 1,
-            "Feminino": 2,
-            "Outro": 3,
+            "Cisgênero": 1,
+            "Transgênero": 2,
+            "Agênero": 3,
+            "Não declarado": 4,
         };
         return map[genero] || null;
     }
@@ -347,9 +348,10 @@ export default function Prontuario() {
                                     >
 
                                         <option value="">Selecione</option>
-                                        <option value={1}>Masculino</option>
-                                        <option value={2}>Feminino</option>
-                                        <option value={3}>Outro</option>
+                                        <option value={1}>Cisgênero</option>
+                                        <option value={2}>Transgênero</option>
+                                        <option value={3}>Agênero</option>
+                                        <option value={4}>Não declarado</option>
 
                                     </select>
                                 ) : (

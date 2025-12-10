@@ -256,7 +256,7 @@ body {
   background-color: white;
   transition: border-color 0.2s ease;
   box-sizing: border-box;
-  width: 340px;
+  width: 100%;
 }
 
 .condicoes-saude-container {
